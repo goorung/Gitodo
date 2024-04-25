@@ -17,6 +17,7 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
     
     func setupNavigationBar() {
         setTitle("Gitodo",at: .left, font: .systemFont(ofSize: 20, weight: .bold))
+        setProfileImageView(image: nil)
     }
 
 }

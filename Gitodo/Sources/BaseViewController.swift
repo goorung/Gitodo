@@ -41,6 +41,8 @@ class BaseViewController<View: UIView>: UIViewController, UIGestureRecognizerDel
         button.tintColor = .label
         return button
     }()
+    
+    private lazy var profileImageView = SymbolCircleView()
 
     let contentView = View()
 
@@ -162,6 +164,23 @@ class BaseViewController<View: UIView>: UIViewController, UIGestureRecognizerDel
 
     @objc private func backButtonTapped() {
         navigationController?.popViewController(animated: true)
+    }
+    
+    func setProfileImageView(image: UIImage?) {
+        profileImageView.setImage(image)
+        
+        navigationBarView.addSubview(profileImageView)
+        profileImageView.snp.makeConstraints { make in
+            make.width.height.equalTo(40)
+            make.trailing.equalToSuperview().inset(20)
+            make.centerY.equalToSuperview()
+        }
+    }
+    
+    func setProfileImageViewAction(_ action: Selector) {
+        let tapGesture = UITapGestureRecognizer(target: self, action: action)
+        profileImageView.addGestureRecognizer(tapGesture)
+        profileImageView.isUserInteractionEnabled = true
     }
 
 }
