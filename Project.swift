@@ -29,7 +29,9 @@ let project = Project(
             ]),
             sources: ["Gitodo/Sources/**"],
             resources: ["Gitodo/Resources/**"],
-            dependencies: []
+            dependencies: [
+                .external(name: "SnapKit", condition: .none)
+            ]
         ),
         //        .target(
         //            name: "GitodoTests",
