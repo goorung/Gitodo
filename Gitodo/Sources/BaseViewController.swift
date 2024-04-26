@@ -95,8 +95,7 @@ class BaseViewController<View: UIView>: UIViewController, UIGestureRecognizerDel
             }
         case .center:
             titleLabel.snp.makeConstraints { make in
-                make.centerX.equalToSuperview()
-                make.centerY.equalToSuperview()
+                make.center.equalToSuperview()
             }
         }
     }
