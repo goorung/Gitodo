@@ -60,11 +60,7 @@ class RepositoryInfoView: UIView {
         return label
     }()
     
-    private lazy var colorView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .systemGray5
-        return view
-    }()
+    private lazy var colorView = PaletteColorView()
     
     // MARK: - Initializer
     
