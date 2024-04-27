@@ -73,7 +73,7 @@ extension PaletteColorView: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PaletteColorCell.reuseIdentifier, for: indexPath) as? PaletteColorCell else {
-            fatalError("Unable to dequeue ColorCell")
+            fatalError("Unable to dequeue PaletteColorCell")
         }
         let color = PaletteColor.allCases[indexPath.row]
         cell.configure(withColor: UIColor(hex: color.hexString))
