@@ -76,7 +76,7 @@ extension PaletteColorView: UICollectionViewDataSource {
             fatalError("Unable to dequeue PaletteColorCell")
         }
         let color = PaletteColor.allCases[indexPath.row]
-        cell.configure(withColor: UIColor(hex: color.hexString))
+        cell.configure(withColor: UIColor(hex: color.hex))
         return cell
     }
     

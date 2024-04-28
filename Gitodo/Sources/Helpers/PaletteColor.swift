@@ -21,7 +21,7 @@ enum PaletteColor: CaseIterable {
     case purple2
     case gray2
     
-    var hexString: UInt {
+    var hex: UInt {
         switch self {
         case .red1: 0xFFB5B5
         case .yellow1: 0xFFEFB5
