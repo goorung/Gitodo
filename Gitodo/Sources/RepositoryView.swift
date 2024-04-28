@@ -13,10 +13,9 @@ class RepositoryView: UIView {
     
     private lazy var circleView = SymbolCircleView()
     
-    private lazy var infoLabel = {
+    private lazy var nameLabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 10, weight: .semibold)
-        label.text = "레포지토리"
+        label.font = .systemFont(ofSize: 11, weight: .semibold)
         label.textAlignment = .center
         return label
     }()
@@ -34,11 +33,28 @@ class RepositoryView: UIView {
             make.width.height.equalTo(frame.width)
         }
         
-        addSubview(infoLabel)
-        infoLabel.snp.makeConstraints { make in
+        addSubview(nameLabel)
+        nameLabel.snp.makeConstraints { make in
             make.top.equalTo(circleView.snp.bottom).offset(5)
             make.leading.trailing.bottom.equalToSuperview()
         }
+    }
+    
+    func setName(_ name: String?) {
+        nameLabel.text = name
+    }
+    
+    func setColor(_ color: UIColor) {
+        circleView.setBackgroundColor(color)
+    }
+    
+    func setSymbol(_ symbol: String?) {
+        circleView.setSymbol(symbol)
+    }
+    
+    func reset() {
+        nameLabel.text = nil
+        circleView.reset()
     }
     
 }

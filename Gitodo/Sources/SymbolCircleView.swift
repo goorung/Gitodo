@@ -1,5 +1,5 @@
 //
-//  SymbolCirecleView.swift
+//  SymbolCircleView.swift
 //  Gitodo
 //
 //  Created by 이지현 on 4/25/24.
@@ -54,12 +54,18 @@ class SymbolCircleView: UIImageView {
         backgroundColor = color
     }
     
-    func setSymbol(_ symbol: String) {
+    func setSymbol(_ symbol: String?) {
         symbolLabel.text = symbol
     }
     
     func setImage(_ image: UIImage?) {
         self.image = image
+    }
+    
+    func reset() {
+        backgroundColor = .systemGray4
+        symbolLabel.text = nil
+        image = nil
     }
     
 }
