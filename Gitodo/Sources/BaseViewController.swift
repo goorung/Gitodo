@@ -153,6 +153,11 @@ class BaseViewController<View: UIView>: UIViewController, UIGestureRecognizerDel
     func setRightButtonAction(_ action: Selector) {
         rightButton.addTarget(self, action: action, for: .touchUpInside)
     }
+    
+    func setRightButtonMenu(_ menu: UIMenu) {
+        rightButton.showsMenuAsPrimaryAction = true
+        rightButton.menu = menu
+    }
 
     func setLeftBackButton() {
         setLeftButton(symbolName: "chevron.backward")

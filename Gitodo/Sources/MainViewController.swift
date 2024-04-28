@@ -18,10 +18,7 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
     func setupNavigationBar() {
         setTitle("Gitodo",at: .left, font: .systemFont(ofSize: 20, weight: .bold))
         setRightButton(symbolName: "person.crop.circle")
-        setRightButtonAction(#selector(handleProfileButtonTap))
-    }
-    
-    @objc private func handleProfileButtonTap(_ sender: UIButton) {
+        
         let repositoryInfoAction = UIAction(title: "레포지토리 정보") { [weak self] _ in
             guard let self = self else { return }
             let repositoryInfoViewController = RepositoryInfoViewController()
@@ -32,11 +29,10 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
             let repositorySettingsViewController = RepositorySettingsViewController()
             navigationController?.pushViewController(repositorySettingsViewController, animated: true)
         }
-        
-        sender.showsMenuAsPrimaryAction = true
-        sender.menu = UIMenu(title: "",
-                             options: .displayInline,
-                             children: [repositoryInfoAction, repositorySettingsAction])
+        let menu = UIMenu(title: "",
+                          options: .displayInline,
+                          children: [repositoryInfoAction, repositorySettingsAction])
+        setRightButtonMenu(menu)
     }
     
 }
