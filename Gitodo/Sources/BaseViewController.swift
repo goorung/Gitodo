@@ -182,5 +182,9 @@ class BaseViewController<View: UIView>: UIViewController, UIGestureRecognizerDel
         profileImageView.addGestureRecognizer(tapGesture)
         profileImageView.isUserInteractionEnabled = true
     }
+    
+    func changeProfileImage(image: UIImage?) {
+        profileImageView.setImage(image)
+    }
 
 }
