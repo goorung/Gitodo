@@ -44,7 +44,7 @@ class RepositorySettingsView: UIView {
     
     private lazy var guideLabel: UILabel = {
         let label = UILabel()
-        label.text = "할 일을 추가하고싶은 레포지토리를 선택하세요"
+        label.text = "할 일을 관리하고 싶은 레포지토리를 선택하세요"
         label.textColor = .darkGray
         label.font = .systemFont(ofSize: 13)
         return label
