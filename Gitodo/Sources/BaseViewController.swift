@@ -128,7 +128,7 @@ class BaseViewController<View: UIView>: UIViewController, UIGestureRecognizerDel
     }
 
     func setRightButton(symbolName: String) {
-        let configuration = UIImage.SymbolConfiguration(weight: .medium)
+        let configuration = UIImage.SymbolConfiguration(pointSize: 25.0, weight: .medium)
         rightButton.setImage(UIImage(systemName: symbolName, withConfiguration: configuration), for: .normal)
         
         setupRightButtonLayout()
@@ -152,6 +152,11 @@ class BaseViewController<View: UIView>: UIViewController, UIGestureRecognizerDel
 
     func setRightButtonAction(_ action: Selector) {
         rightButton.addTarget(self, action: action, for: .touchUpInside)
+    }
+    
+    func setRightButtonMenu(_ menu: UIMenu) {
+        rightButton.showsMenuAsPrimaryAction = true
+        rightButton.menu = menu
     }
 
     func setLeftBackButton() {
