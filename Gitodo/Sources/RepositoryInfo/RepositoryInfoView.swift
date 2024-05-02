@@ -49,15 +49,16 @@ class RepositoryInfoView: UIView {
     
     private lazy var nicknameTextField: UITextField = {
         let textField = createTextField()
+        textField.clearButtonMode = .whileEditing
         return textField
     }()
     
-    private lazy var iconLabel: UILabel = {
-        let label = createLabel(withText: "레포지토리 아이콘")
+    private lazy var symbolLabel: UILabel = {
+        let label = createLabel(withText: "레포지토리 심볼")
         return label
     }()
     
-    private lazy var iconTextField: UITextField = {
+    private lazy var symbolTextField: UITextField = {
         let textField = createTextField()
         return textField
     }()
@@ -121,21 +122,21 @@ class RepositoryInfoView: UIView {
             make.leading.trailing.equalToSuperview().inset(insetFromSuperView)
         }
         
-        addSubview(iconLabel)
-        iconLabel.snp.makeConstraints { make in
+        addSubview(symbolLabel)
+        symbolLabel.snp.makeConstraints { make in
             make.top.equalTo(nicknameTextField.snp.bottom).offset(offsetFromOtherView)
             make.leading.equalToSuperview().inset(insetFromSuperView)
         }
         
-        addSubview(iconTextField)
-        iconTextField.snp.makeConstraints { make in
-            make.top.equalTo(iconLabel.snp.bottom).offset(offsetFromFriendView)
+        addSubview(symbolTextField)
+        symbolTextField.snp.makeConstraints { make in
+            make.top.equalTo(symbolLabel.snp.bottom).offset(offsetFromFriendView)
             make.leading.trailing.equalToSuperview().inset(insetFromSuperView)
         }
         
         addSubview(colorLabel)
         colorLabel.snp.makeConstraints { make in
-            make.top.equalTo(iconTextField.snp.bottom).offset(offsetFromOtherView)
+            make.top.equalTo(symbolTextField.snp.bottom).offset(offsetFromOtherView)
             make.leading.equalToSuperview().inset(insetFromSuperView)
         }
         
@@ -150,16 +151,27 @@ class RepositoryInfoView: UIView {
     // MARK: - Bind
     
     private func bind() {
-        nicknameTextField.rx.text.changed
+        nicknameTextField.rx.text.orEmpty
+            .distinctUntilChanged()
             .subscribe(onNext: { [weak self] text in
                 guard let self = self else { return }
-                if text == "" {
-                    self.previewView.setName(repoName)
+                let nameToSet = text.isEmpty ? repoName : text
+                self.previewView.setName(nameToSet)
+            }).disposed(by: disposeBag)
+        
+        symbolTextField.rx.text
+            .distinctUntilChanged()
+            .compactMap { $0 }
+            .subscribe(onNext: { [weak self] text in
+                guard let self = self else { return }
+                if let lastChar = text.last {
+                    let symbolToSet = String(lastChar)
+                    self.symbolTextField.text = symbolToSet
+                    self.previewView.setSymbol(symbolToSet)
                 } else {
-                    self.previewView.setName(text)
+                    self.previewView.setSymbol(nil)
                 }
-            })
-            .disposed(by: disposeBag)
+            }).disposed(by: disposeBag)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -182,7 +194,6 @@ extension RepositoryInfoView {
         let textField = UITextField()
         textField.borderStyle = .roundedRect
         textField.font = .systemFont(ofSize: 13)
-        textField.clearButtonMode = .whileEditing
         return textField
     }
     
