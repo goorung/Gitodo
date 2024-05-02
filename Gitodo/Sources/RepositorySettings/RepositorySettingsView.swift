@@ -76,6 +76,7 @@ class RepositorySettingsView: UIView {
     private lazy var deletedRepoTableView: UITableView = {
         let tableView = createTableView()
         tableView.register(RepositoryCell.self, forCellReuseIdentifier: RepositoryCell.reuseIdentifier)
+        tableView.setEditing(true, animated: false)
         return tableView
     }()
     
