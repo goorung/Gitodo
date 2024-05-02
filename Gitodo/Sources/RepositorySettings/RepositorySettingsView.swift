@@ -9,18 +9,35 @@ import UIKit
 
 import SnapKit
 
+protocol RepositorySettingsDelegate: AnyObject {
+    func presentAlertViewController(completion: @escaping  () -> Void)
+}
+
 class RepositorySettingsView: UIView {
     
     // temp !
-    private var selectedItems = [String]()
-    
-    private let items = [
+    private let repos = [
         "레포지토리 1",
         "레포지토리 2",
         "레포지토리 3",
         "레포지토리 4",
-        "레포지토리 5"
+        "레포지토리 5",
+        "레포지토리 6",
+        "레포지토리 7",
+        "레포지토리 8",
+        "레포지토리 9",
+        "레포지토리 10"
     ]
+    
+    private var deletedRepos = [
+        "삭제된 레포지토리 1",
+        "삭제된 레포지토리 2",
+        "삭제된 레포지토리 3",
+        "삭제된 레포지토리 4",
+        "삭제된 레포지토리 5"
+    ]
+    
+    weak var delegate: RepositorySettingsDelegate?
     
     private let insetFromSuperView: CGFloat = 20.0
     private let offsetFromOtherView: CGFloat = 25.0
@@ -35,22 +52,28 @@ class RepositorySettingsView: UIView {
         return view
     }()
     
-    private lazy var selectedRepositoryView: UITableView = {
-        let tableView = createTableView()
-        tableView.register(SelectedRepositoryCell.self, forCellReuseIdentifier: SelectedRepositoryCell.reuseIdentifier)
-        tableView.setEditing(true, animated: true)
-        return tableView
-    }()
+    private lazy var scrollView = UIScrollView()
     
-    private lazy var guideLabel: UILabel = {
-        let label = UILabel()
-        label.text = "할 일을 관리하고 싶은 레포지토리를 선택하세요"
-        label.textColor = .darkGray
-        label.font = .systemFont(ofSize: 13)
+    private lazy var contentView = UIView()
+    
+    private lazy var repoLabel: UILabel = {
+        let label = createLabel(withText: "할 일을 관리하고 싶은 레포지토리를 선택하세요")
         return label
     }()
     
-    private lazy var repositoryListView: UITableView = {
+    private lazy var repoTableView: UITableView = {
+        let tableView = createTableView()
+        tableView.register(RepositoryCell.self, forCellReuseIdentifier: RepositoryCell.reuseIdentifier)
+        return tableView
+    }()
+    
+    private lazy var deletedRepoLabel: UILabel = {
+        let label = createLabel(withText: "원격 저장소에서 삭제된 레포지토리")
+        label.isHidden = deletedRepos.count == 0
+        return label
+    }()
+    
+    private lazy var deletedRepoTableView: UITableView = {
         let tableView = createTableView()
         tableView.register(RepositoryCell.self, forCellReuseIdentifier: RepositoryCell.reuseIdentifier)
         return tableView
@@ -78,24 +101,42 @@ class RepositorySettingsView: UIView {
             make.height.equalTo(80)
         }
         
-        addSubview(selectedRepositoryView)
-        selectedRepositoryView.snp.makeConstraints { make in
-            make.top.equalTo(previewView.snp.bottom).offset(offsetFromOtherView)
-            make.leading.trailing.equalToSuperview().inset(insetFromSuperView)
-            make.height.equalTo(heightForRow * CGFloat(selectedItems.count))
+        addSubview(scrollView)
+        scrollView.snp.makeConstraints { make in
+            make.top.equalTo(previewView.snp.bottom)
+            make.leading.trailing.bottom.equalToSuperview()
         }
         
-        addSubview(guideLabel)
-        guideLabel.snp.makeConstraints { make in
-            make.top.equalTo(selectedRepositoryView.snp.bottom).offset(offsetFromOtherView)
+        scrollView.addSubview(contentView)
+        contentView.snp.makeConstraints { make in
+            make.edges.equalTo(scrollView.contentLayoutGuide)
+            make.width.equalTo(scrollView.snp.width)
+        }
+        
+        contentView.addSubview(repoLabel)
+        repoLabel.snp.makeConstraints { make in
+            make.top.leading.equalToSuperview().inset(insetFromSuperView)
+        }
+        
+        contentView.addSubview(repoTableView)
+        repoTableView.snp.makeConstraints { make in
+            make.top.equalTo(repoLabel.snp.bottom).offset(offsetFromFriendView)
+            make.leading.trailing.equalToSuperview().inset(insetFromSuperView)
+            make.height.equalTo(heightForRow * CGFloat(repos.count))
+        }
+        
+        contentView.addSubview(deletedRepoLabel)
+        deletedRepoLabel.snp.makeConstraints { make in
+            make.top.equalTo(repoTableView.snp.bottom).offset(offsetFromOtherView)
             make.leading.equalToSuperview().inset(insetFromSuperView)
         }
         
-        addSubview(repositoryListView)
-        repositoryListView.snp.makeConstraints { make in
-            make.top.equalTo(guideLabel.snp.bottom).offset(offsetFromFriendView)
+        contentView.addSubview(deletedRepoTableView)
+        deletedRepoTableView.snp.makeConstraints { make in
+            make.top.equalTo(deletedRepoLabel.snp.bottom).offset(offsetFromFriendView)
             make.leading.trailing.equalToSuperview().inset(insetFromSuperView)
-            make.height.equalTo(heightForRow * CGFloat(items.count))
+            make.height.equalTo(heightForRow * CGFloat(deletedRepos.count))
+            make.bottom.equalToSuperview().inset(insetFromSuperView)
         }
     }
     
@@ -103,14 +144,23 @@ class RepositorySettingsView: UIView {
 
 extension RepositorySettingsView {
     
+    private func createLabel(withText text: String) -> UILabel {
+        let label = UILabel()
+        label.text = text
+        label.textColor = .darkGray
+        label.font = .systemFont(ofSize: 13)
+        return label
+    }
+    
     private func createTableView() -> UITableView {
         let tableView = UITableView()
+        tableView.delegate = self
+        tableView.dataSource = self
         tableView.separatorStyle = .none
         tableView.clipsToBounds = true
         tableView.layer.cornerRadius = 10
         tableView.backgroundColor = .systemBackground
-        tableView.delegate = self
-        tableView.dataSource = self
+        tableView.isScrollEnabled = false
         return tableView
     }
     
@@ -123,45 +173,39 @@ extension RepositorySettingsView: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if tableView == repositoryListView {
-            guard let cell = tableView.cellForRow(at: indexPath) as? RepositoryCell else { return }
-            if cell.selectCell() { // 추가
-                selectedItems.append(items[indexPath.row])
-            } else { // 삭제
-                for (index, item) in selectedItems.enumerated() {
-                    if item == items[indexPath.row] {
-                        selectedItems.remove(at: index)
-                        break
-                    }
-                }
-            }
-            selectedRepositoryView.reloadData()
-            selectedRepositoryView.snp.remakeConstraints { make in
-                make.top.equalTo(previewView.snp.bottom).offset(offsetFromOtherView)
-                make.leading.trailing.equalToSuperview().inset(insetFromSuperView)
-                make.height.equalTo(heightForRow * CGFloat(selectedItems.count))
+        guard tableView == repoTableView, let cell = tableView.cellForRow(at: indexPath) as? RepositoryCell else { return }
+        if cell.selectCell() { // 추가
+            print("\(repos[indexPath.row]) 추가")
+        } else { // 삭제
+            print("\(repos[indexPath.row]) 삭제")
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+        if tableView == deletedRepoTableView {
+            return .delete
+        }
+        return .none
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            delegate?.presentAlertViewController { [weak self] in
+                guard let self = self else { return }
+                deletedRepos.remove(at: indexPath.row)
+                tableView.reloadData()
+                remakeDeletedRepoTableViewConstraints()
             }
         }
     }
     
-    func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        return tableView == selectedRepositoryView
-    }
-    
-    func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        let movedObject = selectedItems[sourceIndexPath.row]
-        selectedItems.remove(at: sourceIndexPath.row)
-        selectedItems.insert(movedObject, at: destinationIndexPath.row)
-        print(selectedItems)
-        tableView.reloadData()
-    }
-    
-    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
-        return .none
-    }
-    
-    func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
-        return false
+    private func remakeDeletedRepoTableViewConstraints() {
+        deletedRepoTableView.snp.remakeConstraints { make in
+            make.top.equalTo(deletedRepoLabel.snp.bottom).offset(offsetFromFriendView)
+            make.leading.trailing.equalToSuperview().inset(insetFromSuperView)
+            make.height.equalTo(heightForRow * CGFloat(deletedRepos.count))
+            make.bottom.equalToSuperview().inset(insetFromSuperView)
+        }
     }
     
 }
@@ -169,27 +213,23 @@ extension RepositorySettingsView: UITableViewDelegate {
 extension RepositorySettingsView: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if tableView == repositoryListView {
-            return items.count
+        if tableView == repoTableView {
+            return repos.count
         } else {
-            return selectedItems.count
+            return deletedRepos.count
         }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if tableView == repositoryListView {
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: RepositoryCell.reuseIdentifier) as? RepositoryCell else {
-                fatalError("Unable to dequeue RepositoryCell")
-            }
-            cell.configure(withName: items[indexPath.row])
-            return cell
-        } else {
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: SelectedRepositoryCell.reuseIdentifier) as? SelectedRepositoryCell else {
-                fatalError("Unable to dequeue SelectedRepositoryCell")
-            }
-            cell.configure(withName: selectedItems[indexPath.row])
-            return cell
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: RepositoryCell.reuseIdentifier) as? RepositoryCell else {
+            fatalError("Unable to dequeue RepositoryCell")
         }
+        if tableView == repoTableView {
+            cell.configure(withName: repos[indexPath.row])
+        } else {
+            cell.configure(withName: deletedRepos[indexPath.row])
+        }
+        return cell
     }
     
 }

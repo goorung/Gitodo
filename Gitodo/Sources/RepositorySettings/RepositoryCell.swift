@@ -29,7 +29,7 @@ class RepositoryCell: UITableViewCell {
         button.isUserInteractionEnabled = false
         button.configuration = .plain()
         button.configuration?.image = UIImage(systemName: "checkmark")
-        button.configuration?.preferredSymbolConfigurationForImage = .init(pointSize: 13.0, weight: .bold)
+        button.configuration?.preferredSymbolConfigurationForImage = .init(pointSize: 10.0, weight: .bold)
         return button
     }()
     
