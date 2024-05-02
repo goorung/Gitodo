@@ -23,9 +23,9 @@ class RepositoryInfoView: UIView {
         return label
     }()
     
-    private lazy var previewView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .systemGray5
+    private lazy var previewView: RepositoryView = {
+        let view = RepositoryView()
+        view.setName("Gitodo")
         return view
     }()
     
@@ -60,7 +60,11 @@ class RepositoryInfoView: UIView {
         return label
     }()
     
-    private lazy var colorView = PaletteColorView()
+    private lazy var colorView: PaletteColorView = {
+        let view = PaletteColorView()
+        view.colorDelegate = self
+        return view
+    }()
     
     // MARK: - Initializer
     
@@ -85,8 +89,9 @@ class RepositoryInfoView: UIView {
         addSubview(previewView)
         previewView.snp.makeConstraints { make in
             make.top.equalTo(previewLabel.snp.bottom).offset(offsetFromFriendView)
-            make.leading.trailing.equalToSuperview().inset(insetFromSuperView)
-            make.height.equalTo(70)
+            make.centerX.equalToSuperview()
+            make.width.equalTo(60)
+            make.height.equalTo(80)
         }
         
         addSubview(separator)
@@ -156,6 +161,14 @@ extension RepositoryInfoView {
         textField.font = .systemFont(ofSize: 13)
         textField.clearButtonMode = .whileEditing
         return textField
+    }
+    
+}
+
+extension RepositoryInfoView: PaletteColorDelegate {
+    
+    func selectColor(_ color: PaletteColor) {
+        previewView.setColor(UIColor(hex: color.hex))
     }
     
 }

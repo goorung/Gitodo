@@ -7,7 +7,13 @@
 
 import UIKit
 
+protocol PaletteColorDelegate: AnyObject {
+    func selectColor(_ color: PaletteColor)
+}
+
 class PaletteColorView: UICollectionView {
+    
+    weak var colorDelegate: PaletteColorDelegate?
     
     private let itemsPerRow: CGFloat = 6
     private let sectionInsets = UIEdgeInsets(top: 10.0, left: 10.0, bottom: 10.0, right: 10.0)
@@ -56,6 +62,7 @@ extension PaletteColorView: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let cell = collectionView.cellForItem(at: indexPath) as? PaletteColorCell else { return }
         cell.highlightCell()
+        colorDelegate?.selectColor(PaletteColor.allCases[indexPath.row])
     }
 
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
