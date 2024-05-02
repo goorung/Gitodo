@@ -8,8 +8,15 @@
 import UIKit
 
 import SnapKit
+import RxCocoa
+import RxSwift
 
 class RepositoryInfoView: UIView {
+    
+    // temp !
+    private let repoName = "Gitodo"
+    
+    private let disposeBag = DisposeBag()
     
     private let insetFromSuperView: CGFloat = 20.0
     private let offsetFromOtherView: CGFloat = 15.0
@@ -18,14 +25,14 @@ class RepositoryInfoView: UIView {
     // MARK: - UI Components
     
     private lazy var previewLabel: UILabel = {
-        let label = createLabel(withText: "\\(레포지토리 이름) 미리보기")
+        let label = createLabel(withText: "\(repoName) 미리보기")
         label.numberOfLines = 0
         return label
     }()
     
     private lazy var previewView: RepositoryView = {
         let view = RepositoryView()
-        view.setName("Gitodo")
+        view.setName(repoName)
         return view
     }()
     
@@ -72,6 +79,7 @@ class RepositoryInfoView: UIView {
         super.init(frame: frame)
         
         setupLayout()
+        bind()
     }
     
     required init?(coder: NSCoder) {
@@ -137,6 +145,21 @@ class RepositoryInfoView: UIView {
             make.leading.trailing.equalToSuperview().inset(insetFromSuperView)
             make.bottom.equalToSuperview().inset(insetFromSuperView)
         }
+    }
+    
+    // MARK: - Bind
+    
+    private func bind() {
+        nicknameTextField.rx.text.changed
+            .subscribe(onNext: { [weak self] text in
+                guard let self = self else { return }
+                if text == "" {
+                    self.previewView.setName(repoName)
+                } else {
+                    self.previewView.setName(text)
+                }
+            })
+            .disposed(by: disposeBag)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
