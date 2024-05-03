@@ -11,7 +11,7 @@ import SnapKit
 
 class MainView: UIView {
     
-    let tempTodo = [
+    var tempTodo = [
         (isComplete: false, todo: "알고리즘 풀기"),
         (isComplete: false, todo: "iOS 공부"),
         (isComplete: false, todo: "IRC"),
@@ -154,5 +154,16 @@ extension MainView: UITableViewDataSource, UITableViewDelegate {
         return cell
     }
     
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let deleteAction = UIContextualAction(style: .normal, title: "Delete") { [weak self] action, view, completionHandler in
+            self?.tempTodo.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .fade)
+        }
+        deleteAction.backgroundColor = .systemGray4
+        
+        let configuration = UISwipeActionsConfiguration(actions: [deleteAction])
+        
+        return configuration
+    }
     
 }
