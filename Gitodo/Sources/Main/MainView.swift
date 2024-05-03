@@ -58,6 +58,7 @@ class MainView: UIView {
         view.dataSource = self
         view.delegate = self
         view.register(TodoCell.self, forCellReuseIdentifier: TodoCell.reuseIdentifier)
+        view.keyboardDismissMode = .interactive
         return view
     }()
     
@@ -114,7 +115,8 @@ class MainView: UIView {
         addSubview(todoView)
         todoView.snp.makeConstraints { make in
             make.top.equalTo(segmentedControl.snp.bottom).offset(10)
-            make.leading.trailing.bottom.equalToSuperview()
+            make.leading.trailing.equalToSuperview()
+            make.bottom.equalTo(keyboardLayoutGuide.snp.top)
         }
         
         todoView.addSubview(todoTableView)
