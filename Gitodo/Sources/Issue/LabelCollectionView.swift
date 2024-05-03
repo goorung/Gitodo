@@ -65,21 +65,19 @@ class LabelCollectionView: UICollectionView {
         self.labels = labels
     }
     
-    func getContentSize() -> CGSize {
-        return self.collectionViewLayout.collectionViewContentSize
-    }
-    
 }
 
 extension LabelCollectionView: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         guard let labels = labels else { return .zero }
+        
         let label = UILabel()
         label.font = .systemFont(ofSize: 12.0, weight: .semibold)
         label.text = labels[indexPath.row].name
         label.sizeToFit()
         let size = label.frame.size
+        
         return CGSize(width: size.width + 20, height: size.height + 8)
     }
     
@@ -109,6 +107,7 @@ class LeftAlignedCollectionViewFlowLayout: UICollectionViewFlowLayout {
 
         var leftMargin = sectionInset.left
         var maxY: CGFloat = -1.0
+        
         attributes?.forEach { layoutAttribute in
             if layoutAttribute.frame.origin.y >= maxY {
                 leftMargin = sectionInset.left
@@ -119,19 +118,24 @@ class LeftAlignedCollectionViewFlowLayout: UICollectionViewFlowLayout {
             leftMargin += layoutAttribute.frame.width + minimumInteritemSpacing
             maxY = max(layoutAttribute.frame.maxY, maxY)
         }
+        
         return attributes
     }
 
     override func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
         let attributes = super.layoutAttributesForItem(at: indexPath)
+        
         if let attributes = attributes {
             var leftMargin = sectionInset.left
             var maxY: CGFloat = -1.0
+            
             if attributes.frame.origin.y >= maxY {
                 leftMargin = sectionInset.left
             }
+            
             attributes.frame.origin.x = leftMargin
         }
+        
         return attributes
     }
     

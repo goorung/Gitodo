@@ -22,8 +22,8 @@ class AssigneesView: UIView {
     
     private lazy var assigneesLabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 13, weight: .medium)
-        label.textColor = .label
+        label.font = .systemFont(ofSize: 13.0)
+        label.textColor = .systemGray
         label.numberOfLines = 0
         return label
     }()

@@ -42,7 +42,7 @@ class IssueTableView: UITableView {
     }
     
     @objc private func handleHeightChange(notification: Notification) {
-        guard let collectionView = notification.object as? LabelCollectionView else { return }
+        guard notification.object is LabelCollectionView else { return }
         
         UIView.performWithoutAnimation { [weak self] in
             self?.beginUpdates()
