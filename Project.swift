@@ -30,7 +30,8 @@ let project = Project(
             sources: ["Gitodo/Sources/**"],
             resources: ["Gitodo/Resources/**"],
             dependencies: [
-                .external(name: "SnapKit", condition: .none)
+                .external(name: "SnapKit", condition: .none),
+                .external(name: "Kingfisher", condition: .none)
             ]
         ),
         //        .target(
