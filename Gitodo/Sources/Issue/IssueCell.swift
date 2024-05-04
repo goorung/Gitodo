@@ -32,7 +32,7 @@ class IssueCell: UITableViewCell {
     
     private lazy var labelsView = LabelCollectionView()
     
-    private lazy var assigneesView = AssigneesView()
+    private lazy var assigneesView = AssigneeCollectionView()
     
     // MARK: - Initializer
     

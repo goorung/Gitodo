@@ -35,7 +35,7 @@ class IssueInfoView: UIView {
     
     private lazy var assigneesLabel = createLabel(withText: "Assignees")
     
-    private lazy var assigneesView = AssigneesView()
+    private lazy var assigneesView = AssigneeCollectionView()
     
     private lazy var bodyContainerView = {
         let view = UIView()
@@ -60,20 +60,10 @@ class IssueInfoView: UIView {
         super.init(frame: frame)
         
         setupLayout()
-        NotificationCenter.default.addObserver(self, selector: #selector(handleHeightChange), name: NSNotification.Name("LabelCollectionViewHeightUpdated"), object: nil)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-    
-    @objc private func handleHeightChange(notification: Notification) {
-        guard notification.object is LabelCollectionView else { return }
-        layoutIfNeeded()
     }
     
     // MARK: - Setup Methods

@@ -45,11 +45,10 @@ class IssueTableView: UITableView {
         register(IssueCell.self, forCellReuseIdentifier: IssueCell.reuseIdentifier)
         
         NotificationCenter.default.addObserver(self, selector: #selector(handleHeightChange), name: NSNotification.Name("LabelCollectionViewHeightUpdated"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleHeightChange), name: NSNotification.Name("AssigneeCollectionViewHeightUpdated"), object: nil)
     }
     
     @objc private func handleHeightChange(notification: Notification) {
-        guard notification.object is LabelCollectionView else { return }
-        
         UIView.performWithoutAnimation { [weak self] in
             self?.beginUpdates()
             self?.endUpdates()
