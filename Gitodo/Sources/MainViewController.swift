@@ -17,22 +17,47 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
     
     func setupNavigationBar() {
         setTitle("Gitodo",at: .left, font: .systemFont(ofSize: 20, weight: .bold))
-        setRightButton(symbolName: "person.crop.circle")
+        setProfileImageView(image: nil)
+        setProfileImageViewAction(#selector(handleProfileImageViewTap))
+    }
+    
+    @objc private func handleProfileImageViewTap(_ sender: UIImageView) {
+        let menuViewController = MenuViewController()
+        menuViewController.delegate = self
+        menuViewController.modalPresentationStyle = .popover
         
-        let repositoryInfoAction = UIAction(title: "레포지토리 정보") { [weak self] _ in
-            guard let self = self else { return }
-            let repositoryInfoViewController = RepositoryInfoViewController()
-            present(repositoryInfoViewController, animated: true)
+        if let popoverController = menuViewController.popoverPresentationController {
+            popoverController.sourceView = profileImageView
+            popoverController.sourceRect = CGRect(x: profileImageView.bounds.midX, y: profileImageView.bounds.midY + 100, width: 0, height: 0)
+            popoverController.permittedArrowDirections = []
+            popoverController.delegate = self
         }
-        let repositorySettingsAction = UIAction(title: "레포지토리 설정") { [weak self] _ in
-            guard let self = self else { return }
+        
+        present(menuViewController, animated: true)
+    }
+    
+}
+
+extension MainViewController: MenuDelegate {
+    
+    func pushViewController(_ menu: MenuType) {
+        switch menu {
+        case .repositorySettings:
             let repositorySettingsViewController = RepositorySettingsViewController()
             navigationController?.pushViewController(repositorySettingsViewController, animated: true)
+        case .contact:
+            print("문의하기")
+        case .logout:
+            print("로그아웃")
         }
-        let menu = UIMenu(title: "",
-                          options: .displayInline,
-                          children: [repositoryInfoAction, repositorySettingsAction])
-        setRightButtonMenu(menu)
+    }
+    
+}
+
+extension MainViewController: UIPopoverPresentationControllerDelegate {
+    
+    func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+        return .none
     }
     
 }
