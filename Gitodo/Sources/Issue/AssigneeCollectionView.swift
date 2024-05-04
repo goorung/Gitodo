@@ -64,10 +64,7 @@ class AssigneeCollectionView: UICollectionView {
     // MARK: - Initializer
     
     init() {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        
-        super.init(frame: .zero, collectionViewLayout: layout)
+        super.init(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
         
         setupProperty()
     }

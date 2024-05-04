@@ -20,9 +20,7 @@ class LabelCollectionView: UICollectionView {
     // MARK: - Initializer
     
     init() {
-        let layout = LeftAlignedCollectionViewFlowLayout()
-        
-        super.init(frame: .zero, collectionViewLayout: layout)
+        super.init(frame: .zero, collectionViewLayout: LeftAlignedCollectionViewFlowLayout())
         
         setupProperty()
     }
