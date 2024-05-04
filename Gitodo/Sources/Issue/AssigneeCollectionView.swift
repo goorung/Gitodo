@@ -58,7 +58,7 @@ class AssigneeCollectionView: UICollectionView {
         heightConstraint.priority = UILayoutPriority(999)
         self.addConstraint(heightConstraint)
         
-        NotificationCenter.default.post(name: NSNotification.Name("AssigneeCollectionViewHeightUpdated"), object: self)
+        NotificationCenter.default.post(name: .AssigneeCollectionViewHeightDidUpdate, object: self)
     }
     
     // MARK: - Initializer

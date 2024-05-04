@@ -50,7 +50,7 @@ class LabelCollectionView: UICollectionView {
         heightConstraint.priority = UILayoutPriority(999)
         self.addConstraint(heightConstraint)
         
-        NotificationCenter.default.post(name: NSNotification.Name("LabelCollectionViewHeightUpdated"), object: self)
+        NotificationCenter.default.post(name: .LabelCollectionViewHeightDidUpdate, object: self)
     }
     
     // MARK: - Setup Methods
