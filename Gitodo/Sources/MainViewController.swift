@@ -13,6 +13,7 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
         super.viewDidLoad()
 
         setupNavigationBar()
+        contentView.setIssueDelegate(self)
     }
     
     func setupNavigationBar() {
@@ -34,6 +35,16 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
 //                           options: .displayInline,
 //                           children: [repositoryInfoAction, repositorySettingsAction])
 //         setRightButtonMenu(menu)
+    }
+    
+}
+
+extension MainViewController: IssueDelegate {
+    
+    func presentInfoViewController(issue: Issue) {
+        let issueInfoViewController = IssueInfoViewController()
+        issueInfoViewController.issue = issue
+        present(issueInfoViewController, animated: true)
     }
     
 }

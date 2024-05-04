@@ -7,6 +7,10 @@
 
 import UIKit
 
+protocol IssueDelegate: AnyObject {
+    func presentInfoViewController(issue: Issue)
+}
+
 class IssueTableView: UITableView {
     
     private var issues: [Issue]? {
@@ -14,6 +18,8 @@ class IssueTableView: UITableView {
             reloadData()
         }
     }
+    
+    weak var issueDelegate: IssueDelegate?
     
     // MARK: - Initializer
     
@@ -60,6 +66,11 @@ extension IssueTableView: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return UITableView.automaticDimension
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let issues = issues else { return }
+        issueDelegate?.presentInfoViewController(issue: issues[indexPath.row])
     }
     
 }

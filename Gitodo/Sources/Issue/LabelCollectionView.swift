@@ -31,6 +31,8 @@ class LabelCollectionView: UICollectionView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Reload Data
+    
     override func reloadData() {
         super.reloadData()
         DispatchQueue.main.async { [weak self] in
@@ -59,6 +61,7 @@ class LabelCollectionView: UICollectionView {
         delegate = self
         dataSource = self
         register(LabelCell.self, forCellWithReuseIdentifier: LabelCell.reuseIdentifier)
+        isUserInteractionEnabled = false
     }
     
     func configure(with labels: [Label]?) {
