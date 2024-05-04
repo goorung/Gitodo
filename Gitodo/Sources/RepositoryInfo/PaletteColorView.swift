@@ -15,25 +15,28 @@ class PaletteColorView: UICollectionView {
     
     weak var colorDelegate: PaletteColorDelegate?
     
-    private let itemsPerRow: CGFloat = 6
-    private let sectionInsets = UIEdgeInsets(top: 10.0, left: 10.0, bottom: 10.0, right: 10.0)
+    private let itemsPerRow: CGFloat = 6.0
+    private let spacing: CGFloat = 5.0
 
     
-    // MARK: - Initializer
+    // MARK: - Initialize
     
     init() {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
+        super.init(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
         
-        super.init(frame: .zero, collectionViewLayout: layout)
-        
-        self.delegate = self
-        self.dataSource = self
-        self.register(PaletteColorCell.self, forCellWithReuseIdentifier: PaletteColorCell.reuseIdentifier)
+        setupProperty()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    // MARK: - Setup Methods
+    
+    private func setupProperty() {
+        self.delegate = self
+        self.dataSource = self
+        self.register(PaletteColorCell.self, forCellWithReuseIdentifier: PaletteColorCell.reuseIdentifier)
     }
     
 }
@@ -41,18 +44,10 @@ class PaletteColorView: UICollectionView {
 extension PaletteColorView: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let paddingSpace = sectionInsets.left * (itemsPerRow + 1)
+        let paddingSpace = spacing * (itemsPerRow - 1) * 2
         let availableWidth = collectionView.frame.width - paddingSpace
         let widthPerItem = availableWidth / itemsPerRow
         return CGSize(width: widthPerItem, height: widthPerItem)
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        return sectionInsets
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return sectionInsets.left
     }
     
 }
@@ -83,7 +78,7 @@ extension PaletteColorView: UICollectionViewDataSource {
             fatalError("Unable to dequeue PaletteColorCell")
         }
         let color = PaletteColor.allCases[indexPath.row]
-        cell.configure(withColor: UIColor(hex: color.hex))
+        cell.configure(with: UIColor(hex: color.hex))
         return cell
     }
     
