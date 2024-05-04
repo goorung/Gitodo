@@ -21,14 +21,16 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
         setProfileImageViewAction(#selector(handleProfileImageViewTap))
     }
     
-    @objc private func handleProfileImageViewTap(_ sender: UIImageView) {
+    @objc private func handleProfileImageViewTap(_ gesture: UITapGestureRecognizer) {
+        guard let imageView = gesture.view as? SymbolCircleView else { return }
+        
         let menuViewController = MenuViewController()
         menuViewController.delegate = self
         menuViewController.modalPresentationStyle = .popover
         
         if let popoverController = menuViewController.popoverPresentationController {
-            popoverController.sourceView = profileImageView
-            popoverController.sourceRect = CGRect(x: profileImageView.bounds.midX, y: profileImageView.bounds.midY + 100, width: 0, height: 0)
+            popoverController.sourceView = imageView
+            popoverController.sourceRect = CGRect(x: imageView.bounds.midX, y: imageView.bounds.midY + 100, width: 0, height: 0)
             popoverController.permittedArrowDirections = []
             popoverController.delegate = self
         }

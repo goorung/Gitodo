@@ -42,7 +42,7 @@ class BaseViewController<View: UIView>: UIViewController, UIGestureRecognizerDel
         return button
     }()
     
-    lazy var profileImageView = SymbolCircleView()
+    private lazy var profileImageView = SymbolCircleView()
 
     let contentView = View()
 
