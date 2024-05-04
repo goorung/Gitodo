@@ -25,6 +25,7 @@ class MenuViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.isScrollEnabled = false
+        tableView.separatorInset = .init(top: 0, left: 5, bottom: 0, right: 5)
         return tableView
     }()
     

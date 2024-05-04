@@ -19,4 +19,12 @@ enum MenuType: CaseIterable {
         case .logout: "로그아웃"
         }
     }
+    
+    var symbol: String {
+        switch self {
+        case .repositorySettings: "folder"
+        case .contact: "questionmark.circle"
+        case .logout: "door.left.hand.open"
+        }
+    }
 }

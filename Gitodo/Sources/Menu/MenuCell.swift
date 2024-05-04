@@ -15,9 +15,16 @@ class MenuCell: UITableViewCell {
     
     // MARK: - UI Components
     
+    private lazy var symbolImageView = {
+        let imageView = UIImageView()
+        imageView.tintColor = .label
+        return imageView
+    }()
+    
     private lazy var titleLabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 13.0)
+        label.textColor = .label
         return label
     }()
     
@@ -37,14 +44,23 @@ class MenuCell: UITableViewCell {
     // MARK: - Setup Methods
     
     private func setupLayout() {
+        contentView.addSubview(symbolImageView)
+        symbolImageView.snp.makeConstraints { make in
+            make.width.height.equalTo(15)
+            make.centerY.equalToSuperview()
+            make.leading.equalToSuperview().inset(20)
+        }
+        
         contentView.addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(20)
+            make.leading.equalTo(symbolImageView.snp.trailing).offset(10)
+            make.trailing.equalToSuperview().inset(20)
             make.centerY.equalToSuperview()
         }
     }
     
     func configure(with menu: MenuType) {
+        symbolImageView.image = UIImage(systemName: menu.symbol)
         titleLabel.text = menu.title
     }
     
