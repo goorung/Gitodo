@@ -16,13 +16,13 @@ class RepositoryCell: UITableViewCell {
     
     // MARK: - UI Components
     
-    private lazy var nameLabel: UILabel = {
+    private lazy var nameLabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 15.0, weight: .medium)
         return label
     }()
     
-    private lazy var selectedButton: UIButton = {
+    private lazy var selectedButton = {
         let button = UIButton()
         button.isHidden = true
         button.tintColor = .label

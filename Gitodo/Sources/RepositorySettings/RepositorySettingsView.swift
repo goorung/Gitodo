@@ -10,7 +10,7 @@ import UIKit
 import SnapKit
 
 protocol RepositorySettingsDelegate: AnyObject {
-    func presentAlertViewController(completion: @escaping  () -> Void)
+    func presentAlertViewController(completion: @escaping (() -> Void))
 }
 
 class RepositorySettingsView: UIView {
@@ -46,7 +46,7 @@ class RepositorySettingsView: UIView {
     
     // MARK: - UI Components
     
-    private lazy var previewView: UIView = {
+    private lazy var previewView = {
         let view = UIView()
         view.backgroundColor = .systemBackground
         return view
@@ -56,24 +56,21 @@ class RepositorySettingsView: UIView {
     
     private lazy var contentView = UIView()
     
-    private lazy var repoLabel: UILabel = {
-        let label = createLabel(withText: "할 일을 관리하고 싶은 레포지토리를 선택하세요")
-        return label
-    }()
+    private lazy var repoLabel = createLabel(withText: "할 일을 관리하고 싶은 레포지토리를 선택하세요")
     
-    private lazy var repoTableView: UITableView = {
+    private lazy var repoTableView = {
         let tableView = createTableView()
         tableView.register(RepositoryCell.self, forCellReuseIdentifier: RepositoryCell.reuseIdentifier)
         return tableView
     }()
     
-    private lazy var deletedRepoLabel: UILabel = {
+    private lazy var deletedRepoLabel = {
         let label = createLabel(withText: "원격 저장소에서 삭제된 레포지토리")
         label.isHidden = deletedRepos.count == 0
         return label
     }()
     
-    private lazy var deletedRepoTableView: UITableView = {
+    private lazy var deletedRepoTableView = {
         let tableView = createTableView()
         tableView.register(RepositoryCell.self, forCellReuseIdentifier: RepositoryCell.reuseIdentifier)
         tableView.setEditing(true, animated: false)

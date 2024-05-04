@@ -25,7 +25,7 @@ class RepositorySettingsViewController: BaseViewController<RepositorySettingsVie
 
 extension RepositorySettingsViewController: RepositorySettingsDelegate {
     
-    func presentAlertViewController(completion: @escaping () -> Void) {
+    func presentAlertViewController(completion: @escaping (() -> Void)) {
         let alertController = UIAlertController(
             title: "레포지토리 삭제",
             message: "정말로 삭제하시겠습니까?\n모든 할 일이 함께 삭제됩니다.",
