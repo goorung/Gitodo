@@ -8,8 +8,15 @@
 import UIKit
 
 import SnapKit
+import RxCocoa
+import RxSwift
 
 class RepositoryInfoView: UIView {
+    
+    // temp !
+    private let repoName = "Gitodo"
+    
+    private let disposeBag = DisposeBag()
     
     private let insetFromSuperView: CGFloat = 20.0
     private let offsetFromOtherView: CGFloat = 15.0
@@ -18,14 +25,14 @@ class RepositoryInfoView: UIView {
     // MARK: - UI Components
     
     private lazy var previewLabel: UILabel = {
-        let label = createLabel(withText: "\\(레포지토리 이름) 미리보기")
+        let label = createLabel(withText: "\(repoName) 미리보기")
         label.numberOfLines = 0
         return label
     }()
     
-    private lazy var previewView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .systemGray5
+    private lazy var previewView: RepositoryView = {
+        let view = RepositoryView()
+        view.setName(repoName)
         return view
     }()
     
@@ -42,15 +49,16 @@ class RepositoryInfoView: UIView {
     
     private lazy var nicknameTextField: UITextField = {
         let textField = createTextField()
+        textField.clearButtonMode = .whileEditing
         return textField
     }()
     
-    private lazy var iconLabel: UILabel = {
-        let label = createLabel(withText: "레포지토리 아이콘")
+    private lazy var symbolLabel: UILabel = {
+        let label = createLabel(withText: "레포지토리 심볼")
         return label
     }()
     
-    private lazy var iconTextField: UITextField = {
+    private lazy var symbolTextField: UITextField = {
         let textField = createTextField()
         return textField
     }()
@@ -60,7 +68,11 @@ class RepositoryInfoView: UIView {
         return label
     }()
     
-    private lazy var colorView = PaletteColorView()
+    private lazy var colorView: PaletteColorView = {
+        let view = PaletteColorView()
+        view.colorDelegate = self
+        return view
+    }()
     
     // MARK: - Initializer
     
@@ -68,6 +80,7 @@ class RepositoryInfoView: UIView {
         super.init(frame: frame)
         
         setupLayout()
+        bind()
     }
     
     required init?(coder: NSCoder) {
@@ -85,8 +98,9 @@ class RepositoryInfoView: UIView {
         addSubview(previewView)
         previewView.snp.makeConstraints { make in
             make.top.equalTo(previewLabel.snp.bottom).offset(offsetFromFriendView)
-            make.leading.trailing.equalToSuperview().inset(insetFromSuperView)
-            make.height.equalTo(70)
+            make.centerX.equalToSuperview()
+            make.width.equalTo(60)
+            make.height.equalTo(80)
         }
         
         addSubview(separator)
@@ -108,21 +122,21 @@ class RepositoryInfoView: UIView {
             make.leading.trailing.equalToSuperview().inset(insetFromSuperView)
         }
         
-        addSubview(iconLabel)
-        iconLabel.snp.makeConstraints { make in
+        addSubview(symbolLabel)
+        symbolLabel.snp.makeConstraints { make in
             make.top.equalTo(nicknameTextField.snp.bottom).offset(offsetFromOtherView)
             make.leading.equalToSuperview().inset(insetFromSuperView)
         }
         
-        addSubview(iconTextField)
-        iconTextField.snp.makeConstraints { make in
-            make.top.equalTo(iconLabel.snp.bottom).offset(offsetFromFriendView)
+        addSubview(symbolTextField)
+        symbolTextField.snp.makeConstraints { make in
+            make.top.equalTo(symbolLabel.snp.bottom).offset(offsetFromFriendView)
             make.leading.trailing.equalToSuperview().inset(insetFromSuperView)
         }
         
         addSubview(colorLabel)
         colorLabel.snp.makeConstraints { make in
-            make.top.equalTo(iconTextField.snp.bottom).offset(offsetFromOtherView)
+            make.top.equalTo(symbolTextField.snp.bottom).offset(offsetFromOtherView)
             make.leading.equalToSuperview().inset(insetFromSuperView)
         }
         
@@ -132,6 +146,32 @@ class RepositoryInfoView: UIView {
             make.leading.trailing.equalToSuperview().inset(insetFromSuperView)
             make.bottom.equalToSuperview().inset(insetFromSuperView)
         }
+    }
+    
+    // MARK: - Bind
+    
+    private func bind() {
+        nicknameTextField.rx.text.orEmpty
+            .distinctUntilChanged()
+            .subscribe(onNext: { [weak self] text in
+                guard let self = self else { return }
+                let nameToSet = text.isEmpty ? repoName : text
+                self.previewView.setName(nameToSet)
+            }).disposed(by: disposeBag)
+        
+        symbolTextField.rx.text
+            .distinctUntilChanged()
+            .compactMap { $0 }
+            .subscribe(onNext: { [weak self] text in
+                guard let self = self else { return }
+                if let lastChar = text.last {
+                    let symbolToSet = String(lastChar)
+                    self.symbolTextField.text = symbolToSet
+                    self.previewView.setSymbol(symbolToSet)
+                } else {
+                    self.previewView.setSymbol(nil)
+                }
+            }).disposed(by: disposeBag)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -154,8 +194,15 @@ extension RepositoryInfoView {
         let textField = UITextField()
         textField.borderStyle = .roundedRect
         textField.font = .systemFont(ofSize: 13)
-        textField.clearButtonMode = .whileEditing
         return textField
+    }
+    
+}
+
+extension RepositoryInfoView: PaletteColorDelegate {
+    
+    func selectColor(_ color: PaletteColor) {
+        previewView.setColor(UIColor(hex: color.hex))
     }
     
 }

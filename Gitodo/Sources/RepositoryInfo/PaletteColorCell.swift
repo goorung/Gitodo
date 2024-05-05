@@ -15,13 +15,13 @@ class PaletteColorCell: UICollectionViewCell {
     
     // MARK: - UI Components
     
-    private lazy var colorView: UIView = {
+    private lazy var colorView = {
         let view = UIView()
         view.clipsToBounds = true
         return view
     }()
     
-    private lazy var highlightView: UIView = {
+    private lazy var highlightView = {
         let view = UIView()
         view.clipsToBounds = true
         return view
@@ -67,7 +67,7 @@ class PaletteColorCell: UICollectionViewCell {
         }
     }
     
-    func configure(withColor color: UIColor) {
+    func configure(with color: UIColor) {
         colorView.backgroundColor = color
         contentView.layoutIfNeeded()
     }
