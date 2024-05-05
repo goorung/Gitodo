@@ -11,14 +11,7 @@ import SnapKit
 
 class MainView: UIView {
     
-    var tempTodo = [
-        (isComplete: false, todo: "알고리즘 풀기"),
-        (isComplete: false, todo: "iOS 공부"),
-        (isComplete: false, todo: "IRC"),
-        (isComplete: false, todo: "webserv"),
-        (isComplete: true, todo: "CPP"),
-        (isComplete: true, todo: "inception"),
-    ]
+    let viewModel = MainViewModel()
     
     private lazy var repoCollectionView = RepoCollectionView()
     
@@ -37,7 +30,7 @@ class MainView: UIView {
             NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15, weight: .semibold)
         ]
         let selectedAttributes = [
-            NSAttributedString.Key.foregroundColor: UIColor.systemMint,
+            NSAttributedString.Key.foregroundColor: UIColor(hex: PaletteColor.blue.hex),
             NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15, weight: .semibold)
         ]
         
@@ -67,9 +60,9 @@ class MainView: UIView {
         button.setImage(UIImage(systemName: "plus.circle.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), for: .normal)
         button.setTitle(" 할 일 추가", for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
-        
-        button.tintColor = .systemMint
-        button.setTitleColor(.systemMint, for: .normal)
+        button.tintColor = .init(hex: PaletteColor.blue.hex)
+        button.setTitleColor(.init(hex: PaletteColor.blue.hex), for: .normal)
+//        button.addTarget(self, action: #selector(todoAddButtonTapped), for: .touchUpInside)
         return button
     }()
     
@@ -141,24 +134,33 @@ class MainView: UIView {
         todoView.isHidden = segment.selectedSegmentIndex != 0
         issueView.isHidden = !todoView.isHidden
     }
+    
+//    @objc private func todoAddButtonTapped() {
+//        tempTodo.append((isComplete: false, todo: ""))
+//        let indexPath = IndexPath(row: tempTodo.count - 1, section: 0)
+//        todoTableView.insertRows(at: [indexPath], with: .automatic)
+//        if let cell = todoTableView.cellForRow(at: indexPath) as? TodoCell {
+//            cell.todoBecomeFirstResponder()
+//            todoTableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
+//        }
+//    }
 }
 
 extension MainView: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        tempTodo.count
+        viewModel.numberOfItems
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = todoTableView.dequeueReusableCell(withIdentifier: TodoCell.reuseIdentifier, for: indexPath) as? TodoCell else { return UITableViewCell() }
-        let todo = tempTodo[indexPath.row]
         cell.selectionStyle = .none
-        cell.configure(isComplete: todo.isComplete, todo: todo.todo, color: .systemMint)
+        cell.configure(with: viewModel.viewModel(at: indexPath))
         return cell
     }
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let deleteAction = UIContextualAction(style: .normal, title: "Delete") { [weak self] action, view, completionHandler in
-            self?.tempTodo.remove(at: indexPath.row)
+            self?.viewModel.remove(at: indexPath)
             tableView.deleteRows(at: [indexPath], with: .fade)
         }
         deleteAction.backgroundColor = .systemGray4

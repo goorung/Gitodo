@@ -11,8 +11,7 @@ import SnapKit
 
 class TodoCell: UITableViewCell {
     static let reuseIdentifier = "TodoCell"
-    var mainColor = UIColor.label
-    var isComplete = false
+    private var viewModel: TodoCellViewModel?
     
     private lazy var checkbox = {
         let imageView = UIImageView(image: UIImage(systemName: "circle"))
@@ -64,21 +63,30 @@ class TodoCell: UITableViewCell {
         }
     }
     
-    func configure(isComplete: Bool, todo: String?, color: UIColor) {
-        mainColor = color
-        todoTextField.text = todo
-        self.isComplete = isComplete
-        configureCheckbox(isComplete: isComplete)
+    func configure(with viewModel: TodoCellViewModel) {
+        self.viewModel = viewModel
+        todoTextField.text = viewModel.todo
+    }
+    
+    func todoBecomeFirstResponder() {
+        todoTextField.becomeFirstResponder()
     }
     
     @objc private func toggleCheckbox() {
-        isComplete.toggle()
-        configureCheckbox(isComplete: isComplete)
+        viewModel?.isComplete.toggle()
+        configureCheckbox()
     }
     
-    private func configureCheckbox(isComplete: Bool) {
+    private func configureCheckbox() {
+        let isComplete = viewModel?.isComplete == true
+        var tintColor = UIColor.label
+        
+        if let hex = viewModel?.tintColorHex {
+            tintColor = UIColor(hex: hex)
+        }
+        
         checkbox.image = UIImage(systemName: isComplete ? "checkmark.circle" : "circle")
-        checkbox.tintColor = isComplete ? mainColor : .systemGray4
+        checkbox.tintColor = isComplete ? tintColor : .systemGray4
         todoTextField.textColor = isComplete ? .secondaryLabel : .label
     }
 }

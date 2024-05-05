@@ -10,7 +10,7 @@ import UIKit
 class RepoCollectionView: UICollectionView {
     
     let tempRepo = [
-        (name: "algorithm", color: UIColor.systemMint, symbol: "☃️"),
+        (name: "algorithm", color: UIColor(hex: PaletteColor.blue.hex) , symbol: "☃️"),
         (name: "iOS", color: UIColor.systemGray, symbol: "☁️"),
     ]
     
