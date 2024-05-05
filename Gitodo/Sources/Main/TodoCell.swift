@@ -7,18 +7,20 @@
 
 import UIKit
 
+import RxSwift
 import SnapKit
 
 class TodoCell: UITableViewCell {
     static let reuseIdentifier = "TodoCell"
-    private var viewModel: TodoCellViewModel?
+    var viewModel: TodoCellViewModel?
+    var disposeBag = DisposeBag()
     
-    private lazy var checkbox = {
+    lazy var checkbox = {
         let imageView = UIImageView(image: UIImage(systemName: "circle"))
         imageView.contentMode = .scaleAspectFit
         imageView.tintColor = .systemGray4
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(toggleCheckbox))
-        imageView.addGestureRecognizer(tapGesture)
+//        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(toggleCheckbox))
+//        imageView.addGestureRecognizer(tapGesture)
         imageView.isUserInteractionEnabled = true
         return imageView
     }()
@@ -41,6 +43,9 @@ class TodoCell: UITableViewCell {
     }
     
     override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        disposeBag = DisposeBag()
         checkbox.image = UIImage(systemName: "circle")
         checkbox.tintColor = .systemGray4
         todoTextField.text = nil
@@ -66,15 +71,11 @@ class TodoCell: UITableViewCell {
     func configure(with viewModel: TodoCellViewModel) {
         self.viewModel = viewModel
         todoTextField.text = viewModel.todo
+        configureCheckbox()
     }
     
     func todoBecomeFirstResponder() {
         todoTextField.becomeFirstResponder()
-    }
-    
-    @objc private func toggleCheckbox() {
-        viewModel?.isComplete.toggle()
-        configureCheckbox()
     }
     
     private func configureCheckbox() {

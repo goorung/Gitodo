@@ -9,6 +9,7 @@ import UIKit
 
 import RxCocoa
 import RxSwift
+import RxGesture
 import SnapKit
 
 class MainView: UIView {
@@ -143,9 +144,15 @@ class MainView: UIView {
             .disposed(by: disposeBag)
         
         viewModel.output.todos
-            .drive(todoTableView.rx.items(cellIdentifier: TodoCell.reuseIdentifier, cellType: TodoCell.self)) { _, todo, cell in
+            .drive(todoTableView.rx.items(cellIdentifier: TodoCell.reuseIdentifier, cellType: TodoCell.self)) { [weak self] index, todo, cell in
                 cell.selectionStyle = .none
                 cell.configure(with: todo)
+                cell.checkbox.rx.tapGesture()
+                    .when(.recognized)
+                    .subscribe(onNext: { _ in
+                        self?.viewModel.input.toggleTodo.onNext(todo.id)
+                    })
+                    .disposed(by: cell.disposeBag)
             }
             .disposed(by: disposeBag)
     }
@@ -156,8 +163,9 @@ extension MainView: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let deleteAction = UIContextualAction(style: .normal, title: "Delete") { [weak self] action, view, completionHandler in
-            self?.viewModel.input.deleteRow.onNext(indexPath)
-//            tableView.deleteRows(at: [indexPath], with: .fade)
+            guard let cell = tableView.cellForRow(at: indexPath) as? TodoCell, 
+                    let id = cell.viewModel?.id else { return }
+            self?.viewModel.input.deleteTodo.onNext(id)
         }
         deleteAction.backgroundColor = .systemGray4
         

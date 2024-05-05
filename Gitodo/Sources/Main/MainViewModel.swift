@@ -18,21 +18,26 @@ final class MainViewModel {
     
     struct Input {
         let reload: AnyObserver<Void>
-        let deleteRow: AnyObserver<IndexPath>
+        let toggleTodo: AnyObserver<UUID>
+        let deleteTodo: AnyObserver<UUID>
     }
     
     struct Output {
         var todos: Driver<[TodoCellViewModel]>
     }
     
-    
     private let reloadSubject = PublishSubject<Void>()
-    private let deleteRowSubject = PublishSubject<IndexPath>()
+    private let toggleTodoSubject = PublishSubject<UUID>()
+    private let deleteTodoSubject = PublishSubject<UUID>()
     private var todos = PublishRelay<[TodoCellViewModel]>()
     private let disposeBag = DisposeBag()
     
     init() {
-        input = Input(reload: reloadSubject.asObserver(), deleteRow: deleteRowSubject.asObserver())
+        input = Input(
+            reload: reloadSubject.asObserver(),
+            toggleTodo: toggleTodoSubject.asObserver(),
+            deleteTodo: deleteTodoSubject.asObserver()
+        )
         output = Output(todos: todos.asDriver(onErrorJustReturn: []))
         
         reloadSubject.subscribe(onNext: { [weak self] in
@@ -40,8 +45,13 @@ final class MainViewModel {
         })
         .disposed(by: disposeBag)
         
-        deleteRowSubject.subscribe(onNext: { [weak self] indexPath in
-            self?.deleteTodo(at: indexPath)
+        toggleTodoSubject.subscribe(onNext: { [weak self] id in
+            self?.toggleTodo(with: id)
+        })
+        .disposed(by: disposeBag)
+        
+        deleteTodoSubject.subscribe(onNext: { [weak self] id in
+            self?.deleteTodo(with: id)
         })
         .disposed(by: disposeBag)
     }
@@ -52,6 +62,8 @@ final class MainViewModel {
         
         let todoViewModels = fetchedTodos.map{
             TodoCellViewModel(todoItem: $0, tintColorHex: 0xB5D3FF)
+        }.sorted {
+            return !$0.isComplete || $1.isComplete
         }
         
         todos.accept(todoViewModels)
@@ -73,14 +85,15 @@ final class MainViewModel {
 //    func append(_ todoItem: TodoItem) {
 //        insert(todoItem, at: .init(row: numberOfItems, section: 0))
 //    }
-//    
-//    func remove(at indexPath: IndexPath) {
-//        viewModels.remove(at: indexPath.row)
-//    }
+    
+    private func toggleTodo(with id: UUID) {
+        tempRepo.toggleTodo(with: id)
+        fetchTodoList()
+    }
     
     
-    private func deleteTodo(at indexPath: IndexPath) {
-        tempRepo.deleteTodo(at: indexPath.row)
+    private func deleteTodo(with id: UUID) {
+        tempRepo.deleteTodo(with: id)
         fetchTodoList()
     }
     
@@ -106,12 +119,23 @@ class TempRepository {
         TodoItem(todo: "작살나게 밥먹기", isComplete: false)
     ]
     
+    func index(with id: UUID) -> Int? {
+        guard let firstIndex = firstRepoTodo.firstIndex(where: { $0.id == id }) else { return nil }
+        return firstIndex
+    }
+    
     func getRepo() -> [TodoItem] {
         firstRepoTodo
     }
     
-    func deleteTodo(at index: Int) {
+    func deleteTodo(with id: UUID) {
+        guard let index = index(with: id) else { return }
         firstRepoTodo.remove(at: index)
+    }
+    
+    func toggleTodo(with id: UUID) {
+        guard let index = index(with: id) else { return }
+        firstRepoTodo[index].isComplete.toggle()
     }
     
 }
