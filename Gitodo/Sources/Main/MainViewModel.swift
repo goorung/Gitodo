@@ -60,8 +60,10 @@ final class MainViewModel {
         
         let fetchedTodos = tempRepo.getRepo()
         
-        let todoViewModels = fetchedTodos.map{
-            TodoCellViewModel(todoItem: $0, tintColorHex: 0xB5D3FF)
+        let todoViewModels = fetchedTodos.map{ (todoItem) -> TodoCellViewModel in
+            let viewModel = TodoCellViewModel(todoItem: todoItem, tintColorHex: 0xB5D3FF)
+            viewModel.delegate = self
+            return viewModel
         }.sorted {
             return !$0.isComplete || $1.isComplete
         }
@@ -138,4 +140,15 @@ class TempRepository {
         firstRepoTodo[index].isComplete.toggle()
     }
     
+    func updateTodo(_ newValue: TodoItem) {
+        guard let index = index(with: newValue.id) else { return }
+        firstRepoTodo[index] = newValue
+    }
+    
+}
+
+extension MainViewModel: TodoCellViewModelDelegate {
+    func todoCellViewModel(_ viewModel: TodoCellViewModel, didUpdateItem todoItem: TodoItem) {
+        tempRepo.updateTodo(todoItem)
+    }
 }

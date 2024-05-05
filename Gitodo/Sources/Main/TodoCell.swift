@@ -19,8 +19,8 @@ class TodoCell: UITableViewCell {
         let imageView = UIImageView(image: UIImage(systemName: "circle"))
         imageView.contentMode = .scaleAspectFit
         imageView.tintColor = .systemGray4
-//        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(toggleCheckbox))
-//        imageView.addGestureRecognizer(tapGesture)
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(toggleCheckbox))
+        imageView.addGestureRecognizer(tapGesture)
         imageView.isUserInteractionEnabled = true
         return imageView
     }()
@@ -36,6 +36,7 @@ class TodoCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
         setupLayout()
+        observeTextChanges()
     }
     
     required init?(coder: NSCoder) {
@@ -76,6 +77,18 @@ class TodoCell: UITableViewCell {
     
     func todoBecomeFirstResponder() {
         todoTextField.becomeFirstResponder()
+    }
+    
+    @objc private func toggleCheckbox() {
+        viewModel?.isComplete.toggle()
+    }
+    
+    private func observeTextChanges() {
+        todoTextField.addTarget(self, action: #selector(todoDidChange(_:)), for: .editingChanged)
+    }
+    
+    @objc private func todoDidChange(_ textField: UITextField) {
+        viewModel?.todo = textField.text ?? ""
     }
     
     private func configureCheckbox() {

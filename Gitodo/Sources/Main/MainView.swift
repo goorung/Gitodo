@@ -144,6 +144,9 @@ class MainView: UIView {
             .disposed(by: disposeBag)
         
         viewModel.output.todos
+            .map({
+                $0.sorted { !$0.isComplete || $1.isComplete }
+            })
             .drive(todoTableView.rx.items(cellIdentifier: TodoCell.reuseIdentifier, cellType: TodoCell.self)) { [weak self] index, todo, cell in
                 cell.selectionStyle = .none
                 cell.configure(with: todo)
