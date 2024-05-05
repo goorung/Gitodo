@@ -7,11 +7,14 @@
 
 import UIKit
 
+import RxCocoa
+import RxSwift
 import SnapKit
 
 class MainView: UIView {
     
     let viewModel = MainViewModel()
+    private let disposeBag = DisposeBag()
     
     private lazy var repoCollectionView = RepoCollectionView()
     
@@ -48,8 +51,6 @@ class MainView: UIView {
         let view = UITableView()
         view.separatorStyle = .none
         view.rowHeight = 46
-        view.dataSource = self
-        view.delegate = self
         view.register(TodoCell.self, forCellReuseIdentifier: TodoCell.reuseIdentifier)
         view.keyboardDismissMode = .interactive
         return view
@@ -62,7 +63,6 @@ class MainView: UIView {
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
         button.tintColor = .init(hex: PaletteColor.blue.hex)
         button.setTitleColor(.init(hex: PaletteColor.blue.hex), for: .normal)
-//        button.addTarget(self, action: #selector(todoAddButtonTapped), for: .touchUpInside)
         return button
     }()
     
@@ -77,6 +77,8 @@ class MainView: UIView {
         super.init(frame: frame)
         
         setupLayout()
+        bindViewModel()
+        viewModel.input.reload.onNext(())
     }
     
     required init?(coder: NSCoder) {
@@ -135,33 +137,27 @@ class MainView: UIView {
         issueView.isHidden = !todoView.isHidden
     }
     
-//    @objc private func todoAddButtonTapped() {
-//        tempTodo.append((isComplete: false, todo: ""))
-//        let indexPath = IndexPath(row: tempTodo.count - 1, section: 0)
-//        todoTableView.insertRows(at: [indexPath], with: .automatic)
-//        if let cell = todoTableView.cellForRow(at: indexPath) as? TodoCell {
-//            cell.todoBecomeFirstResponder()
-//            todoTableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
-//        }
-//    }
-}
-
-extension MainView: UITableViewDataSource, UITableViewDelegate {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        viewModel.numberOfItems
+    private func bindViewModel() {
+        todoTableView.rx
+            .setDelegate(self)
+            .disposed(by: disposeBag)
+        
+        viewModel.output.todos
+            .drive(todoTableView.rx.items(cellIdentifier: TodoCell.reuseIdentifier, cellType: TodoCell.self)) { _, todo, cell in
+                cell.selectionStyle = .none
+                cell.configure(with: todo)
+            }
+            .disposed(by: disposeBag)
     }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = todoTableView.dequeueReusableCell(withIdentifier: TodoCell.reuseIdentifier, for: indexPath) as? TodoCell else { return UITableViewCell() }
-        cell.selectionStyle = .none
-        cell.configure(with: viewModel.viewModel(at: indexPath))
-        return cell
-    }
+}
+
+extension MainView: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let deleteAction = UIContextualAction(style: .normal, title: "Delete") { [weak self] action, view, completionHandler in
-            self?.viewModel.remove(at: indexPath)
-            tableView.deleteRows(at: [indexPath], with: .fade)
+            self?.viewModel.input.deleteRow.onNext(indexPath)
+//            tableView.deleteRows(at: [indexPath], with: .fade)
         }
         deleteAction.backgroundColor = .systemGray4
         
