@@ -75,7 +75,7 @@ class BaseViewController<View: UIView>: UIViewController, UIGestureRecognizerDel
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navigationBarView.snp.bottom)
             make.leading.trailing.equalToSuperview()
-            make.bottom.equalToSuperview()
+            make.bottom.equalTo(view.keyboardLayoutGuide.snp.top)
         }
 
     }

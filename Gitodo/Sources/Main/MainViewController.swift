@@ -13,6 +13,7 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
         super.viewDidLoad()
 
         setupNavigationBar()
+        hideKeyboardWhenTappedAround()
     }
     
     func setupNavigationBar() {

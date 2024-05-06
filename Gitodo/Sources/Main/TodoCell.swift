@@ -7,14 +7,15 @@
 
 import UIKit
 
+import RxSwift
 import SnapKit
 
 class TodoCell: UITableViewCell {
     static let reuseIdentifier = "TodoCell"
-    var mainColor = UIColor.label
-    var isComplete = false
+    var viewModel: TodoCellViewModel?
+    var disposeBag = DisposeBag()
     
-    private lazy var checkbox = {
+    lazy var checkbox = {
         let imageView = UIImageView(image: UIImage(systemName: "circle"))
         imageView.contentMode = .scaleAspectFit
         imageView.tintColor = .systemGray4
@@ -28,6 +29,9 @@ class TodoCell: UITableViewCell {
         let textField = UITextField()
         textField.font = .systemFont(ofSize: 15)
         textField.textColor = .label
+        textField.autocorrectionType = .no
+        textField.autocapitalizationType = .none
+        textField.delegate = self
         return textField
     }()
     
@@ -35,6 +39,7 @@ class TodoCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
         setupLayout()
+        observeTextChanges()
     }
     
     required init?(coder: NSCoder) {
@@ -42,6 +47,9 @@ class TodoCell: UITableViewCell {
     }
     
     override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        disposeBag = DisposeBag()
         checkbox.image = UIImage(systemName: "circle")
         checkbox.tintColor = .systemGray4
         todoTextField.text = nil
@@ -64,21 +72,55 @@ class TodoCell: UITableViewCell {
         }
     }
     
-    func configure(isComplete: Bool, todo: String?, color: UIColor) {
-        mainColor = color
-        todoTextField.text = todo
-        self.isComplete = isComplete
-        configureCheckbox(isComplete: isComplete)
+    func configure(with viewModel: TodoCellViewModel) {
+        self.viewModel = viewModel
+        todoTextField.text = viewModel.todo
+        configureCheckbox()
+    }
+    
+    func todoBecomeFirstResponder() {
+        todoTextField.becomeFirstResponder()
     }
     
     @objc private func toggleCheckbox() {
-        isComplete.toggle()
-        configureCheckbox(isComplete: isComplete)
+        viewModel?.isComplete.toggle()
     }
     
-    private func configureCheckbox(isComplete: Bool) {
+    private func observeTextChanges() {
+        todoTextField.addTarget(self, action: #selector(todoDidChange(_:)), for: .editingChanged)
+    }
+    
+    @objc private func todoDidChange(_ textField: UITextField) {
+        viewModel?.todo = textField.text ?? ""
+    }
+    
+    private func configureCheckbox() {
+        let isComplete = viewModel?.isComplete == true
+        var tintColor = UIColor.label
+        
+        if let hex = viewModel?.tintColorHex {
+            tintColor = UIColor(hex: hex)
+        }
+        
         checkbox.image = UIImage(systemName: isComplete ? "checkmark.circle" : "circle")
-        checkbox.tintColor = isComplete ? mainColor : .systemGray4
+        checkbox.tintColor = isComplete ? tintColor : .systemGray4
         todoTextField.textColor = isComplete ? .secondaryLabel : .label
+        todoTextField.isUserInteractionEnabled = !isComplete
+    }
+}
+
+extension TodoCell: UITextFieldDelegate {
+    func textFieldDidEndEditing(_ textField: UITextField) {
+            viewModel?.endEditingTodo(with: textField.text)
+    }
+
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if textField.text?.isEmpty == false {
+            viewModel?.addNewTodoItem()
+            return false
+        } else {
+            textField.resignFirstResponder()
+            return false
+        }
     }
 }
