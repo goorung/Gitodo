@@ -34,6 +34,7 @@ let project = Project(
                 .external(name: "Kingfisher", condition: .none),
                 .external(name: "RxCocoa", condition: .none),
                 .external(name: "RxSwift", condition: .none),
+                .external(name: "RxGesture", condition: .none)
             ]
         ),
         //        .target(
