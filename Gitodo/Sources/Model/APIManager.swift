@@ -51,17 +51,17 @@ final class APIManager {
         return try decoder.decode([T].self, from: data)
     }
     
-    func fetchOrganization() async throws -> [Organization] {
+    func fetchOrganization() async throws -> [Organization]? {
         let url = URL(string: "\(baseURL)/user/orgs")!
         return try await fetchData(from: url)
     }
     
-    func fetchRepositories() async throws -> [Repository] {
+    func fetchRepositories() async throws -> [Repository]? {
         let url = URL(string: "\(baseURL)/user/repos")!
         return try await fetchData(from: url)
     }
     
-    func fetchIssues(for repository: Repository) async throws -> [Issue] {
+    func fetchIssues(for repository: Repository) async throws -> [Issue]? {
         let repoName = repository.name
         let ownerName = repository.owner.login
         let url = URL(string: "\(baseURL)/repos/\(ownerName)/\(repoName)/issues")!
