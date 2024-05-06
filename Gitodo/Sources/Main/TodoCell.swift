@@ -29,6 +29,9 @@ class TodoCell: UITableViewCell {
         let textField = UITextField()
         textField.font = .systemFont(ofSize: 15)
         textField.textColor = .label
+        textField.autocorrectionType = .no
+        textField.autocapitalizationType = .none
+        textField.delegate = self
         return textField
     }()
     
@@ -102,5 +105,22 @@ class TodoCell: UITableViewCell {
         checkbox.image = UIImage(systemName: isComplete ? "checkmark.circle" : "circle")
         checkbox.tintColor = isComplete ? tintColor : .systemGray4
         todoTextField.textColor = isComplete ? .secondaryLabel : .label
+        todoTextField.isUserInteractionEnabled = !isComplete
+    }
+}
+
+extension TodoCell: UITextFieldDelegate {
+    func textFieldDidEndEditing(_ textField: UITextField) {
+            viewModel?.endEditingTodo(with: textField.text)
+    }
+
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if textField.text?.isEmpty == false {
+            viewModel?.addNewTodoItem()
+            return false
+        } else {
+            textField.resignFirstResponder()
+            return false
+        }
     }
 }

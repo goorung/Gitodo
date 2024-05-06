@@ -9,6 +9,8 @@ import Foundation
 
 protocol TodoCellViewModelDelegate: AnyObject {
     func todoCellViewModel(_ viewModel: TodoCellViewModel, didUpdateItem: TodoItem)
+    func todoCellViewModelDidReturnTodo(_ viewModel: TodoCellViewModel)
+    func todoCellViewModel(_ viewModel: TodoCellViewModel, didEndEditingWith todo: String?)
 }
 
 class TodoCellViewModel {
@@ -37,6 +39,14 @@ class TodoCellViewModel {
             todoItem.todo = newValue
             delegate?.todoCellViewModel(self, didUpdateItem: todoItem)
         }
+    }
+    
+    func addNewTodoItem() {
+        delegate?.todoCellViewModelDidReturnTodo(self)
+    }
+
+    func endEditingTodo(with todo: String?) {
+        delegate?.todoCellViewModel(self, didEndEditingWith: todo)
     }
     
     var tintColorHex: UInt?

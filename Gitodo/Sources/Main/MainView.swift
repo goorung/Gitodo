@@ -64,6 +64,7 @@ class MainView: UIView {
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
         button.tintColor = .init(hex: PaletteColor.blue.hex)
         button.setTitleColor(.init(hex: PaletteColor.blue.hex), for: .normal)
+        button.addTarget(self, action: #selector(todoAddButtonTapped), for: .touchUpInside)
         return button
     }()
     
@@ -138,6 +139,10 @@ class MainView: UIView {
         issueView.isHidden = !todoView.isHidden
     }
     
+    @objc private func todoAddButtonTapped() {
+        viewModel.input.appendTodo.onNext(())
+    }
+    
     private func bindViewModel() {
         todoTableView.rx
             .setDelegate(self)
@@ -157,6 +162,14 @@ class MainView: UIView {
                     })
                     .disposed(by: cell.disposeBag)
             }
+            .disposed(by: disposeBag)
+        
+        viewModel.output.makeFirstResponder
+            .drive(onNext: { [weak self] indexPath in
+                guard let indexPath,
+                      let cell = self?.todoTableView.cellForRow(at: indexPath) as? TodoCell else { return }
+                cell.todoBecomeFirstResponder()
+            })
             .disposed(by: disposeBag)
     }
     

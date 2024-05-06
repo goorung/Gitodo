@@ -18,30 +18,42 @@ final class MainViewModel {
     
     struct Input {
         let reload: AnyObserver<Void>
+        let appendTodo: AnyObserver<Void>
         let toggleTodo: AnyObserver<UUID>
         let deleteTodo: AnyObserver<UUID>
     }
     
     struct Output {
         var todos: Driver<[TodoCellViewModel]>
+        var makeFirstResponder: Driver<IndexPath?>
     }
     
     private let reloadSubject = PublishSubject<Void>()
+    private let appendTodoSubject = PublishSubject<Void>()
     private let toggleTodoSubject = PublishSubject<UUID>()
     private let deleteTodoSubject = PublishSubject<UUID>()
     private var todos = PublishRelay<[TodoCellViewModel]>()
+    private var makeResponder = PublishRelay<IndexPath?>()
     private let disposeBag = DisposeBag()
     
     init() {
         input = Input(
-            reload: reloadSubject.asObserver(),
+            reload: reloadSubject.asObserver(), 
+            appendTodo: appendTodoSubject.asObserver(),
             toggleTodo: toggleTodoSubject.asObserver(),
             deleteTodo: deleteTodoSubject.asObserver()
         )
-        output = Output(todos: todos.asDriver(onErrorJustReturn: []))
+        output = Output(
+            todos: todos.asDriver(onErrorJustReturn: []),
+            makeFirstResponder: makeResponder.asDriver(onErrorJustReturn: nil))
         
         reloadSubject.subscribe(onNext: { [weak self] in
             self?.fetchTodoList()
+        })
+        .disposed(by: disposeBag)
+        
+        appendTodoSubject.subscribe(onNext: { [weak self] in
+            self?.appendTodo()
         })
         .disposed(by: disposeBag)
         
@@ -71,22 +83,11 @@ final class MainViewModel {
         todos.accept(todoViewModels)
     }
     
-//    func viewModel(at indexPath: IndexPath) -> TodoCellViewModel {
-//        return viewModels[indexPath.row]
-//    }
-//    
-//    var numberOfItems: Int {
-//        viewModels.count
-//    }
-//    
-//    func insert(_ todoItem: TodoItem, at indexPath: IndexPath) {
-//        let newViewModel = TodoCellViewModel(todoItem: todoItem)
-//        viewModels.insert(newViewModel, at: indexPath.row)
-//    }
-//    
-//    func append(_ todoItem: TodoItem) {
-//        insert(todoItem, at: .init(row: numberOfItems, section: 0))
-//    }
+    private func appendTodo() {
+        let id = tempRepo.appendTodo()
+        fetchTodoList()
+        makeResponder.accept(IndexPath(row: tempRepo.countIndex(of: id), section: 0))
+    }
     
     private func toggleTodo(with id: UUID) {
         tempRepo.toggleTodo(with: id)
@@ -99,19 +100,6 @@ final class MainViewModel {
         fetchTodoList()
     }
     
-//    func appendPlaceholderIfNeeded() -> Bool {
-//        if numberOfItems == 0 {
-//            append(.placeholderItem())
-//            return true
-//        }
-//        
-//        guard let lastItem = viewModels.last else { return false }
-//        if !lastItem.todo.isEmpty {
-//            append(.placeholderItem())
-//            return true
-//        }
-//        return false
-//    }
 }
 
 class TempRepository {
@@ -128,6 +116,30 @@ class TempRepository {
     
     func getRepo() -> [TodoItem] {
         firstRepoTodo
+    }
+    
+    func countIndex(of id: UUID) -> Int {
+        guard let index = index(with: id) else { return 0 }
+        var count = 0
+        for i in 0..<index {
+            if firstRepoTodo[i].isComplete == false {
+                count += 1
+            }
+        }
+        return count
+    }
+    
+    func appendTodo() -> UUID {
+        let todoItem = TodoItem.placeholderItem()
+        firstRepoTodo.append(todoItem)
+        return todoItem.id
+    }
+    
+    func appendTodo(after id: UUID) -> UUID? {
+        guard let index = index(with: id) else { return nil }
+        let todoItem = TodoItem.placeholderItem()
+        firstRepoTodo.insert(todoItem, at: index + 1)
+        return todoItem.id
     }
     
     func deleteTodo(with id: UUID) {
@@ -148,6 +160,20 @@ class TempRepository {
 }
 
 extension MainViewModel: TodoCellViewModelDelegate {
+    func todoCellViewModelDidReturnTodo(_ viewModel: TodoCellViewModel) {
+        if !viewModel.todo.isEmpty {
+            guard let id = tempRepo.appendTodo(after: viewModel.id) else { return }
+            fetchTodoList()
+            makeResponder.accept(IndexPath(row: tempRepo.countIndex(of: id), section: 0))
+        }
+    }
+    
+    func todoCellViewModel(_ viewModel: TodoCellViewModel, didEndEditingWith todo: String?) {
+        if todo == nil || todo?.isEmpty == true {
+            deleteTodo(with: viewModel.id)
+        }
+    }
+    
     func todoCellViewModel(_ viewModel: TodoCellViewModel, didUpdateItem todoItem: TodoItem) {
         tempRepo.updateTodo(todoItem)
     }
