@@ -13,11 +13,8 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
         super.viewDidLoad()
 
         setupNavigationBar()
-<<<<<<< HEAD:Gitodo/Sources/Main/MainViewController.swift
         hideKeyboardWhenTappedAround()
-=======
         contentView.setIssueDelegate(self)
->>>>>>> 28907405b086ba217478fcfc28ec2d9db4476ef9:Gitodo/Sources/MainViewController.swift
     }
     
     func setupNavigationBar() {
