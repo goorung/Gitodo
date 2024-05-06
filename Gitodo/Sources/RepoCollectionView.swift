@@ -9,7 +9,15 @@ import UIKit
 
 class RepoCollectionView: UICollectionView {
     
-    let tempRepo = [
+    var tempRepo = [
+        (name: "algorithm", color: UIColor(hex: PaletteColor.blue.hex) , symbol: "🪼"),
+        (name: "iOS", color: UIColor(hex: PaletteColor.yellow.hex), symbol: "🍄"),
+        (name: "algorithm", color: UIColor(hex: PaletteColor.blue.hex) , symbol: "🪼"),
+        (name: "iOS", color: UIColor(hex: PaletteColor.yellow.hex), symbol: "🍄"),
+        (name: "algorithm", color: UIColor(hex: PaletteColor.blue.hex) , symbol: "🪼"),
+        (name: "iOS", color: UIColor(hex: PaletteColor.yellow.hex), symbol: "🍄"),
+        (name: "algorithm", color: UIColor(hex: PaletteColor.blue.hex) , symbol: "🪼"),
+        (name: "iOS", color: UIColor(hex: PaletteColor.yellow.hex), symbol: "🍄"),
         (name: "algorithm", color: UIColor(hex: PaletteColor.blue.hex) , symbol: "🪼"),
         (name: "iOS", color: UIColor(hex: PaletteColor.yellow.hex), symbol: "🍄"),
     ]
