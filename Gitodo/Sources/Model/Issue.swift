@@ -16,7 +16,7 @@ struct Issue {
 
 struct Assignee {
     let login: String
-    let avataUrl: String
+    let avatarUrl: String
 }
 
 struct Label {

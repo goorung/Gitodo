@@ -31,7 +31,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         Task {
             do {
-                try await APIManager.shared.fetchAccessToken(with: code)
+                try await LoginManager.shared.fetchAccessToken(with: code)
                 print("Access Token 발급 완료")
                 DispatchQueue.main.async {
                     self.window?.rootViewController = UINavigationController(rootViewController: MainViewController())
