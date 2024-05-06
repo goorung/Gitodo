@@ -47,9 +47,8 @@ class RepositorySettingsView: UIView {
     // MARK: - UI Components
     
     private lazy var previewView = {
-        let view = UIView()
-        view.backgroundColor = .systemBackground
-        return view
+        let collectionView = RepoCollectionView()
+        return collectionView
     }()
     
     private lazy var scrollView = UIScrollView()
@@ -95,7 +94,7 @@ class RepositorySettingsView: UIView {
     private func setupLayout() {
         addSubview(previewView)
         previewView.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview()
+            make.top.leading.trailing.equalToSuperview().inset(insetFromSuperView)
             make.height.equalTo(80)
         }
         
