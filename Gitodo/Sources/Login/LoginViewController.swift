@@ -20,12 +20,8 @@ class LoginViewController: BaseViewController<LoginView> {
 extension LoginViewController: LoginDelegate {
     
     func loginWithGithub() {
-        changeRootViewController()
-    }
-    
-    private func changeRootViewController() {
-        guard let window = view.window else { return }
-        window.rootViewController = UINavigationController(rootViewController: MainViewController())
+        guard let url = APIManager.shared.getLoginURL() else { return }
+        UIApplication.shared.open(url)
     }
     
 }
