@@ -11,6 +11,7 @@ import SnapKit
 
 protocol RepositorySettingsDelegate: AnyObject {
     func presentAlertViewController(completion: @escaping (() -> Void))
+    func presentRepositoryInfoViewController()
 }
 
 class RepositorySettingsView: UIView {
@@ -40,6 +41,8 @@ class RepositorySettingsView: UIView {
     weak var delegate: RepositorySettingsDelegate?
     
     private let insetFromSuperView: CGFloat = 20.0
+    private let insetFromContentSuperViewTop: CGFloat = 10.0
+    private let offsetFromPreviewView: CGFloat = 10.0
     private let offsetFromOtherView: CGFloat = 25.0
     private let offsetFromFriendView: CGFloat = 10.0
     private let heightForRow: CGFloat = 50.0
@@ -48,6 +51,7 @@ class RepositorySettingsView: UIView {
     
     private lazy var previewView = {
         let collectionView = RepoCollectionView()
+        collectionView.delegate = self
         return collectionView
     }()
     
@@ -100,7 +104,7 @@ class RepositorySettingsView: UIView {
         
         addSubview(scrollView)
         scrollView.snp.makeConstraints { make in
-            make.top.equalTo(previewView.snp.bottom)
+            make.top.equalTo(previewView.snp.bottom).offset(offsetFromPreviewView)
             make.leading.trailing.bottom.equalToSuperview()
         }
         
@@ -112,7 +116,8 @@ class RepositorySettingsView: UIView {
         
         contentView.addSubview(repoLabel)
         repoLabel.snp.makeConstraints { make in
-            make.top.leading.equalToSuperview().inset(insetFromSuperView)
+            make.top.equalToSuperview().inset(insetFromContentSuperViewTop)
+            make.leading.trailing.equalToSuperview().inset(insetFromSuperView)
         }
         
         contentView.addSubview(repoTableView)
@@ -229,4 +234,10 @@ extension RepositorySettingsView: UITableViewDataSource {
         return cell
     }
     
+}
+
+extension RepositorySettingsView: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        delegate?.presentRepositoryInfoViewController()
+    }
 }

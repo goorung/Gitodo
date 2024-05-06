@@ -24,6 +24,10 @@ class RepositorySettingsViewController: BaseViewController<RepositorySettingsVie
 }
 
 extension RepositorySettingsViewController: RepositorySettingsDelegate {
+    func presentRepositoryInfoViewController() {
+        present(RepositoryInfoViewController(), animated: true)
+    }
+    
     
     func presentAlertViewController(completion: @escaping (() -> Void)) {
         let alertController = UIAlertController(
