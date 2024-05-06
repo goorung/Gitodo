@@ -22,21 +22,22 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
         guard let context = URLContexts.first,
               let components = URLComponents(url: context.url, resolvingAgainstBaseURL: false),
-              let queryItems = components.queryItems
-        else { return }
+              let queryItems = components.queryItems,
+              let code = queryItems.first(where: { $0.name == "code" })?.value
+        else {
+            print("로그인 실패") // 나중에 토스트 메시지로 변경 예정 !
+            return
+        }
         
-        if let error = queryItems.first(where: { $0.name == "error" })?.value,
-           let errorDescription = queryItems.first(where: { $0.name == "error_description" })?.value {
-            print("로그인 실패: \(errorDescription)") // 나중에 토스트 메시지로 변경 예정
-        } else if let code = queryItems.first(where: { $0.name == "code" })?.value {
-            Task {
-                do {
-                    try await APIManager.shared.fetchAccessToken(with: code)
-                    print("Access Token 발급 완료")
-                    window?.rootViewController = UINavigationController(rootViewController: MainViewController())
-                } catch {
-                    print("Access Token 요청 실패: \(error.localizedDescription)")
+        Task {
+            do {
+                try await APIManager.shared.fetchAccessToken(with: code)
+                print("Access Token 발급 완료")
+                DispatchQueue.main.async {
+                    self.window?.rootViewController = UINavigationController(rootViewController: MainViewController())
                 }
+            } catch {
+                print("Access Token 요청 실패: \(error.localizedDescription)")
             }
         }
     }

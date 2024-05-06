@@ -13,32 +13,30 @@ struct TokenResponse: Codable {
 
 final class APIManager {
     
-    static let shared = APIManager() // singleton
-    
+    static let shared = APIManager() // // Singleton instance
     private init() {}
     
     // MARK: - Properties
     
     private let clientID = "Ov23liXtaG7W7YfAUotb"
     private let clientSecret = "0fc0289364abf389f0262ae271a7cc132afd8505"
-    private let urlString = "https://github.com/login/oauth/"
-    private let scope = "repo read:org"
+    private let baseURL = "https://github.com/login/oauth/"
     private var accessToken: String?
     
     // MARK: - Methods
     
     func getLoginURL() -> URL? {
-        var components = URLComponents(string: urlString + "authorize")!
+        var components = URLComponents(string: baseURL + "authorize")!
         components.queryItems = [
             URLQueryItem(name: "client_id", value: clientID),
-            URLQueryItem(name: "scope", value: scope),
+            URLQueryItem(name: "scope", value: "repo read:org"),
         ]
         
         return components.url
     }
     
     func fetchAccessToken(with code: String) async throws {
-        var components = URLComponents(string: urlString + "access_token")!
+        var components = URLComponents(string: baseURL + "access_token")!
         components.queryItems = [
             URLQueryItem(name: "client_id", value: clientID),
             URLQueryItem(name: "client_secret", value: clientSecret),
@@ -54,7 +52,6 @@ final class APIManager {
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         
         let (data, _) = try await URLSession.shared.data(for: request)
-        
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         
