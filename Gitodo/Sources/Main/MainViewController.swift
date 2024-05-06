@@ -15,6 +15,25 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
         setupNavigationBar()
         hideKeyboardWhenTappedAround()
         contentView.setIssueDelegate(self)
+        
+        
+        Task { // 예시 코드
+            do {
+                let organizations = try await APIManager.shared.fetchOrganizations()
+                print("organization list")
+                for organization in organizations {
+                    print(organization)
+                }
+                
+                print("\n\nrepository list")
+                let repositories = try await APIManager.shared.fetchRepositories()
+                for repositorie in repositories {
+                    print(repositorie)
+                }
+            } catch {
+                print("실패")
+            }
+        }
     }
     
     func setupNavigationBar() {

@@ -7,19 +7,19 @@
 
 import Foundation
 
-struct Issue {
+struct Issue: Codable {
     let title: String
     let body: String?
     let assignees: [Assignee]?
     let labels: [Label]?
 }
 
-struct Assignee {
+struct Assignee: Codable {
     let login: String
     let avatarUrl: String
 }
 
-struct Label {
+struct Label: Codable {
     let name: String
     let color: String
 }

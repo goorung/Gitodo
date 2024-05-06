@@ -33,7 +33,7 @@ final class LoginManager {
         var components = URLComponents(string: baseURL + LoginPath.login.rawValue)!
         components.queryItems = [
             URLQueryItem(name: "client_id", value: clientID),
-            URLQueryItem(name: "scope", value: "repo read:org"),
+            URLQueryItem(name: "scope", value: "repo user read:org"),
         ]
         
         return components.url
