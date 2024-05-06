@@ -19,16 +19,22 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
         
         Task { // 예시 코드
             do {
-                let organizations = try await APIManager.shared.fetchOrganizations()
-                print("organization list")
+                let organizations = try await APIManager.shared.fetchOrganization()
+                print("\n[ organization list ]")
                 for organization in organizations {
                     print(organization)
                 }
                 
-                print("\n\nrepository list")
+                print("\n[ repository list ]")
                 let repositories = try await APIManager.shared.fetchRepositories()
-                for repositorie in repositories {
-                    print(repositorie)
+                for repository in repositories {
+                    print(repository)
+                }
+                
+                print("\n[ gitodo issue list ]")
+                let issues = try await APIManager.shared.fetchIssues(for: repositories[1])
+                for issue in issues {
+                    print(issue)
                 }
             } catch {
                 print("실패")

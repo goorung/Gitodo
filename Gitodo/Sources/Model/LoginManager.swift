@@ -7,16 +7,16 @@
 
 import Foundation
 
-enum LoginPath: String {
-    case login = "/authorize"
-    case accessToken = "/access_token"
-}
-
 struct Token: Codable {
     let accessToken: String
 }
 
 final class LoginManager {
+    
+    enum LoginPath: String {
+        case login = "/authorize"
+        case accessToken = "/access_token"
+    }
     
     static let shared = LoginManager() // // Singleton instance
     private init() {}

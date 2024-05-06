@@ -7,11 +7,6 @@
 
 import Foundation
 
-enum APIPath: String {
-    case organization = "/user/orgs"
-    case repository = "/user/repos"
-}
-
 struct Organization: Codable {
     let login: String
     let id: Int
@@ -23,7 +18,12 @@ struct Repository: Codable {
     let id: Int
     let name: String
     let fullName: String
+    let owner: Owner
     let url: String
+}
+
+struct Owner: Codable {
+    let login: String
 }
 
 final class APIManager {
@@ -36,36 +36,36 @@ final class APIManager {
     private let baseURL = "https://api.github.com"
     var accessToken = ""
     
-    func fetchOrganizations() async throws -> [Organization] {
-        guard let url = URL(string: baseURL + APIPath.organization.rawValue) else {
-            throw URLError(.badURL)
-        }
-        
+    private func fetchData<T: Codable>(from url: URL) async throws -> [T] {
         var request = URLRequest(url: url)
         request.addValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
         request.addValue("token \(accessToken)", forHTTPHeaderField: "Authorization")
         
-        let (data, _) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+        
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
-        
-        return try decoder.decode([Organization].self, from: data)
+        return try decoder.decode([T].self, from: data)
+    }
+    
+    func fetchOrganization() async throws -> [Organization] {
+        let url = URL(string: "\(baseURL)/user/orgs")!
+        return try await fetchData(from: url)
     }
     
     func fetchRepositories() async throws -> [Repository] {
-        guard let url = URL(string: baseURL + APIPath.repository.rawValue) else {
-            throw URLError(.badURL)
-        }
-        
-        var request = URLRequest(url: url)
-        request.addValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
-        request.addValue("token \(accessToken)", forHTTPHeaderField: "Authorization")
-        
-        let (data, _) = try await URLSession.shared.data(for: request)
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        
-        return try decoder.decode([Repository].self, from: data)
+        let url = URL(string: "\(baseURL)/user/repos")!
+        return try await fetchData(from: url)
+    }
+    
+    func fetchIssues(for repository: Repository) async throws -> [Issue] {
+        let repoName = repository.name
+        let ownerName = repository.owner.login
+        let url = URL(string: "\(baseURL)/repos/\(ownerName)/\(repoName)/issues")!
+        return try await fetchData(from: url)
     }
     
 }
