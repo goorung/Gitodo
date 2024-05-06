@@ -17,6 +17,12 @@ class MainView: UIView {
     let viewModel = MainViewModel()
     private let disposeBag = DisposeBag()
     
+    let tempIssue = [
+        Issue(title: "title", body: "body\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nbody\n\n\n\n\n\n\n\n\n\n\n\n\n\nbody", assignees: [Assignee(login: "login0", avataUrl: ""), Assignee(login: "login1", avataUrl: ""), Assignee(login: "login2", avataUrl: ""), Assignee(login: "login3", avataUrl: ""), Assignee(login: "login4", avataUrl: ""), Assignee(login: "login5", avataUrl: ""), Assignee(login: "login6", avataUrl: ""), Assignee(login: "login7", avataUrl: ""), Assignee(login: "login8", avataUrl: ""), Assignee(login: "login9", avataUrl: "")], labels: [Label(name: "✨ enhancement", color: "BFD4F2")]),
+        Issue(title: "title", body: "body\nbody\nbody", assignees: [Assignee(login: "login", avataUrl: "")], labels: [Label(name: "🐛 bug", color: "E99695"), Label(name: "🪐 build", color: "D4C5F9"), Label(name: "📋 documentation", color: "C2E0C6"), Label(name: "✨ enhancement", color: "BFD4F2"), Label(name: "🛠️ refactoring", color: "FEF2C0")]),
+        Issue(title: "title\ntitle\ntitle", body: "body", assignees: [Assignee(login: "login", avataUrl: "")], labels: [Label(name: "✨ enhancement", color: "BFD4F2")])
+    ]
+    
     private lazy var repoCollectionView = RepoCollectionView()
     
     private lazy var separator = {
@@ -69,8 +75,7 @@ class MainView: UIView {
     }()
     
     private lazy var issueView = {
-        let view = UIView()
-        view.backgroundColor = .green
+        let view = IssueTableView()
         view.isHidden = true
         return view
     }()
@@ -137,6 +142,13 @@ class MainView: UIView {
     @objc private func segmentedControlChanged(_ segment: UISegmentedControl) {
         todoView.isHidden = segment.selectedSegmentIndex != 0
         issueView.isHidden = !todoView.isHidden
+        if !issueView.isHidden {
+            issueView.configure(with: tempIssue)
+        }
+    }
+    
+    func setIssueDelegate(_ viewController: IssueDelegate) {
+        issueView.issueDelegate = viewController
     }
     
     @objc private func todoAddButtonTapped() {
