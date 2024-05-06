@@ -31,12 +31,14 @@ final class APIManager {
     static let shared = APIManager() // // Singleton instance
     private init() {}
     
-    // MARK: - Properties
-    
     private let baseURL = "https://api.github.com"
     var accessToken = ""
     
-    private func fetchData<T: Codable>(from url: URL) async throws -> [T] {
+    private func fetchData<T: Codable>(from url: URL?) async throws -> [T] {
+        guard let url = url else {
+            throw URLError(.badURL)
+        }
+            
         var request = URLRequest(url: url)
         request.addValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
         request.addValue("token \(accessToken)", forHTTPHeaderField: "Authorization")
@@ -51,20 +53,20 @@ final class APIManager {
         return try decoder.decode([T].self, from: data)
     }
     
-    func fetchOrganization() async throws -> [Organization]? {
-        let url = URL(string: "\(baseURL)/user/orgs")!
+    func fetchOrganization() async throws -> [Organization] {
+        let url = URL(string: "\(baseURL)/user/orgs")
         return try await fetchData(from: url)
     }
     
-    func fetchRepositories() async throws -> [Repository]? {
-        let url = URL(string: "\(baseURL)/user/repos")!
+    func fetchRepositories() async throws -> [Repository] {
+        let url = URL(string: "\(baseURL)/user/repos")
         return try await fetchData(from: url)
     }
     
-    func fetchIssues(for repository: Repository) async throws -> [Issue]? {
+    func fetchIssues(for repository: Repository) async throws -> [Issue] {
         let repoName = repository.name
         let ownerName = repository.owner.login
-        let url = URL(string: "\(baseURL)/repos/\(ownerName)/\(repoName)/issues")!
+        let url = URL(string: "\(baseURL)/repos/\(ownerName)/\(repoName)/issues")
         return try await fetchData(from: url)
     }
     

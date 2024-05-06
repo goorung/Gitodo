@@ -21,26 +21,20 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
             do {
                 let organizations = try await APIManager.shared.fetchOrganization()
                 print("\n[ organization list ]")
-                if let organizations = organizations {
-                    for organization in organizations {
-                        print(organization)
-                    }
+                for organization in organizations {
+                    print(organization)
                 }
                 
                 print("\n[ repository list ]")
                 let repositories = try await APIManager.shared.fetchRepositories()
-                if let repositories = repositories {
-                    for repository in repositories {
-                        print(repository)
-                    }
-                    
-                    print("\n[ issue list ]")
-                    let issues = try await APIManager.shared.fetchIssues(for: repositories[1])
-                    if let issues = issues {
-                        for issue in issues {
-                            print(issue)
-                        }
-                    }
+                for repository in repositories {
+                    print(repository)
+                }
+                
+                print("\n[ issue list ]")
+                let issues = try await APIManager.shared.fetchIssues(for: repositories[1])
+                for issue in issues {
+                    print(issue)
                 }
             } catch {
                 print("실패")

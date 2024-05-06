@@ -21,13 +21,9 @@ final class LoginManager {
     static let shared = LoginManager() // // Singleton instance
     private init() {}
     
-    // MARK: - Properties
-    
     private let clientID = "Ov23liXtaG7W7YfAUotb"
     private let clientSecret = "0fc0289364abf389f0262ae271a7cc132afd8505"
     private let baseURL = "https://github.com/login/oauth/"
-    
-    // MARK: - Methods
     
     func getLoginURL() -> URL? {
         var components = URLComponents(string: baseURL + LoginPath.login.rawValue)!
