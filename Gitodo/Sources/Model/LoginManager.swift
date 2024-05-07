@@ -9,11 +9,6 @@ import Foundation
 
 final class LoginManager {
     
-    enum LoginPath: String {
-        case login = "/authorize"
-        case accessToken = "/access_token"
-    }
-    
     static let shared = LoginManager() // Singleton instance
     private init() {}
     
@@ -22,24 +17,24 @@ final class LoginManager {
     private let baseURL = "https://github.com/login/oauth/"
     
     func getLoginURL() -> URL? {
-        var components = URLComponents(string: baseURL + LoginPath.login.rawValue)!
-        components.queryItems = [
+        var components = URLComponents(string: "\(baseURL)/authorize")
+        components?.queryItems = [
             URLQueryItem(name: "client_id", value: clientID),
             URLQueryItem(name: "scope", value: "repo user read:org"),
         ]
         
-        return components.url
+        return components?.url
     }
     
     func fetchAccessToken(with code: String) async throws {
-        var components = URLComponents(string: baseURL + LoginPath.accessToken.rawValue)!
-        components.queryItems = [
+        var components = URLComponents(string: "\(baseURL)/access_token")
+        components?.queryItems = [
             URLQueryItem(name: "client_id", value: clientID),
             URLQueryItem(name: "client_secret", value: clientSecret),
             URLQueryItem(name: "code", value: code)
         ]
         
-        guard let url = components.url else {
+        guard let url = components?.url else {
             throw URLError(.badURL)
         }
         
