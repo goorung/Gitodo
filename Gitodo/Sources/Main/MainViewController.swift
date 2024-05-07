@@ -7,8 +7,6 @@
 
 import UIKit
 
-import Kingfisher
-
 class MainViewController: BaseViewController<MainView>, BaseViewControllerProtocol {
     
     override func viewDidLoad() {
