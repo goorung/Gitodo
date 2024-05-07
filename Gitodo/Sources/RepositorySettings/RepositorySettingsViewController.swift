@@ -24,8 +24,10 @@ class RepositorySettingsViewController: BaseViewController<RepositorySettingsVie
 }
 
 extension RepositorySettingsViewController: RepositorySettingsDelegate {
-    func presentRepositoryInfoViewController() {
-        present(RepositoryInfoViewController(), animated: true)
+    func presentRepositoryInfoViewController(repository: Repository) {
+        let viewController = RepositoryInfoViewController(viewModel: RepositoryInfoViewModel(repository: repository))
+        viewController.delegate = self
+        present(viewController, animated: true)
     }
     
     
@@ -44,6 +46,13 @@ extension RepositorySettingsViewController: RepositorySettingsDelegate {
         alertController.addAction(deleteAction)
         alertController.addAction(cancelAction)
         present(alertController, animated: true)
+    }
+    
+}
+
+extension RepositorySettingsViewController: RepositoryInfoViewControllerDelegate {
+    func doneButtonTapped(repository: Repository) {
+        contentView.updateRepository(repository)
     }
     
 }

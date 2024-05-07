@@ -9,20 +9,14 @@ import UIKit
 
 class RepoCollectionView: UICollectionView {
     
-    var tempRepo = [
-        (name: "algorithm", color: UIColor(hex: PaletteColor.blue.hex) , symbol: "🪼"),
-        (name: "iOS", color: UIColor(hex: PaletteColor.yellow.hex), symbol: "🍄"),
-        (name: "algorithm", color: UIColor(hex: PaletteColor.blue.hex) , symbol: "🪼"),
-        (name: "iOS", color: UIColor(hex: PaletteColor.yellow.hex), symbol: "🍄"),
-        (name: "algorithm", color: UIColor(hex: PaletteColor.blue.hex) , symbol: "🪼"),
-        (name: "iOS", color: UIColor(hex: PaletteColor.yellow.hex), symbol: "🍄"),
-        (name: "algorithm", color: UIColor(hex: PaletteColor.blue.hex) , symbol: "🪼"),
-        (name: "iOS", color: UIColor(hex: PaletteColor.yellow.hex), symbol: "🍄"),
-        (name: "algorithm", color: UIColor(hex: PaletteColor.blue.hex) , symbol: "🪼"),
-        (name: "iOS", color: UIColor(hex: PaletteColor.yellow.hex), symbol: "🍄"),
-    ]
+    var repos: [Repository] {
+        didSet {
+            reloadData()
+        }
+    }
     
-    init() {
+    init(repos: [Repository]) {
+        self.repos = repos
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         layout.itemSize = CGSize(width: 60, height: 80)
@@ -51,13 +45,13 @@ class RepoCollectionView: UICollectionView {
 
 extension RepoCollectionView: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        tempRepo.count
+        repos.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RepositoryInfoCell.reuseIdentifier, for: indexPath) as? RepositoryInfoCell else { return UICollectionViewCell() }
-        let repo = tempRepo[indexPath.row]
-        cell.configure(name: repo.name, color: repo.color, symbol: repo.symbol)
+        let repo = repos[indexPath.row]
+        cell.configure(name: repo.nickname, color: UIColor(hex: repo.hexColor), symbol: repo.symbol)
         return cell
     }
     
@@ -103,12 +97,12 @@ extension RepoCollectionView: UICollectionViewDropDelegate {
     }
     
     private func move(sourceIndexPath: IndexPath, destinationIndexPath: IndexPath) {
-        let sourceItem = tempRepo[sourceIndexPath.item]
+        let sourceItem = repos[sourceIndexPath.item]
         
         DispatchQueue.main.async {
-            self.tempRepo.remove(at: sourceIndexPath.item)
-            self.tempRepo.insert(sourceItem, at: destinationIndexPath.item)
-            let indexPaths = self.tempRepo
+            self.repos.remove(at: sourceIndexPath.item)
+            self.repos.insert(sourceItem, at: destinationIndexPath.item)
+            let indexPaths = self.repos
                 .enumerated()
                 .map(\.offset)
                 .map{ IndexPath(row: $0, section: 0) }

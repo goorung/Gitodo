@@ -7,7 +7,23 @@
 
 import UIKit
 
+protocol RepositoryInfoViewControllerDelegate: AnyObject {
+    func doneButtonTapped(repository: Repository)
+}
+
 class RepositoryInfoViewController: BaseViewController<RepositoryInfoView>, BaseViewControllerProtocol {
+    weak var delegate: RepositoryInfoViewControllerDelegate?
+    
+    init(viewModel: RepositoryInfoViewModel) {
+        super.init(nibName: nil, bundle: nil)
+        
+        contentView.viewModel = viewModel
+        contentView.initialConfigure()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,6 +44,8 @@ class RepositoryInfoViewController: BaseViewController<RepositoryInfoView>, Base
     }
     
     @objc private func handleDoneButtonTap(_ sender: UIButton) {
+        guard let repository = contentView.viewModel?.repository else { return }
+        delegate?.doneButtonTapped(repository: repository)
         dismiss(animated: true)
     }
     
