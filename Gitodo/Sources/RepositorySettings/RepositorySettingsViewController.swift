@@ -53,7 +53,6 @@ extension RepositorySettingsViewController: RepositorySettingsDelegate {
 
 extension RepositorySettingsViewController: RepositoryInfoViewControllerDelegate {
     func doneButtonTapped(repository: Repository) {
-        print(repository)
         contentView.viewModel.input.updateRepo.onNext(repository)
     }
     

@@ -25,6 +25,7 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
         setTitle("Gitodo",at: .left, font: .systemFont(ofSize: 20, weight: .bold))
         setProfileImageView(image: nil)
         setProfileImageViewAction(#selector(handleProfileImageViewTap))
+        remakeConstraintWithKeyboardLayoutGuide()
     }
     
     @objc private func handleProfileImageViewTap(_ gesture: UITapGestureRecognizer) {

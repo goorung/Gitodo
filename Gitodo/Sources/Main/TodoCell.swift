@@ -22,6 +22,7 @@ class TodoCell: UITableViewCell {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(toggleCheckbox))
         imageView.addGestureRecognizer(tapGesture)
         imageView.isUserInteractionEnabled = true
+        imageView.tintAdjustmentMode = .normal
         return imageView
     }()
     

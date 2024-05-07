@@ -15,6 +15,12 @@ class RepoCollectionView: UICollectionView {
         }
     }
     
+    var selectedIndex: Int? {
+        didSet {
+            reloadData()
+        }
+    }
+    
     init() {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
@@ -51,6 +57,12 @@ extension RepoCollectionView: UICollectionViewDataSource {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RepositoryInfoCell.reuseIdentifier, for: indexPath) as? RepositoryInfoCell else { return UICollectionViewCell() }
         let repo = repos[indexPath.row]
         cell.configure(name: repo.nickname, color: UIColor(hex: repo.hexColor), symbol: repo.symbol)
+        if let selectedIndex,
+           selectedIndex != indexPath.row {
+            cell.contentView.alpha = 0.5
+        } else {
+            cell.contentView.alpha = 1
+        }
         return cell
     }
     

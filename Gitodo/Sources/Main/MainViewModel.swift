@@ -16,20 +16,24 @@ final class MainViewModel {
     
     struct Input {
         let viewWillAppear: AnyObserver<Void>
+        let selectRepoIndex: AnyObserver<Int?>
         let appendTodo: AnyObserver<Void>
         let toggleTodo: AnyObserver<UUID>
         let deleteTodo: AnyObserver<UUID>
     }
     
     struct Output {
+        var selectedRepoIndex: Driver<Int?>
         var repos: Driver<[Repository]>
         var todos: Driver<[TodoCellViewModel]>
         var makeFirstResponder: Driver<IndexPath?>
     }
     
-    private let repos = PublishRelay<[Repository]>()
+    private var selectedRepoIndex = BehaviorRelay<Int?>(value: nil)
+    private let repos = BehaviorRelay<[Repository]>(value: [])
     
     private let viewWillAppearSubject = PublishSubject<Void>()
+    private let selectRepoIndexSubject = PublishSubject<Int?>()
     private let appendTodoSubject = PublishSubject<Void>()
     private let toggleTodoSubject = PublishSubject<UUID>()
     private let deleteTodoSubject = PublishSubject<UUID>()
@@ -40,17 +44,23 @@ final class MainViewModel {
     init() {
         input = Input(
             viewWillAppear: viewWillAppearSubject.asObserver(), 
+            selectRepoIndex: selectRepoIndexSubject.asObserver(),
             appendTodo: appendTodoSubject.asObserver(),
             toggleTodo: toggleTodoSubject.asObserver(),
             deleteTodo: deleteTodoSubject.asObserver()
         )
         output = Output(
+            selectedRepoIndex: selectedRepoIndex.asDriver(onErrorJustReturn: nil),
             repos: repos.asDriver(onErrorJustReturn: []),
             todos: todos.asDriver(onErrorJustReturn: []),
             makeFirstResponder: makeResponder.asDriver(onErrorJustReturn: nil))
         
         viewWillAppearSubject.subscribe(onNext: { [weak self] in
             self?.fetchRepos()
+        }).disposed(by: disposeBag)
+        
+        selectRepoIndexSubject.subscribe(onNext: { [weak self] index in
+            self?.selectedRepoIndex.accept(index)
             self?.fetchTodoList()
         }).disposed(by: disposeBag)
         
@@ -67,40 +77,52 @@ final class MainViewModel {
         }).disposed(by: disposeBag)
     }
     
+    var selectedHexColor: UInt? {
+        guard let repoIndex = selectedRepoIndex.value else { return nil }
+        return repos.value[repoIndex].hexColor
+    }
+    
     private func fetchRepos() {
         let fetchedRepos = TempRepository.getRepos()
         repos.accept(fetchedRepos)
+        if selectedRepoIndex.value == nil && fetchedRepos.count > 0 {
+            selectedRepoIndex.accept(0)
+            fetchTodoList()
+        }
     }
     
     private func fetchTodoList() {
+        guard let repoIndex = selectedRepoIndex.value else { return }
+        let todos = TempRepository.getTodos(repoIndex: repoIndex)
         
-        let fetchedTodos = TempRepository.getRepo()
-        
-        let todoViewModels = fetchedTodos.map{ (todoItem) -> TodoCellViewModel in
-            let viewModel = TodoCellViewModel(todoItem: todoItem, tintColorHex: 0xB5D3FF)
+        let todoViewModels = todos.map{ (todoItem) -> TodoCellViewModel in
+            let viewModel = TodoCellViewModel(todoItem: todoItem, tintColorHex: repos.value[repoIndex].hexColor)
             viewModel.delegate = self
             return viewModel
         }.sorted {
             return !$0.isComplete || $1.isComplete
         }
         
-        todos.accept(todoViewModels)
+        self.todos.accept(todoViewModels)
     }
     
     private func appendTodo() {
-        let id = TempRepository.appendTodo()
+        guard let repoIndex = selectedRepoIndex.value else { return }
+        let id = TempRepository.appendTodo(repoIndex: repoIndex)
         fetchTodoList()
-        makeResponder.accept(IndexPath(row: TempRepository.countIndex(of: id), section: 0))
+        makeResponder.accept(IndexPath(row: TempRepository.countIndex(repoIndex: repoIndex, of: id), section: 0))
     }
     
     private func toggleTodo(with id: UUID) {
-        TempRepository.toggleTodo(with: id)
+        guard let repoIndex = selectedRepoIndex.value else { return }
+        TempRepository.toggleTodo(repoIndex: repoIndex, with: id)
         fetchTodoList()
     }
     
     
     private func deleteTodo(with id: UUID) {
-        TempRepository.deleteTodo(with: id)
+        guard let repoIndex = selectedRepoIndex.value else { return }
+        TempRepository.deleteTodo(repoIndex: repoIndex, with: id)
         fetchTodoList()
     }
     
@@ -109,9 +131,10 @@ final class MainViewModel {
 extension MainViewModel: TodoCellViewModelDelegate {
     func todoCellViewModelDidReturnTodo(_ viewModel: TodoCellViewModel) {
         if !viewModel.todo.isEmpty {
-            guard let id = TempRepository.appendTodo(after: viewModel.id) else { return }
+            guard let repoIndex = selectedRepoIndex.value else { return }
+            guard let id = TempRepository.appendTodo(repoIndex: repoIndex, after: viewModel.id) else { return }
             fetchTodoList()
-            makeResponder.accept(IndexPath(row: TempRepository.countIndex(of: id), section: 0))
+            makeResponder.accept(IndexPath(row: TempRepository.countIndex(repoIndex: repoIndex, of: id), section: 0))
         }
     }
     
@@ -122,6 +145,7 @@ extension MainViewModel: TodoCellViewModelDelegate {
     }
     
     func todoCellViewModel(_ viewModel: TodoCellViewModel, didUpdateItem todoItem: TodoItem) {
-        TempRepository.updateTodo(todoItem)
+        guard let repoIndex = selectedRepoIndex.value else { return }
+        TempRepository.updateTodo(repoIndex: repoIndex, todoItem)
     }
 }

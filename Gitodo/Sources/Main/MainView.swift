@@ -23,7 +23,11 @@ class MainView: UIView {
         Issue(title: "title\ntitle\ntitle", body: "body", assignees: [Assignee(login: "login", avataUrl: "")], labels: [Label(name: "✨ enhancement", color: "BFD4F2")])
     ]
     
-    private lazy var repoCollectionView = RepoCollectionView()
+    private lazy var repoCollectionView = {
+        let collectionView = RepoCollectionView()
+        collectionView.delegate = self
+        return collectionView
+    }()
     
     private lazy var separator = {
         let view = UIView()
@@ -65,7 +69,9 @@ class MainView: UIView {
     
     private lazy var todoAddButton = {
         let button = UIButton()
+        button.tintAdjustmentMode = .normal
         button.setImage(UIImage(systemName: "plus.circle.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), for: .normal)
+        button.setImage(UIImage(systemName: "plus.circle.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), for: .highlighted)
         button.setTitle(" 할 일 추가", for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
         button.tintColor = .init(hex: PaletteColor.blue.hex)
@@ -163,8 +169,27 @@ class MainView: UIView {
         viewModel.output.repos
             .drive { [weak self] repos in
                 self?.repoCollectionView.repos = repos
-            }
-            .disposed(by: disposeBag)
+            }.disposed(by: disposeBag)
+        
+        viewModel.output.selectedRepoIndex
+            .drive{ [weak self] index in
+                self?.repoCollectionView.selectedIndex = index
+                let color: UIColor
+                if let hex = self?.viewModel.selectedHexColor {
+                    color = UIColor(hex: hex)
+                } else {
+                    color = .label
+                }
+                self?.todoAddButton.setTitleColor(color, for: .normal)
+                self?.todoAddButton.tintColor = color
+                
+                let selectedAttributes = [
+                    NSAttributedString.Key.foregroundColor: color,
+                    NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15, weight: .semibold)
+                ]
+                
+                self?.segmentedControl.setTitleTextAttributes(selectedAttributes, for: .selected)
+            }.disposed(by: disposeBag)
         
         viewModel.output.todos
             .map({
@@ -179,16 +204,14 @@ class MainView: UIView {
                         self?.viewModel.input.toggleTodo.onNext(todo.id)
                     })
                     .disposed(by: cell.disposeBag)
-            }
-            .disposed(by: disposeBag)
+            }.disposed(by: disposeBag)
         
         viewModel.output.makeFirstResponder
             .drive(onNext: { [weak self] indexPath in
                 guard let indexPath,
                       let cell = self?.todoTableView.cellForRow(at: indexPath) as? TodoCell else { return }
                 cell.todoBecomeFirstResponder()
-            })
-            .disposed(by: disposeBag)
+            }).disposed(by: disposeBag)
     }
     
 }
@@ -208,4 +231,10 @@ extension MainView: UITableViewDelegate {
         return configuration
     }
     
+}
+
+extension MainView: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        viewModel.input.selectRepoIndex.onNext(indexPath.row)
+    }
 }
