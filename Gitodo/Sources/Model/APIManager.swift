@@ -7,28 +7,9 @@
 
 import Foundation
 
-struct Organization: Codable {
-    let login: String
-    let id: Int
-    let url: URL
-    let avatarUrl: String
-}
-
-struct Repository: Codable {
-    let id: Int
-    let name: String
-    let fullName: String
-    let owner: Owner
-    let url: String
-}
-
-struct Owner: Codable {
-    let login: String
-}
-
 final class APIManager {
     
-    static let shared = APIManager() // // Singleton instance
+    static let shared = APIManager() // Singleton instance
     private init() {}
     
     private let baseURL = "https://api.github.com"

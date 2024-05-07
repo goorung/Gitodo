@@ -7,10 +7,6 @@
 
 import Foundation
 
-struct Token: Codable {
-    let accessToken: String
-}
-
 final class LoginManager {
     
     enum LoginPath: String {
@@ -18,7 +14,7 @@ final class LoginManager {
         case accessToken = "/access_token"
     }
     
-    static let shared = LoginManager() // // Singleton instance
+    static let shared = LoginManager() // Singleton instance
     private init() {}
     
     private let clientID = "Ov23liXtaG7W7YfAUotb"
