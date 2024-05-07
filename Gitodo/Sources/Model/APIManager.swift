@@ -32,16 +32,15 @@ final class APIManager {
     private init() {}
     
     private let baseURL = "https://api.github.com"
-    var accessToken = ""
     
-    private func fetchData<T: Codable>(from url: URL?) async throws -> [T] {
+    private func fetchData<T: Codable>(from url: URL?) async throws -> T {
         guard let url = url else {
             throw URLError(.badURL)
         }
             
         var request = URLRequest(url: url)
         request.addValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
-        request.addValue("token \(accessToken)", forHTTPHeaderField: "Authorization")
+        request.addValue("token \(UserDefaultsManager.accessToken)", forHTTPHeaderField: "Authorization")
         
         let (data, response) = try await URLSession.shared.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
@@ -50,7 +49,12 @@ final class APIManager {
         
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
-        return try decoder.decode([T].self, from: data)
+        return try decoder.decode(T.self, from: data)
+    }
+    
+    func fetchMe() async throws -> User {
+        let url = URL(string: "\(baseURL)/user")
+        return try await fetchData(from: url)
     }
     
     func fetchOrganization() async throws -> [Organization] {

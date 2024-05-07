@@ -18,9 +18,9 @@ class MainView: UIView {
     private let disposeBag = DisposeBag()
     
     let tempIssue = [
-        Issue(title: "title", body: "body\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nbody\n\n\n\n\n\n\n\n\n\n\n\n\n\nbody", assignees: [Assignee(login: "login0", avatarUrl: ""), Assignee(login: "login1", avatarUrl: ""), Assignee(login: "login2", avatarUrl: ""), Assignee(login: "login3", avatarUrl: ""), Assignee(login: "login4", avatarUrl: ""), Assignee(login: "login5", avatarUrl: ""), Assignee(login: "login6", avatarUrl: ""), Assignee(login: "login7", avatarUrl: ""), Assignee(login: "login8", avatarUrl: ""), Assignee(login: "login9", avatarUrl: "")], labels: [Label(name: "✨ enhancement", color: "BFD4F2")]),
-        Issue(title: "title", body: "body\nbody\nbody", assignees: [Assignee(login: "login", avatarUrl: "")], labels: [Label(name: "🐛 bug", color: "E99695"), Label(name: "🪐 build", color: "D4C5F9"), Label(name: "📋 documentation", color: "C2E0C6"), Label(name: "✨ enhancement", color: "BFD4F2"), Label(name: "🛠️ refactoring", color: "FEF2C0")]),
-        Issue(title: "title\ntitle\ntitle", body: "body", assignees: [Assignee(login: "login", avatarUrl: "")], labels: [Label(name: "✨ enhancement", color: "BFD4F2")])
+        Issue(title: "title", body: "body\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nbody\n\n\n\n\n\n\n\n\n\n\n\n\n\nbody", assignees: [User(login: "login0", avatarUrl: ""), User(login: "login1", avatarUrl: ""), User(login: "login2", avatarUrl: ""), User(login: "login3", avatarUrl: ""), User(login: "login4", avatarUrl: ""), User(login: "login5", avatarUrl: ""), User(login: "login6", avatarUrl: ""), User(login: "login7", avatarUrl: ""), User(login: "login8", avatarUrl: ""), User(login: "login9", avatarUrl: "")], labels: [Label(name: "✨ enhancement", color: "BFD4F2")]),
+        Issue(title: "title", body: "body\nbody\nbody", assignees: [User(login: "login", avatarUrl: "")], labels: [Label(name: "🐛 bug", color: "E99695"), Label(name: "🪐 build", color: "D4C5F9"), Label(name: "📋 documentation", color: "C2E0C6"), Label(name: "✨ enhancement", color: "BFD4F2"), Label(name: "🛠️ refactoring", color: "FEF2C0")]),
+        Issue(title: "title\ntitle\ntitle", body: "body", assignees: [User(login: "login", avatarUrl: "")], labels: [Label(name: "✨ enhancement", color: "BFD4F2")])
     ]
     
     private lazy var repoCollectionView = RepoCollectionView()

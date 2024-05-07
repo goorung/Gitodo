@@ -10,11 +10,11 @@ import Foundation
 struct Issue: Codable {
     let title: String
     let body: String?
-    let assignees: [Assignee]?
+    let assignees: [User]?
     let labels: [Label]?
 }
 
-struct Assignee: Codable {
+struct User: Codable {
     let login: String
     let avatarUrl: String
 }

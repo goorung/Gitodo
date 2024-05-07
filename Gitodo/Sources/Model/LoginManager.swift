@@ -61,7 +61,7 @@ final class LoginManager {
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         let token = try decoder.decode(Token.self, from: data)
         
-        APIManager.shared.accessToken = token.accessToken
+        UserDefaultsManager.accessToken = token.accessToken
     }
     
 }

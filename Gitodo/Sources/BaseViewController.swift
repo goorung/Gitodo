@@ -7,6 +7,7 @@
 
 import UIKit
 
+import Kingfisher
 import SnapKit
 
 protocol BaseViewControllerProtocol {
@@ -156,11 +157,6 @@ class BaseViewController<View: UIView>: UIViewController, UIGestureRecognizerDel
         rightButton.addTarget(self, action: action, for: .touchUpInside)
     }
     
-    func setRightButtonMenu(_ menu: UIMenu) {
-        rightButton.showsMenuAsPrimaryAction = true
-        rightButton.menu = menu
-    }
-
     func setLeftBackButton() {
         setLeftButton(symbolName: "chevron.backward")
         setLeftButtonAction(#selector(backButtonTapped))
@@ -170,8 +166,9 @@ class BaseViewController<View: UIView>: UIViewController, UIGestureRecognizerDel
         navigationController?.popViewController(animated: true)
     }
     
-    func setProfileImageView(image: UIImage?) {
-        profileImageView.setImage(image)
+    func setProfileImageView(url: URL?) {
+        guard let url = url else { return }
+        profileImageView.kf.setImage(with: url)
         
         navigationBarView.addSubview(profileImageView)
         profileImageView.snp.makeConstraints { make in
@@ -185,10 +182,6 @@ class BaseViewController<View: UIView>: UIViewController, UIGestureRecognizerDel
         let tapGesture = UITapGestureRecognizer(target: self, action: action)
         profileImageView.addGestureRecognizer(tapGesture)
         profileImageView.isUserInteractionEnabled = true
-    }
-    
-    func changeProfileImage(image: UIImage?) {
-        profileImageView.setImage(image)
     }
 
 }
