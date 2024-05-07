@@ -17,29 +17,13 @@ class MainView: UIView {
     let viewModel = MainViewModel()
     private let disposeBag = DisposeBag()
     
-    var tempRepo = [
-        Repository(id: 1, nickname: "algorithm", symbol: "🪼", hexColor: PaletteColor.blue.hex),
-        Repository(id: 2, nickname: "iOS", symbol: "🍄", hexColor: PaletteColor.yellow.hex),
-        Repository(id: 1, nickname: "algorithm", symbol: "🪼", hexColor: PaletteColor.blue.hex),
-        Repository(id: 2, nickname: "iOS", symbol: "🍄", hexColor: PaletteColor.yellow.hex),
-        Repository(id: 1, nickname: "algorithm", symbol: "🪼", hexColor: PaletteColor.blue.hex),
-        Repository(id: 2, nickname: "iOS", symbol: "🍄", hexColor: PaletteColor.yellow.hex),
-        Repository(id: 1, nickname: "algorithm", symbol: "🪼", hexColor: PaletteColor.blue.hex),
-        Repository(id: 2, nickname: "iOS", symbol: "🍄", hexColor: PaletteColor.yellow.hex),
-        Repository(id: 1, nickname: "algorithm", symbol: "🪼", hexColor: PaletteColor.blue.hex),
-        Repository(id: 2, nickname: "iOS", symbol: "🍄", hexColor: PaletteColor.yellow.hex),
-    ]
-    
     let tempIssue = [
         Issue(title: "title", body: "body\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nbody\n\n\n\n\n\n\n\n\n\n\n\n\n\nbody", assignees: [Assignee(login: "login0", avataUrl: ""), Assignee(login: "login1", avataUrl: ""), Assignee(login: "login2", avataUrl: ""), Assignee(login: "login3", avataUrl: ""), Assignee(login: "login4", avataUrl: ""), Assignee(login: "login5", avataUrl: ""), Assignee(login: "login6", avataUrl: ""), Assignee(login: "login7", avataUrl: ""), Assignee(login: "login8", avataUrl: ""), Assignee(login: "login9", avataUrl: "")], labels: [Label(name: "✨ enhancement", color: "BFD4F2")]),
         Issue(title: "title", body: "body\nbody\nbody", assignees: [Assignee(login: "login", avataUrl: "")], labels: [Label(name: "🐛 bug", color: "E99695"), Label(name: "🪐 build", color: "D4C5F9"), Label(name: "📋 documentation", color: "C2E0C6"), Label(name: "✨ enhancement", color: "BFD4F2"), Label(name: "🛠️ refactoring", color: "FEF2C0")]),
         Issue(title: "title\ntitle\ntitle", body: "body", assignees: [Assignee(login: "login", avataUrl: "")], labels: [Label(name: "✨ enhancement", color: "BFD4F2")])
     ]
     
-    private lazy var repoCollectionView = {
-        let collectionView = RepoCollectionView(repos: tempRepo)
-        return collectionView
-    }()
+    private lazy var repoCollectionView = RepoCollectionView()
     
     private lazy var separator = {
         let view = UIView()
@@ -101,7 +85,7 @@ class MainView: UIView {
         
         setupLayout()
         bindViewModel()
-        viewModel.input.reload.onNext(())
+        viewModel.input.viewWillAppear.onNext(())
     }
     
     required init?(coder: NSCoder) {
@@ -174,6 +158,12 @@ class MainView: UIView {
     private func bindViewModel() {
         todoTableView.rx
             .setDelegate(self)
+            .disposed(by: disposeBag)
+        
+        viewModel.output.repos
+            .drive { [weak self] repos in
+                self?.repoCollectionView.repos = repos
+            }
             .disposed(by: disposeBag)
         
         viewModel.output.todos

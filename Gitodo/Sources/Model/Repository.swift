@@ -12,6 +12,7 @@ struct Repository {
     var nickname: String
     var symbol: String?
     var hexColor: UInt
+    var todos: [TodoItem] = []
 }
 
 extension Repository {

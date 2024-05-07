@@ -14,6 +14,7 @@ class RepositorySettingsViewController: BaseViewController<RepositorySettingsVie
 
         setupNavigationBar()
         contentView.delegate = self
+        contentView.viewModel.input.viewDidLoad.onNext(())
     }
     
     func setupNavigationBar() {
@@ -52,7 +53,8 @@ extension RepositorySettingsViewController: RepositorySettingsDelegate {
 
 extension RepositorySettingsViewController: RepositoryInfoViewControllerDelegate {
     func doneButtonTapped(repository: Repository) {
-        contentView.updateRepository(repository)
+        print(repository)
+        contentView.viewModel.input.updateRepo.onNext(repository)
     }
     
 }

@@ -7,6 +7,8 @@
 
 import UIKit
 
+import RxCocoa
+import RxSwift
 import SnapKit
 
 protocol RepositorySettingsDelegate: AnyObject {
@@ -15,21 +17,10 @@ protocol RepositorySettingsDelegate: AnyObject {
 }
 
 class RepositorySettingsView: UIView {
+    let viewModel = RepositorySettingViewModel()
+    private let disposeBag = DisposeBag()
     
     // temp !
-    
-    var tempRepo = [
-        Repository(id: 1, nickname: "algorithm", symbol: "🪼", hexColor: PaletteColor.blue.hex),
-        Repository(id: 2, nickname: "iOS", symbol: "🍄", hexColor: PaletteColor.yellow.hex),
-        Repository(id: 1, nickname: "algorithm", symbol: "🪼", hexColor: PaletteColor.blue.hex),
-        Repository(id: 2, nickname: "iOS", symbol: "🍄", hexColor: PaletteColor.yellow.hex),
-        Repository(id: 1, nickname: "algorithm", symbol: "🪼", hexColor: PaletteColor.blue.hex),
-        Repository(id: 2, nickname: "iOS", symbol: "🍄", hexColor: PaletteColor.yellow.hex),
-        Repository(id: 1, nickname: "algorithm", symbol: "🪼", hexColor: PaletteColor.blue.hex),
-        Repository(id: 2, nickname: "iOS", symbol: "🍄", hexColor: PaletteColor.yellow.hex),
-        Repository(id: 1, nickname: "algorithm", symbol: "🪼", hexColor: PaletteColor.blue.hex),
-        Repository(id: 2, nickname: "iOS", symbol: "🍄", hexColor: PaletteColor.yellow.hex),
-    ]
     
     private let repos = [
         "레포지토리 1",
@@ -64,7 +55,7 @@ class RepositorySettingsView: UIView {
     // MARK: - UI Components
     
     private lazy var previewView = {
-        let collectionView = RepoCollectionView(repos: tempRepo)
+        let collectionView = RepoCollectionView()
         collectionView.delegate = self
         return collectionView
     }()
@@ -101,6 +92,7 @@ class RepositorySettingsView: UIView {
         
         backgroundColor = .secondarySystemBackground
         setupLayout()
+        bindViewModel()
     }
     
     required init?(coder: NSCoder) {
@@ -156,12 +148,11 @@ class RepositorySettingsView: UIView {
         }
     }
     
-    func updateRepository(_ repository: Repository) {
-        guard let index = tempRepo.firstIndex(where: { $0.id == repository.id}) else { return }
-        tempRepo[index].nickname = repository.nickname
-        tempRepo[index].symbol = repository.symbol
-        tempRepo[index].hexColor = repository.hexColor
-        previewView.repos = tempRepo
+    private func bindViewModel() {
+        viewModel.output.repos
+            .drive { [weak self] repos in
+                self?.previewView.repos = repos
+            }.disposed(by: disposeBag)
     }
     
 }
@@ -260,6 +251,6 @@ extension RepositorySettingsView: UITableViewDataSource {
 
 extension RepositorySettingsView: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        delegate?.presentRepositoryInfoViewController(repository: tempRepo[indexPath.row])
+        delegate?.presentRepositoryInfoViewController(repository: viewModel.repo(at: indexPath))
     }
 }

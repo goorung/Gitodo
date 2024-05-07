@@ -7,7 +7,7 @@
 
 import Foundation
 
-class RepositoryInfoViewModel {
+final class RepositoryInfoViewModel {
     private(set) var repository: Repository
     
     init(repository: Repository) {

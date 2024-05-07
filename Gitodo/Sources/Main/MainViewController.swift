@@ -17,6 +17,10 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
         contentView.setIssueDelegate(self)
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        contentView.viewModel.input.viewWillAppear.onNext(())
+    }
+    
     func setupNavigationBar() {
         setTitle("Gitodo",at: .left, font: .systemFont(ofSize: 20, weight: .bold))
         setProfileImageView(image: nil)

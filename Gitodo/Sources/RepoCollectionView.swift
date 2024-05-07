@@ -9,14 +9,13 @@ import UIKit
 
 class RepoCollectionView: UICollectionView {
     
-    var repos: [Repository] {
+    var repos: [Repository] = [] {
         didSet {
             reloadData()
         }
     }
     
-    init(repos: [Repository]) {
-        self.repos = repos
+    init() {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         layout.itemSize = CGSize(width: 60, height: 80)

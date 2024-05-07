@@ -14,21 +14,22 @@ final class MainViewModel {
     let input: Input
     let output: Output
     
-    private var tempRepo = TempRepository()
-    
     struct Input {
-        let reload: AnyObserver<Void>
+        let viewWillAppear: AnyObserver<Void>
         let appendTodo: AnyObserver<Void>
         let toggleTodo: AnyObserver<UUID>
         let deleteTodo: AnyObserver<UUID>
     }
     
     struct Output {
+        var repos: Driver<[Repository]>
         var todos: Driver<[TodoCellViewModel]>
         var makeFirstResponder: Driver<IndexPath?>
     }
     
-    private let reloadSubject = PublishSubject<Void>()
+    private let repos = PublishRelay<[Repository]>()
+    
+    private let viewWillAppearSubject = PublishSubject<Void>()
     private let appendTodoSubject = PublishSubject<Void>()
     private let toggleTodoSubject = PublishSubject<UUID>()
     private let deleteTodoSubject = PublishSubject<UUID>()
@@ -38,39 +39,42 @@ final class MainViewModel {
     
     init() {
         input = Input(
-            reload: reloadSubject.asObserver(), 
+            viewWillAppear: viewWillAppearSubject.asObserver(), 
             appendTodo: appendTodoSubject.asObserver(),
             toggleTodo: toggleTodoSubject.asObserver(),
             deleteTodo: deleteTodoSubject.asObserver()
         )
         output = Output(
+            repos: repos.asDriver(onErrorJustReturn: []),
             todos: todos.asDriver(onErrorJustReturn: []),
             makeFirstResponder: makeResponder.asDriver(onErrorJustReturn: nil))
         
-        reloadSubject.subscribe(onNext: { [weak self] in
+        viewWillAppearSubject.subscribe(onNext: { [weak self] in
+            self?.fetchRepos()
             self?.fetchTodoList()
-        })
-        .disposed(by: disposeBag)
+        }).disposed(by: disposeBag)
         
         appendTodoSubject.subscribe(onNext: { [weak self] in
             self?.appendTodo()
-        })
-        .disposed(by: disposeBag)
+        }).disposed(by: disposeBag)
         
         toggleTodoSubject.subscribe(onNext: { [weak self] id in
             self?.toggleTodo(with: id)
-        })
-        .disposed(by: disposeBag)
+        }).disposed(by: disposeBag)
         
         deleteTodoSubject.subscribe(onNext: { [weak self] id in
             self?.deleteTodo(with: id)
-        })
-        .disposed(by: disposeBag)
+        }).disposed(by: disposeBag)
+    }
+    
+    private func fetchRepos() {
+        let fetchedRepos = TempRepository.getRepos()
+        repos.accept(fetchedRepos)
     }
     
     private func fetchTodoList() {
         
-        let fetchedTodos = tempRepo.getRepo()
+        let fetchedTodos = TempRepository.getRepo()
         
         let todoViewModels = fetchedTodos.map{ (todoItem) -> TodoCellViewModel in
             let viewModel = TodoCellViewModel(todoItem: todoItem, tintColorHex: 0xB5D3FF)
@@ -84,77 +88,20 @@ final class MainViewModel {
     }
     
     private func appendTodo() {
-        let id = tempRepo.appendTodo()
+        let id = TempRepository.appendTodo()
         fetchTodoList()
-        makeResponder.accept(IndexPath(row: tempRepo.countIndex(of: id), section: 0))
+        makeResponder.accept(IndexPath(row: TempRepository.countIndex(of: id), section: 0))
     }
     
     private func toggleTodo(with id: UUID) {
-        tempRepo.toggleTodo(with: id)
+        TempRepository.toggleTodo(with: id)
         fetchTodoList()
     }
     
     
     private func deleteTodo(with id: UUID) {
-        tempRepo.deleteTodo(with: id)
+        TempRepository.deleteTodo(with: id)
         fetchTodoList()
-    }
-    
-}
-
-class TempRepository {
-    private var firstRepoTodo = [
-        TodoItem(todo: "끝내주게 숨쉬기", isComplete: false),
-        TodoItem(todo: "간지나게 자기", isComplete: false),
-        TodoItem(todo: "작살나게 밥먹기", isComplete: false)
-    ]
-    
-    func index(with id: UUID) -> Int? {
-        guard let firstIndex = firstRepoTodo.firstIndex(where: { $0.id == id }) else { return nil }
-        return firstIndex
-    }
-    
-    func getRepo() -> [TodoItem] {
-        firstRepoTodo
-    }
-    
-    func countIndex(of id: UUID) -> Int {
-        guard let index = index(with: id) else { return 0 }
-        var count = 0
-        for i in 0..<index {
-            if firstRepoTodo[i].isComplete == false {
-                count += 1
-            }
-        }
-        return count
-    }
-    
-    func appendTodo() -> UUID {
-        let todoItem = TodoItem.placeholderItem()
-        firstRepoTodo.append(todoItem)
-        return todoItem.id
-    }
-    
-    func appendTodo(after id: UUID) -> UUID? {
-        guard let index = index(with: id) else { return nil }
-        let todoItem = TodoItem.placeholderItem()
-        firstRepoTodo.insert(todoItem, at: index + 1)
-        return todoItem.id
-    }
-    
-    func deleteTodo(with id: UUID) {
-        guard let index = index(with: id) else { return }
-        firstRepoTodo.remove(at: index)
-    }
-    
-    func toggleTodo(with id: UUID) {
-        guard let index = index(with: id) else { return }
-        firstRepoTodo[index].isComplete.toggle()
-    }
-    
-    func updateTodo(_ newValue: TodoItem) {
-        guard let index = index(with: newValue.id) else { return }
-        firstRepoTodo[index] = newValue
     }
     
 }
@@ -162,9 +109,9 @@ class TempRepository {
 extension MainViewModel: TodoCellViewModelDelegate {
     func todoCellViewModelDidReturnTodo(_ viewModel: TodoCellViewModel) {
         if !viewModel.todo.isEmpty {
-            guard let id = tempRepo.appendTodo(after: viewModel.id) else { return }
+            guard let id = TempRepository.appendTodo(after: viewModel.id) else { return }
             fetchTodoList()
-            makeResponder.accept(IndexPath(row: tempRepo.countIndex(of: id), section: 0))
+            makeResponder.accept(IndexPath(row: TempRepository.countIndex(of: id), section: 0))
         }
     }
     
@@ -175,6 +122,6 @@ extension MainViewModel: TodoCellViewModelDelegate {
     }
     
     func todoCellViewModel(_ viewModel: TodoCellViewModel, didUpdateItem todoItem: TodoItem) {
-        tempRepo.updateTodo(todoItem)
+        TempRepository.updateTodo(todoItem)
     }
 }
