@@ -15,7 +15,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = LoginViewController()
+        if UserDefaultsManager.isLogin {
+            window?.rootViewController = UINavigationController(rootViewController: MainViewController())
+        } else {
+            window?.rootViewController = LoginViewController()
+        }
         window?.makeKeyAndVisible()
     }
     
@@ -33,6 +37,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             do {
                 try await LoginManager.shared.fetchAccessToken(with: code)
                 print("Access Token 발급 완료")
+                UserDefaultsManager.isLogin = true
                 DispatchQueue.main.async {
                     self.window?.rootViewController = UINavigationController(rootViewController: MainViewController())
                 }
@@ -41,35 +46,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             }
         }
     }
-    
-//    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
-//        guard let context = URLContexts.first,
-//              let components = URLComponents(url: context.url, resolvingAgainstBaseURL: false),
-//              let queryItems = components.queryItems
-//        else { return }
-//        
-//        if let error = queryItems.first(where: { $0.name == "error" })?.value {
-//            print("로그인 실패: \(error)") // 토스트 메시지로 변경 예정
-//            if let errorDescription = queryItems.first(where: { $0.name == "error_description" })?.value {
-//                print("로그인 실패: \(errorDescription)")
-//            }
-//        } else if let code = queryItems.first(where: { $0.name == "code" })?.value {
-//            print("로그인 성공, 코드: \(code)")
-//            requestAccessToken(with: code)
-//        }
-//    }
-//    
-//    private func requestAccessToken(with code: String) {
-//        let clientID = "Ov23liXtaG7W7YfAUotb"
-//        let clientSecret = "0fc0289364abf389f0262ae271a7cc132afd8505"
-//        let urlString = "https://github.com/login/oauth/authorize"
-//        var components = URLComponents(string: urlString)!
-//        components.queryItems = [
-//            URLQueryItem(name: "client_id", value: clientID),
-//            URLQueryItem(name: "client_secret", value: clientSecret),
-//            URLQueryItem(name: "code", value: code)
-//        ]
-//    }
 
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.
