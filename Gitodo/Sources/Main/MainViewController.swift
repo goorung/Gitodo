@@ -8,7 +8,7 @@
 import UIKit
 
 class MainViewController: BaseViewController<MainView>, BaseViewControllerProtocol {
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -19,7 +19,16 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
     
     func setupNavigationBar() {
         setTitle("Gitodo",at: .left, font: .systemFont(ofSize: 20, weight: .bold))
-        setProfileImageView(image: nil)
+        Task {
+            do {
+                let me = try await APIManager.shared.fetchMe()
+                DispatchQueue.main.async {
+                    self.setProfileImageView(url: URL(string:me.avatarUrl))
+                }
+            } catch {
+                print("실패: \(error.localizedDescription)")
+            }
+        }
         setProfileImageViewAction(#selector(handleProfileImageViewTap))
     }
     

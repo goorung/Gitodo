@@ -15,8 +15,36 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = UINavigationController(rootViewController: MainViewController())
+        if UserDefaultsManager.isLogin {
+            window?.rootViewController = UINavigationController(rootViewController: MainViewController())
+        } else {
+            window?.rootViewController = LoginViewController()
+        }
         window?.makeKeyAndVisible()
+    }
+    
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        guard let context = URLContexts.first,
+              let components = URLComponents(url: context.url, resolvingAgainstBaseURL: false),
+              let queryItems = components.queryItems,
+              let code = queryItems.first(where: { $0.name == "code" })?.value
+        else {
+            print("로그인 실패") // 나중에 토스트 메시지로 변경 예정 !
+            return
+        }
+        
+        Task {
+            do {
+                try await LoginManager.shared.fetchAccessToken(with: code)
+                print("Access Token 발급 완료")
+                UserDefaultsManager.isLogin = true
+                DispatchQueue.main.async {
+                    self.window?.rootViewController = UINavigationController(rootViewController: MainViewController())
+                }
+            } catch {
+                print("Access Token 요청 실패: \(error.localizedDescription)")
+            }
+        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

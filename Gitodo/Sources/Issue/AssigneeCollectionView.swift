@@ -11,7 +11,7 @@ import SnapKit
 
 class AssigneeCollectionView: UICollectionView {
     
-    private var assignees: [Assignee]? {
+    private var assignees: [User]? {
         didSet {
             reloadData()
         }
@@ -82,7 +82,7 @@ class AssigneeCollectionView: UICollectionView {
         isUserInteractionEnabled = false
     }
     
-    func configure(with assignees: [Assignee]?) {
+    func configure(with assignees: [User]?) {
         guard let assignees = assignees else { return }
         self.assignees = assignees
     }
