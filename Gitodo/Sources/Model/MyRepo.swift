@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Repository {
+struct MyRepo {
     let id: Int // github에서 가져온 id
     var nickname: String
     var symbol: String?
@@ -15,7 +15,7 @@ struct Repository {
     var todos: [TodoItem] = []
 }
 
-extension Repository {
+extension MyRepo {
     static func initItem(id: Int, repoName: String) -> Self {
         .init(id: id, nickname: repoName, hexColor: PaletteColor.green.hex)
     }

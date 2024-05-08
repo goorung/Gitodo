@@ -8,7 +8,7 @@
 import UIKit
 
 class RepoCollectionView: UICollectionView {
-    var repos: [Repository] = [] {
+    var repos: [MyRepo] = [] {
         didSet {
             reloadData()
         }

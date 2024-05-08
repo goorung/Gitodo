@@ -8,7 +8,7 @@
 import UIKit
 
 protocol RepositoryInfoViewControllerDelegate: AnyObject {
-    func doneButtonTapped(repository: Repository)
+    func doneButtonTapped(repository: MyRepo)
 }
 
 class RepositoryInfoViewController: BaseViewController<RepositoryInfoView>, BaseViewControllerProtocol {

@@ -24,13 +24,13 @@ final class MainViewModel {
     
     struct Output {
         var selectedRepo: Driver<Int?>
-        var repos: Driver<[Repository]>
+        var repos: Driver<[MyRepo]>
         var todos: Driver<[TodoCellViewModel]>
         var makeFirstResponder: Driver<IndexPath?>
     }
     
     private var selectedRepo = BehaviorRelay<Int?>(value: nil)
-    private let repos = BehaviorRelay<[Repository]>(value: [])
+    private let repos = BehaviorRelay<[MyRepo]>(value: [])
     
     private let viewWillAppearSubject = PublishSubject<Void>()
     private let selectRepoIndexSubject = PublishSubject<Int>()

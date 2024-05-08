@@ -13,7 +13,7 @@ import SnapKit
 
 protocol RepositorySettingsDelegate: AnyObject {
     func presentAlertViewController(completion: @escaping (() -> Void))
-    func presentRepositoryInfoViewController(repository: Repository)
+    func presentRepositoryInfoViewController(repository: MyRepo)
 }
 
 class RepositorySettingsView: UIView {

@@ -11,7 +11,7 @@ class TempRepository {
     private init() {}
     
     static private var repos = [
-        Repository(
+        MyRepo(
             id: 1,
             nickname: "algorithm",
             symbol: "🪼",
@@ -22,7 +22,7 @@ class TempRepository {
                 TodoItem(todo: "작살나게 밥먹기", isComplete: false)
             ]
         ),
-        Repository(
+        MyRepo(
             id: 2,
             nickname: "iOS",
             symbol: "🍄",
@@ -33,7 +33,7 @@ class TempRepository {
                 TodoItem(todo: "3", isComplete: true)
             ]
         ),
-        Repository(
+        MyRepo(
             id: 3,
             nickname: "42",
             symbol: "🤍",
@@ -44,7 +44,7 @@ class TempRepository {
                 TodoItem(todo: "ft_irc", isComplete: true)
             ]
         ),
-        Repository(
+        MyRepo(
             id: 4,
             nickname: "운동",
             symbol: "💪",
@@ -56,7 +56,7 @@ class TempRepository {
                 TodoItem(todo: "수영", isComplete: true)
             ]
         ),
-        Repository(
+        MyRepo(
             id: 5,
             nickname: "책",
             symbol: "📗",
@@ -69,11 +69,11 @@ class TempRepository {
         ),
     ]
     
-    static func getRepos() -> [Repository] {
+    static func getRepos() -> [MyRepo] {
         repos
     }
     
-    static func updateRepo(_ repo: Repository) {
+    static func updateRepo(_ repo: MyRepo) {
         guard let index = repos.firstIndex(where: { $0.id == repo.id}) else { return }
         repos[index].nickname = repo.nickname
         repos[index].symbol = repo.symbol
@@ -81,7 +81,7 @@ class TempRepository {
     }
     
     static func updateRepoOrder(_ repoIds: [Int]) {
-        var result = [Repository]()
+        var result = [MyRepo]()
         for id in repoIds {
             guard let repo = repos.first(where: { $0.id == id }) else { continue }
             result.append(repo)
