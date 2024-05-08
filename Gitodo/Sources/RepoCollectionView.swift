@@ -8,11 +8,17 @@
 import UIKit
 
 class RepoCollectionView: UICollectionView {
+    var repos: [Repository] = [] {
+        didSet {
+            reloadData()
+        }
+    }
     
-    let tempRepo = [
-        (name: "algorithm", color: UIColor(hex: PaletteColor.blue.hex) , symbol: "🪼"),
-        (name: "iOS", color: UIColor(hex: PaletteColor.yellow.hex), symbol: "🍄"),
-    ]
+    var selectedIndex: Int? {
+        didSet {
+            reloadData()
+        }
+    }
     
     init() {
         let layout = UICollectionViewFlowLayout()
@@ -28,6 +34,10 @@ class RepoCollectionView: UICollectionView {
         backgroundColor = .clear
         clipsToBounds = true
         dataSource = self
+        delegate = self
+        dragDelegate = self
+        dropDelegate = self
+        dragInteractionEnabled = true
         register(RepositoryInfoCell.self, forCellWithReuseIdentifier: RepositoryInfoCell.reuseIdentifier)
     }
     
@@ -39,14 +49,86 @@ class RepoCollectionView: UICollectionView {
 
 extension RepoCollectionView: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        tempRepo.count
+        repos.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RepositoryInfoCell.reuseIdentifier, for: indexPath) as? RepositoryInfoCell else { return UICollectionViewCell() }
-        let repo = tempRepo[indexPath.row]
-        cell.configure(name: repo.name, color: repo.color, symbol: repo.symbol)
+        let repo = repos[indexPath.row]
+        cell.configure(name: repo.nickname, color: UIColor(hex: repo.hexColor), symbol: repo.symbol)
+        if let selectedIndex,
+           selectedIndex != indexPath.row {
+            cell.contentView.alpha = 0.5
+        } else {
+            cell.contentView.alpha = 1
+        }
         return cell
+    }
+    
+}
+
+extension RepoCollectionView: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, canMoveItemAt indexPath: IndexPath) -> Bool {
+        true
+    }
+}
+
+extension RepoCollectionView: UICollectionViewDragDelegate {
+    func collectionView(_ collectionView: UICollectionView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
+        [UIDragItem(itemProvider: NSItemProvider())]
+    }
+}
+
+extension RepoCollectionView: UICollectionViewDropDelegate {
+    func collectionView(_ collectionView: UICollectionView, performDropWith coordinator: UICollectionViewDropCoordinator) {
+        var destinationIndexPath: IndexPath
+        if let indexPath = coordinator.destinationIndexPath {
+            destinationIndexPath = indexPath
+        } else {
+            let row = collectionView.numberOfItems(inSection: 0)
+            destinationIndexPath = IndexPath(item: row - 1, section: 0)
+        }
+        
+        guard coordinator.proposal.operation == .move else { return }
+        move(coordinator: coordinator, destinationIndexPath: destinationIndexPath, collectionView: collectionView)
+    }
+    
+    private func move(coordinator: UICollectionViewDropCoordinator, destinationIndexPath: IndexPath, collectionView: UICollectionView) {
+        guard let sourceItem = coordinator.items.first,
+              let sourceIndexPath = sourceItem.sourceIndexPath
+        else { return }
+        
+        performBatchUpdates { [weak self] in
+            self?.move(sourceIndexPath: sourceIndexPath, destinationIndexPath: destinationIndexPath)
+        } completion: { finish in
+            coordinator.drop(sourceItem.dragItem, toItemAt: destinationIndexPath)
+        }
+        
+    }
+    
+    private func move(sourceIndexPath: IndexPath, destinationIndexPath: IndexPath) {
+        let sourceItem = repos[sourceIndexPath.item]
+        
+        DispatchQueue.main.async {
+            self.repos.remove(at: sourceIndexPath.item)
+            self.repos.insert(sourceItem, at: destinationIndexPath.item)
+            TempRepository.updateRepoOrder(self.repos.map{ $0.id })
+            NotificationCenter.default.post(name: .RepositoryOrderDidUpdate, object: self)
+            let indexPaths = self.repos
+                .enumerated()
+                .map(\.offset)
+                .map{ IndexPath(row: $0, section: 0) }
+            UIView.performWithoutAnimation {
+                self.reloadItems(at: indexPaths)
+            }
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, dropSessionDidUpdate session: UIDropSession, withDestinationIndexPath destinationIndexPath: IndexPath?) -> UICollectionViewDropProposal {
+        guard hasActiveDrag else {
+            return UICollectionViewDropProposal(operation: .forbidden)
+        }
+        return UICollectionViewDropProposal(operation: .move, intent: .insertAtDestinationIndexPath)
     }
     
 }

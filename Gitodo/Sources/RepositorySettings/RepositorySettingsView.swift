@@ -7,15 +7,21 @@
 
 import UIKit
 
+import RxCocoa
+import RxSwift
 import SnapKit
 
 protocol RepositorySettingsDelegate: AnyObject {
     func presentAlertViewController(completion: @escaping (() -> Void))
+    func presentRepositoryInfoViewController(repository: Repository)
 }
 
 class RepositorySettingsView: UIView {
+    let viewModel = RepositorySettingViewModel()
+    private let disposeBag = DisposeBag()
     
     // temp !
+    
     private let repos = [
         "레포지토리 1",
         "레포지토리 2",
@@ -40,6 +46,8 @@ class RepositorySettingsView: UIView {
     weak var delegate: RepositorySettingsDelegate?
     
     private let insetFromSuperView: CGFloat = 20.0
+    private let insetFromContentSuperViewTop: CGFloat = 10.0
+    private let offsetFromPreviewView: CGFloat = 10.0
     private let offsetFromOtherView: CGFloat = 25.0
     private let offsetFromFriendView: CGFloat = 10.0
     private let heightForRow: CGFloat = 50.0
@@ -47,9 +55,9 @@ class RepositorySettingsView: UIView {
     // MARK: - UI Components
     
     private lazy var previewView = {
-        let view = UIView()
-        view.backgroundColor = .systemBackground
-        return view
+        let collectionView = RepoCollectionView()
+        collectionView.delegate = self
+        return collectionView
     }()
     
     private lazy var scrollView = UIScrollView()
@@ -84,6 +92,7 @@ class RepositorySettingsView: UIView {
         
         backgroundColor = .secondarySystemBackground
         setupLayout()
+        bindViewModel()
     }
     
     required init?(coder: NSCoder) {
@@ -95,13 +104,13 @@ class RepositorySettingsView: UIView {
     private func setupLayout() {
         addSubview(previewView)
         previewView.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview()
+            make.top.leading.trailing.equalToSuperview().inset(insetFromSuperView)
             make.height.equalTo(80)
         }
         
         addSubview(scrollView)
         scrollView.snp.makeConstraints { make in
-            make.top.equalTo(previewView.snp.bottom)
+            make.top.equalTo(previewView.snp.bottom).offset(offsetFromPreviewView)
             make.leading.trailing.bottom.equalToSuperview()
         }
         
@@ -113,7 +122,8 @@ class RepositorySettingsView: UIView {
         
         contentView.addSubview(repoLabel)
         repoLabel.snp.makeConstraints { make in
-            make.top.leading.equalToSuperview().inset(insetFromSuperView)
+            make.top.equalToSuperview().inset(insetFromContentSuperViewTop)
+            make.leading.trailing.equalToSuperview().inset(insetFromSuperView)
         }
         
         contentView.addSubview(repoTableView)
@@ -136,6 +146,13 @@ class RepositorySettingsView: UIView {
             make.height.equalTo(heightForRow * CGFloat(deletedRepos.count))
             make.bottom.equalToSuperview().inset(insetFromSuperView)
         }
+    }
+    
+    private func bindViewModel() {
+        viewModel.output.repos
+            .drive { [weak self] repos in
+                self?.previewView.repos = repos
+            }.disposed(by: disposeBag)
     }
     
 }
@@ -230,4 +247,10 @@ extension RepositorySettingsView: UITableViewDataSource {
         return cell
     }
     
+}
+
+extension RepositorySettingsView: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        delegate?.presentRepositoryInfoViewController(repository: viewModel.repo(at: indexPath))
+    }
 }

@@ -14,6 +14,12 @@ class RepositorySettingsViewController: BaseViewController<RepositorySettingsVie
 
         setupNavigationBar()
         contentView.delegate = self
+        contentView.viewModel.input.viewDidLoad.onNext(())
+        NotificationCenter.default.addObserver(self, selector: #selector(handleRepoOrderChange), name: .RepositoryOrderDidUpdate, object: nil)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     func setupNavigationBar() {
@@ -21,9 +27,19 @@ class RepositorySettingsViewController: BaseViewController<RepositorySettingsVie
         setLeftBackButton()
     }
     
+    @objc private func handleRepoOrderChange() {
+        contentView.viewModel.input.viewDidLoad.onNext(())
+    }
+    
 }
 
 extension RepositorySettingsViewController: RepositorySettingsDelegate {
+    func presentRepositoryInfoViewController(repository: Repository) {
+        let viewController = RepositoryInfoViewController(viewModel: RepositoryInfoViewModel(repository: repository))
+        viewController.delegate = self
+        present(viewController, animated: true)
+    }
+    
     
     func presentAlertViewController(completion: @escaping (() -> Void)) {
         let alertController = UIAlertController(
@@ -40,6 +56,13 @@ extension RepositorySettingsViewController: RepositorySettingsDelegate {
         alertController.addAction(deleteAction)
         alertController.addAction(cancelAction)
         present(alertController, animated: true)
+    }
+    
+}
+
+extension RepositorySettingsViewController: RepositoryInfoViewControllerDelegate {
+    func doneButtonTapped(repository: Repository) {
+        contentView.viewModel.input.updateRepo.onNext(repository)
     }
     
 }

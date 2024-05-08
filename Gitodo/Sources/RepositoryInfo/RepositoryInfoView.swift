@@ -13,8 +13,11 @@ import RxSwift
 
 class RepositoryInfoView: UIView {
     
+    var viewModel: RepositoryInfoViewModel?
+    var initialName: String?
+    
     // temp !
-    private let repoName = "Gitodo"
+//    private let repoName = "Gitodo"
     
     private let disposeBag = DisposeBag()
     
@@ -25,14 +28,13 @@ class RepositoryInfoView: UIView {
     // MARK: - UI Components
     
     private lazy var previewLabel: UILabel = {
-        let label = createLabel(withText: "\(repoName) 미리보기")
+        let label = createLabel(withText: "미리보기")
         label.numberOfLines = 0
         return label
     }()
     
     private lazy var previewView: RepositoryView = {
         let view = RepositoryView()
-        view.setName(repoName)
         return view
     }()
     
@@ -81,6 +83,7 @@ class RepositoryInfoView: UIView {
         
         setupLayout()
         bind()
+        initialConfigure()
     }
     
     required init?(coder: NSCoder) {
@@ -154,9 +157,10 @@ class RepositoryInfoView: UIView {
         nicknameTextField.rx.text.orEmpty
             .distinctUntilChanged()
             .subscribe(onNext: { [weak self] text in
-                guard let self = self else { return }
-                let nameToSet = text.isEmpty ? repoName : text
+                guard let self = self, let viewModel = self.viewModel, let initialName = self.initialName else { return }
+                let nameToSet = text.isEmpty ? initialName : text
                 self.previewView.setName(nameToSet)
+                viewModel.nickname = nameToSet
             }).disposed(by: disposeBag)
         
         symbolTextField.rx.text
@@ -168,10 +172,27 @@ class RepositoryInfoView: UIView {
                     let symbolToSet = String(lastChar)
                     self.symbolTextField.text = symbolToSet
                     self.previewView.setSymbol(symbolToSet)
+                    self.viewModel?.symbol = symbolToSet
                 } else {
                     self.previewView.setSymbol(nil)
+                    self.viewModel?.symbol = nil
                 }
             }).disposed(by: disposeBag)
+    }
+    
+    func initialConfigure() {
+        guard let viewModel else { return }
+        initialName = viewModel.nickname
+        if let initialName {
+            previewLabel.text = "\(initialName) 미리보기"
+        }
+        
+        previewView.setName(viewModel.nickname)
+        previewView.setSymbol(viewModel.symbol)
+        previewView.setColor(UIColor(hex: viewModel.hexColor))
+        
+        nicknameTextField.text = viewModel.nickname
+        symbolTextField.text = viewModel.symbol
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -203,6 +224,6 @@ extension RepositoryInfoView: PaletteColorDelegate {
     
     func selectColor(_ color: PaletteColor) {
         previewView.setColor(UIColor(hex: color.hex))
+        viewModel?.hexColor = color.hex
     }
-    
 }
