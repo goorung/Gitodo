@@ -91,7 +91,7 @@ class MainView: UIView {
         
         setupLayout()
         bindViewModel()
-        viewModel.input.viewWillAppear.onNext(())
+     
     }
     
     required init?(coder: NSCoder) {
