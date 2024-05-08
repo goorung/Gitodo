@@ -25,7 +25,13 @@ let project = Project(
                             ])
                         ])
                     ])
-                ])
+                ]),
+                "CFBundleURLTypes": [
+                    [
+                        "CFBundleTypeRole": "Editor",
+                        "CFBundleURLSchemes": ["gitodo"]
+                    ]
+                ]
             ]),
             sources: ["Gitodo/Sources/**"],
             resources: ["Gitodo/Resources/**"],

@@ -8,7 +8,6 @@
 import UIKit
 
 class RepoCollectionView: UICollectionView {
-    
     var repos: [Repository] = [] {
         didSet {
             reloadData()
