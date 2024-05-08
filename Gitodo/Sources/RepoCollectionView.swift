@@ -113,6 +113,8 @@ extension RepoCollectionView: UICollectionViewDropDelegate {
         DispatchQueue.main.async {
             self.repos.remove(at: sourceIndexPath.item)
             self.repos.insert(sourceItem, at: destinationIndexPath.item)
+            TempRepository.updateRepoOrder(self.repos.map{ $0.id })
+            NotificationCenter.default.post(name: .RepositoryOrderDidUpdate, object: self)
             let indexPaths = self.repos
                 .enumerated()
                 .map(\.offset)

@@ -57,7 +57,7 @@ class TempRepository {
             ]
         ),
         Repository(
-            id: 2,
+            id: 5,
             nickname: "책",
             symbol: "📗",
             hexColor: PaletteColor.purple.hex,
@@ -78,6 +78,15 @@ class TempRepository {
         repos[index].nickname = repo.nickname
         repos[index].symbol = repo.symbol
         repos[index].hexColor = repo.hexColor
+    }
+    
+    static func updateRepoOrder(_ repoIds: [Int]) {
+        var result = [Repository]()
+        for id in repoIds {
+            guard let repo = repos.first(where: { $0.id == id }) else { continue }
+            result.append(repo)
+        }
+        repos = result
     }
     
     static func todoIndex(repoIndex: Int, with id: UUID) -> Int? {

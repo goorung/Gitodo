@@ -171,9 +171,9 @@ class MainView: UIView {
                 self?.repoCollectionView.repos = repos
             }.disposed(by: disposeBag)
         
-        viewModel.output.selectedRepoIndex
-            .drive{ [weak self] index in
-                self?.repoCollectionView.selectedIndex = index
+        viewModel.output.selectedRepo
+            .drive{ [weak self] repoId in
+                self?.repoCollectionView.selectedIndex = self?.viewModel.selectedRepoIndex
                 let color: UIColor
                 if let hex = self?.viewModel.selectedHexColor {
                     color = UIColor(hex: hex)

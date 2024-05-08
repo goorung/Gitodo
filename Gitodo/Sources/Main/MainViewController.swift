@@ -15,10 +15,15 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
         setupNavigationBar()
         hideKeyboardWhenTappedAround()
         contentView.setIssueDelegate(self)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleRepoOrderChange), name: .RepositoryOrderDidUpdate, object: nil)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         contentView.viewModel.input.viewWillAppear.onNext(())
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     func setupNavigationBar() {
@@ -43,6 +48,10 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
         }
         
         present(menuViewController, animated: true)
+    }
+    
+    @objc private func handleRepoOrderChange() {
+        contentView.viewModel.input.viewWillAppear.onNext(())
     }
     
 }
