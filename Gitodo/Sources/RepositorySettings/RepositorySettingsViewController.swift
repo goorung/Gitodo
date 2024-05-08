@@ -15,11 +15,20 @@ class RepositorySettingsViewController: BaseViewController<RepositorySettingsVie
         setupNavigationBar()
         contentView.delegate = self
         contentView.viewModel.input.viewDidLoad.onNext(())
+        NotificationCenter.default.addObserver(self, selector: #selector(handleRepoOrderChange), name: .RepositoryOrderDidUpdate, object: nil)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     func setupNavigationBar() {
         setTitle("레포지토리 설정")
         setLeftBackButton()
+    }
+    
+    @objc private func handleRepoOrderChange() {
+        contentView.viewModel.input.viewDidLoad.onNext(())
     }
     
 }
