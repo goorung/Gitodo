@@ -8,9 +8,9 @@
 import Foundation
 
 final class RepositoryInfoViewModel {
-    private(set) var repository: Repository
+    private(set) var repository: MyRepo
     
-    init(repository: Repository) {
+    init(repository: MyRepo) {
         self.repository = repository
     }
     

@@ -16,17 +16,17 @@ final class RepositorySettingViewModel {
     
     struct Input {
         let viewDidLoad: AnyObserver<Void>
-        let updateRepo: AnyObserver<Repository>
+        let updateRepo: AnyObserver<MyRepo>
     }
     
     struct Output {
-        var repos: Driver<[Repository]>
+        var repos: Driver<[MyRepo]>
     }
     
     private let viewDidLoadSubject = PublishSubject<Void>()
-    private let updateRepoSubject = PublishSubject<Repository>()
+    private let updateRepoSubject = PublishSubject<MyRepo>()
     
-    private let repos = BehaviorRelay<[Repository]>(value: [])
+    private let repos = BehaviorRelay<[MyRepo]>(value: [])
     private let disposeBag = DisposeBag()
     
     init() {
@@ -52,12 +52,12 @@ final class RepositorySettingViewModel {
         repos.accept(fetchedRepos)
     }
     
-    private func updateRepo(_ repo: Repository) {
+    private func updateRepo(_ repo: MyRepo) {
         TempRepository.updateRepo(repo)
         fetchRepos()
     }
     
-    func repo(at indexPath: IndexPath) -> Repository {
+    func repo(at indexPath: IndexPath) -> MyRepo {
         repos.value[indexPath.row]
     }
 }

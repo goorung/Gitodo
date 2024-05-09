@@ -34,7 +34,7 @@ class RepositorySettingsViewController: BaseViewController<RepositorySettingsVie
 }
 
 extension RepositorySettingsViewController: RepositorySettingsDelegate {
-    func presentRepositoryInfoViewController(repository: Repository) {
+    func presentRepositoryInfoViewController(repository: MyRepo) {
         let viewController = RepositoryInfoViewController(viewModel: RepositoryInfoViewModel(repository: repository))
         viewController.delegate = self
         present(viewController, animated: true)
@@ -61,7 +61,7 @@ extension RepositorySettingsViewController: RepositorySettingsDelegate {
 }
 
 extension RepositorySettingsViewController: RepositoryInfoViewControllerDelegate {
-    func doneButtonTapped(repository: Repository) {
+    func doneButtonTapped(repository: MyRepo) {
         contentView.viewModel.input.updateRepo.onNext(repository)
     }
     
