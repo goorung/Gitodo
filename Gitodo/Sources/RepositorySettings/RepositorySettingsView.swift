@@ -139,7 +139,7 @@ class RepositorySettingsView: UIView {
         deletedRepoTableView.rx.itemSelected
             .subscribe(onNext: { [weak self] indexPath in
                 guard let self = self,
-                      let cell = repoTableView.cellForRow(at: indexPath) as? RepositoryCell,
+                      let cell = deletedRepoTableView.cellForRow(at: indexPath) as? RepositoryCell,
                       let id = cell.selectCell()
                 else { return }
                 viewModel?.input.togglePublic.onNext(id)
@@ -218,8 +218,9 @@ extension RepositorySettingsView {
 extension RepositorySettingsView: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let viewModel = viewModel else { return }
-        delegate?.presentRepositoryInfoViewController(repository: viewModel.repo(at: indexPath))
+        guard let collectionView = collectionView as? RepoCollectionView else { return }
+        let repo = collectionView.repos[indexPath.row]
+        delegate?.presentRepositoryInfoViewController(repository: repo)
     }
     
 }
