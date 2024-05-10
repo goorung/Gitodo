@@ -18,6 +18,7 @@ final class RepositorySettingsViewModel {
         let viewDidLoad: AnyObserver<Void>
         let togglePublic: AnyObserver<Int>
         let updateRepoInfo: AnyObserver<MyRepo>
+        let removeRepo: AnyObserver<Int>
     }
     
     struct Output {
@@ -27,6 +28,7 @@ final class RepositorySettingsViewModel {
     private let viewDidLoadSubject = PublishSubject<Void>()
     private let togglePublicSubject = PublishSubject<Int>()
     private let updateRepoInfoSubject = PublishSubject<MyRepo>()
+    private let removeRepoSuject = PublishSubject<Int>()
     
     private let repos = BehaviorRelay<[MyRepo]>(value: [])
     private let disposeBag = DisposeBag()
@@ -35,7 +37,8 @@ final class RepositorySettingsViewModel {
         input = Input(
             viewDidLoad: viewDidLoadSubject.asObserver(),
             togglePublic: togglePublicSubject.asObserver(),
-            updateRepoInfo: updateRepoInfoSubject.asObserver()
+            updateRepoInfo: updateRepoInfoSubject.asObserver(),
+            removeRepo: removeRepoSuject.asObserver()
         )
         output = Output(
             repos: repos.asDriver(onErrorJustReturn: [])
@@ -51,6 +54,10 @@ final class RepositorySettingsViewModel {
         
         updateRepoInfoSubject.subscribe(onNext: { [weak self] repo in
             self?.updateRepoInfo(repo)
+        }).disposed(by: disposeBag)
+        
+        removeRepoSuject.subscribe(onNext: { [weak self] id in
+            self?.removeRepo(id)
         }).disposed(by: disposeBag)
     }
     
@@ -84,7 +91,8 @@ final class RepositorySettingsViewModel {
         }
     }
     
-    func repo(at indexPath: IndexPath) -> MyRepo {
-        repos.value[indexPath.row]
+    private func removeRepo(_ id: Int) {
+        TempRepository.removeRepo(id)
+        repos.accept(sortedRepos())
     }
 }

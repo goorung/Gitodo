@@ -59,7 +59,6 @@ class RepositorySettingsView: UIView {
     private lazy var deletedRepoTableView = {
         let tableView = createTableView()
         tableView.register(RepositoryCell.self, forCellReuseIdentifier: RepositoryCell.reuseIdentifier)
-        tableView.setEditing(true, animated: false)
         return tableView
     }()
     
@@ -143,6 +142,17 @@ class RepositorySettingsView: UIView {
                       let id = cell.selectCell()
                 else { return }
                 viewModel?.input.togglePublic.onNext(id)
+            }).disposed(by: disposeBag)
+        
+        deletedRepoTableView.rx.itemDeleted
+            .subscribe(onNext: { [weak self] indexPath in
+                guard let self = self,
+                      let cell = deletedRepoTableView.cellForRow(at: indexPath) as? RepositoryCell,
+                      let id = cell.selectCell()
+                else { return }
+                delegate?.presentAlertViewController(completion: { [weak self] in
+                    self?.viewModel?.input.removeRepo.onNext(id)
+                })
             }).disposed(by: disposeBag)
     }
     
