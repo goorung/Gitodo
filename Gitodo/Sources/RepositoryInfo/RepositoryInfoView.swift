@@ -13,12 +13,8 @@ import RxSwift
 
 class RepositoryInfoView: UIView {
     
-    var viewModel: RepositoryInfoViewModel?
-    var initialName: String?
-    
-    // temp !
-//    private let repoName = "Gitodo"
-    
+    private var viewModel: RepositoryInfoViewModel?
+    private var initialName: String?
     private let disposeBag = DisposeBag()
     
     private let insetFromSuperView: CGFloat = 20.0
@@ -83,7 +79,6 @@ class RepositoryInfoView: UIView {
         
         setupLayout()
         bind()
-        initialConfigure()
     }
     
     required init?(coder: NSCoder) {
@@ -180,19 +175,19 @@ class RepositoryInfoView: UIView {
             }).disposed(by: disposeBag)
     }
     
-    func initialConfigure() {
-        guard let viewModel else { return }
-        initialName = viewModel.nickname
-        if let initialName {
-            previewLabel.text = "\(initialName) 미리보기"
-        }
+    func bind(with viewModel: RepositoryInfoViewModel) {
+        self.viewModel = viewModel
         
+        initialName = viewModel.nickname
+        
+        previewLabel.text = "\(viewModel.fullName) 미리보기"
         previewView.setName(viewModel.nickname)
         previewView.setSymbol(viewModel.symbol)
         previewView.setColor(UIColor(hex: viewModel.hexColor))
         
         nicknameTextField.text = viewModel.nickname
         symbolTextField.text = viewModel.symbol
+        colorView.setSelectedColor(viewModel.hexColor)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -226,4 +221,5 @@ extension RepositoryInfoView: PaletteColorDelegate {
         previewView.setColor(UIColor(hex: color.hex))
         viewModel?.hexColor = color.hex
     }
+    
 }

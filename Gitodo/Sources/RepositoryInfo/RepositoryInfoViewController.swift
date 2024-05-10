@@ -12,13 +12,15 @@ protocol RepositoryInfoViewControllerDelegate: AnyObject {
 }
 
 class RepositoryInfoViewController: BaseViewController<RepositoryInfoView>, BaseViewControllerProtocol {
+    
     weak var delegate: RepositoryInfoViewControllerDelegate?
+    private var viewModel: RepositoryInfoViewModel?
     
     init(viewModel: RepositoryInfoViewModel) {
         super.init(nibName: nil, bundle: nil)
         
-        contentView.viewModel = viewModel
-        contentView.initialConfigure()
+        self.viewModel = viewModel
+        contentView.bind(with: viewModel)
     }
     
     required init?(coder: NSCoder) {
@@ -44,7 +46,7 @@ class RepositoryInfoViewController: BaseViewController<RepositoryInfoView>, Base
     }
     
     @objc private func handleDoneButtonTap(_ sender: UIButton) {
-        guard let repository = contentView.viewModel?.repository else { return }
+        guard let repository = viewModel?.repository else { return }
         delegate?.doneButtonTapped(repository: repository)
         dismiss(animated: true)
     }

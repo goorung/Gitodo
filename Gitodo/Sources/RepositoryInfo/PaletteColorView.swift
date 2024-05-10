@@ -17,6 +17,7 @@ class PaletteColorView: UICollectionView {
     
     private let itemsPerRow: CGFloat = 6.0
     private let spacing: CGFloat = 5.0
+    private var selectedIndex: Int?
 
     
     // MARK: - Initialize
@@ -39,6 +40,11 @@ class PaletteColorView: UICollectionView {
         self.register(PaletteColorCell.self, forCellWithReuseIdentifier: PaletteColorCell.reuseIdentifier)
     }
     
+    func setSelectedColor(_ hex: UInt) {
+        selectedIndex = PaletteColor.findIndex(hex)
+        reloadData()
+    }
+    
 }
 
 extension PaletteColorView: UICollectionViewDelegateFlowLayout {
@@ -57,6 +63,7 @@ extension PaletteColorView: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let cell = collectionView.cellForItem(at: indexPath) as? PaletteColorCell else { return }
         cell.highlightCell()
+        selectedIndex = indexPath.row
         colorDelegate?.selectColor(PaletteColor.allCases[indexPath.row])
     }
 
@@ -79,6 +86,9 @@ extension PaletteColorView: UICollectionViewDataSource {
         }
         let color = PaletteColor.allCases[indexPath.row]
         cell.configure(with: UIColor(hex: color.hex))
+        if indexPath.row == selectedIndex {
+            cell.highlightCell()
+        }
         return cell
     }
     
