@@ -53,4 +53,8 @@ final class IssueViewModel {
         }
     }
     
+    func issue(at indexPath: IndexPath) -> Issue {
+        return issues.value[indexPath.row]
+    }
+    
 }

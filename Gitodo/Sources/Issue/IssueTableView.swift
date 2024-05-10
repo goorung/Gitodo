@@ -26,6 +26,7 @@ class IssueTableView: UITableView {
         super.init(frame: frame, style: style)
         
         setupProperty()
+        bind()
     }
     
     required init?(coder: NSCoder) {
@@ -51,6 +52,14 @@ class IssueTableView: UITableView {
             self?.beginUpdates()
             self?.endUpdates()
         }
+    }
+    
+    private func bind() {
+        self.rx.itemSelected
+            .subscribe(onNext: { [weak self] indexPath in
+                guard let self = self, let viewModel = viewModel else { return }
+                issueDelegate?.presentInfoViewController(issue: viewModel.issue(at: indexPath))
+            }).disposed(by: disposeBag)
     }
     
     func bind(with viewModel: IssueViewModel) {
