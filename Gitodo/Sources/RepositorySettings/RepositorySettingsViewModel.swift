@@ -16,6 +16,7 @@ final class RepositorySettingsViewModel {
     
     struct Input {
         let viewDidLoad: AnyObserver<Void>
+        let togglePublic: AnyObserver<Int>
         let updateRepoInfo: AnyObserver<MyRepo>
     }
     
@@ -24,6 +25,7 @@ final class RepositorySettingsViewModel {
     }
     
     private let viewDidLoadSubject = PublishSubject<Void>()
+    private let togglePublicSubject = PublishSubject<Int>()
     private let updateRepoInfoSubject = PublishSubject<MyRepo>()
     
     private let repos = BehaviorRelay<[MyRepo]>(value: [])
@@ -32,14 +34,19 @@ final class RepositorySettingsViewModel {
     init() {
         input = Input(
             viewDidLoad: viewDidLoadSubject.asObserver(),
+            togglePublic: togglePublicSubject.asObserver(),
             updateRepoInfo: updateRepoInfoSubject.asObserver()
         )
         output = Output(
             repos: repos.asDriver(onErrorJustReturn: [])
         )
         
-        viewDidLoadSubject.subscribe(onNext: {[weak self] in
+        viewDidLoadSubject.subscribe(onNext: { [weak self] in
             self?.fetchRepos()
+        }).disposed(by: disposeBag)
+        
+        togglePublicSubject.subscribe(onNext: { [weak self] id in
+            self?.togglePublic(id)
         }).disposed(by: disposeBag)
         
         updateRepoInfoSubject.subscribe(onNext: { [weak self] repo in
@@ -50,18 +57,20 @@ final class RepositorySettingsViewModel {
     private func fetchRepos() {
         Task {
             do {
-                // 원격에서 레포지토리 목록 API 호출
                 let fetchedRepos = try await APIManager.shared.fetchRepositories().map {
                     MyRepo.initItem(repository: $0)
                 }
-                // 데이터베이스 레포지토리 목록과 동기화
                 TempRepository.syncRepos(fetchedRepos)
-                // 결과 반영
                 repos.accept(TempRepository.getRepos())
             } catch {
                 print("[RepositorySettingsViewModel] fetchRepos failed : \(error.localizedDescription)")
             }
         }
+    }
+    
+    private func togglePublic(_ id: Int) {
+        TempRepository.togglePublic(id)
+        repos.accept(TempRepository.getRepos())
     }
     
     private func updateRepoInfo(_ repo: MyRepo) {

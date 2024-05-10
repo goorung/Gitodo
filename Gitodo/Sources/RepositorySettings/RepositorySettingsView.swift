@@ -70,6 +70,7 @@ class RepositorySettingsView: UIView {
         
         backgroundColor = .secondarySystemBackground
         setupLayout()
+        bind()
     }
     
     required init?(coder: NSCoder) {
@@ -125,6 +126,26 @@ class RepositorySettingsView: UIView {
         }
     }
     
+    private func bind() {
+        repoTableView.rx.itemSelected
+            .subscribe(onNext: { [weak self] indexPath in
+                guard let self = self,
+                      let cell = repoTableView.cellForRow(at: indexPath) as? RepositoryCell,
+                      let id = cell.selectCell()
+                else { return }
+                viewModel?.input.togglePublic.onNext(id)
+            }).disposed(by: disposeBag)
+        
+        deletedRepoTableView.rx.itemSelected
+            .subscribe(onNext: { [weak self] indexPath in
+                guard let self = self,
+                      let cell = repoTableView.cellForRow(at: indexPath) as? RepositoryCell,
+                      let id = cell.selectCell()
+                else { return }
+                viewModel?.input.togglePublic.onNext(id)
+            }).disposed(by: disposeBag)
+    }
+    
     func bind(with viewModel: RepositorySettingsViewModel) {
         self.viewModel = viewModel
         
@@ -140,7 +161,7 @@ class RepositorySettingsView: UIView {
         
         repos
             .drive(repoTableView.rx.items(cellIdentifier: RepositoryCell.reuseIdentifier, cellType: RepositoryCell.self)) { _, repo, cell in
-                cell.configure(withName: repo.fullName)
+                cell.configure(with: repo)
             }.disposed(by: disposeBag)
 
         repos
@@ -156,7 +177,7 @@ class RepositorySettingsView: UIView {
         
         deletedRepos
             .drive(deletedRepoTableView.rx.items(cellIdentifier: RepositoryCell.reuseIdentifier, cellType: RepositoryCell.self)) { _, repo, cell in
-                cell.configure(withName: repo.fullName)
+                cell.configure(with: repo)
             }.disposed(by: disposeBag)
         
         deletedRepos

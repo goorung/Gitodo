@@ -67,6 +67,12 @@ class TempRepository {
         }
     }
     
+    static func togglePublic(_ id: Int?) {
+        if let index = repos.firstIndex(where: { $0.id == id }) {
+            repos[index].isPublic.toggle()
+        }
+    }
+    
     static func markAsDeleted(_ id: Int) {
         if let index = repos.firstIndex(where: { $0.id == id }) {
             repos[index].isDeleted = true
