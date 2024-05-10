@@ -16,7 +16,7 @@ final class RepositorySettingsViewModel {
     
     struct Input {
         let viewDidLoad: AnyObserver<Void>
-        let updateRepo: AnyObserver<MyRepo>
+        let updateRepoInfo: AnyObserver<MyRepo>
     }
     
     struct Output {
@@ -24,7 +24,7 @@ final class RepositorySettingsViewModel {
     }
     
     private let viewDidLoadSubject = PublishSubject<Void>()
-    private let updateRepoSubject = PublishSubject<MyRepo>()
+    private let updateRepoInfoSubject = PublishSubject<MyRepo>()
     
     private let repos = BehaviorRelay<[MyRepo]>(value: [])
     private let disposeBag = DisposeBag()
@@ -32,7 +32,7 @@ final class RepositorySettingsViewModel {
     init() {
         input = Input(
             viewDidLoad: viewDidLoadSubject.asObserver(),
-            updateRepo: updateRepoSubject.asObserver()
+            updateRepoInfo: updateRepoInfoSubject.asObserver()
         )
         output = Output(
             repos: repos.asDriver(onErrorJustReturn: [])
@@ -42,19 +42,31 @@ final class RepositorySettingsViewModel {
             self?.fetchRepos()
         }).disposed(by: disposeBag)
         
-        updateRepoSubject.subscribe(onNext: { [weak self] repo in
-            self?.updateRepo(repo)
+        updateRepoInfoSubject.subscribe(onNext: { [weak self] repo in
+            self?.updateRepoInfo(repo)
         }).disposed(by: disposeBag)
     }
     
     private func fetchRepos() {
-        let fetchedRepos = TempRepository.getRepos()
-        repos.accept(fetchedRepos)
+        Task {
+            do {
+                // 원격에서 레포지토리 목록 API 호출
+                let fetchedRepos = try await APIManager.shared.fetchRepositories().map {
+                    MyRepo.initItem(repository: $0)
+                }
+                // 데이터베이스 레포지토리 목록과 동기화
+                TempRepository.syncRepos(fetchedRepos)
+                // 결과 반영
+                repos.accept(TempRepository.getRepos())
+            } catch {
+                print("[RepositorySettingsViewModel] fetchRepos failed : \(error.localizedDescription)")
+            }
+        }
     }
     
-    private func updateRepo(_ repo: MyRepo) {
-        TempRepository.updateRepo(repo)
-        fetchRepos()
+    private func updateRepoInfo(_ repo: MyRepo) {
+        TempRepository.updateRepoInfo(repo)
+        repos.accept(TempRepository.getRepos())
     }
     
     func repo(at indexPath: IndexPath) -> MyRepo {

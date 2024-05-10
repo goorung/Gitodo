@@ -20,30 +20,6 @@ class RepositorySettingsView: UIView {
     
     private var viewModel: RepositorySettingsViewModel?
     private let disposeBag = DisposeBag()
-    
-    // temp !
-    
-    private let repos = [
-        "레포지토리 1",
-        "레포지토리 2",
-        "레포지토리 3",
-        "레포지토리 4",
-        "레포지토리 5",
-        "레포지토리 6",
-        "레포지토리 7",
-        "레포지토리 8",
-        "레포지토리 9",
-        "레포지토리 10"
-    ]
-    
-    private var deletedRepos = [
-        "삭제된 레포지토리 1",
-        "삭제된 레포지토리 2",
-        "삭제된 레포지토리 3",
-        "삭제된 레포지토리 4",
-        "삭제된 레포지토리 5"
-    ]
-    
     weak var delegate: RepositorySettingsDelegate?
     
     private let insetFromSuperView: CGFloat = 20.0
@@ -52,6 +28,8 @@ class RepositorySettingsView: UIView {
     private let offsetFromOtherView: CGFloat = 25.0
     private let offsetFromFriendView: CGFloat = 10.0
     private let heightForRow: CGFloat = 50.0
+    private var repoTableViewHeightConstraint: Constraint?
+    private var deletedRepoTableViewHeightConstraint: Constraint?
     
     // MARK: - UI Components
     
@@ -75,7 +53,6 @@ class RepositorySettingsView: UIView {
     
     private lazy var deletedRepoLabel = {
         let label = createLabel(withText: "원격 저장소에서 삭제된 레포지토리")
-        label.isHidden = deletedRepos.count == 0
         return label
     }()
     
@@ -130,7 +107,7 @@ class RepositorySettingsView: UIView {
         repoTableView.snp.makeConstraints { make in
             make.top.equalTo(repoLabel.snp.bottom).offset(offsetFromFriendView)
             make.leading.trailing.equalToSuperview().inset(insetFromSuperView)
-            make.height.equalTo(heightForRow * CGFloat(repos.count))
+            self.repoTableViewHeightConstraint = make.height.equalTo(0).constraint
         }
         
         contentView.addSubview(deletedRepoLabel)
@@ -143,7 +120,7 @@ class RepositorySettingsView: UIView {
         deletedRepoTableView.snp.makeConstraints { make in
             make.top.equalTo(deletedRepoLabel.snp.bottom).offset(offsetFromFriendView)
             make.leading.trailing.equalToSuperview().inset(insetFromSuperView)
-            make.height.equalTo(heightForRow * CGFloat(deletedRepos.count))
+            self.deletedRepoTableViewHeightConstraint = make.height.equalTo(0).constraint
             make.bottom.equalToSuperview().inset(insetFromSuperView)
         }
     }
@@ -152,9 +129,44 @@ class RepositorySettingsView: UIView {
         self.viewModel = viewModel
         
         viewModel.output.repos
+            .map { $0.filter { $0.isPublic } }
             .drive { [weak self] repos in
-                self?.previewView.repos = repos
+                guard let self = self else { return }
+                previewView.repos = repos
             }.disposed(by: disposeBag)
+        
+        let repos = viewModel.output.repos
+            .map { $0.filter { !$0.isDeleted } }
+        
+        repos
+            .drive(repoTableView.rx.items(cellIdentifier: RepositoryCell.reuseIdentifier, cellType: RepositoryCell.self)) { _, repo, cell in
+                cell.configure(withName: repo.fullName)
+            }.disposed(by: disposeBag)
+
+        repos
+            .map { CGFloat($0.count) * self.heightForRow }
+            .drive(onNext: { [weak self] height in
+                guard let self = self else { return }
+                repoTableViewHeightConstraint?.update(offset: height)
+                repoTableView.layoutIfNeeded() // 즉시 레이아웃 업데이트
+            }).disposed(by: disposeBag)
+        
+        let deletedRepos = viewModel.output.repos
+            .map { $0.filter { $0.isDeleted } }
+        
+        deletedRepos
+            .drive(deletedRepoTableView.rx.items(cellIdentifier: RepositoryCell.reuseIdentifier, cellType: RepositoryCell.self)) { _, repo, cell in
+                cell.configure(withName: repo.fullName)
+            }.disposed(by: disposeBag)
+        
+        deletedRepos
+            .map { CGFloat($0.count) * self.heightForRow }
+            .drive(onNext: { [weak self] height in
+                guard let self = self else { return }
+                deletedRepoTableView.isHidden = height == 0
+                deletedRepoTableViewHeightConstraint?.update(offset: height)
+                deletedRepoTableView.layoutIfNeeded() // 즉시 레이아웃 업데이트
+            }).disposed(by: disposeBag)
     }
     
 }
@@ -171,8 +183,7 @@ extension RepositorySettingsView {
     
     private func createTableView() -> UITableView {
         let tableView = UITableView()
-        tableView.delegate = self
-        tableView.dataSource = self
+        tableView.rowHeight = heightForRow
         tableView.separatorStyle = .none
         tableView.clipsToBounds = true
         tableView.layer.cornerRadius = 10
@@ -183,77 +194,11 @@ extension RepositorySettingsView {
     
 }
 
-extension RepositorySettingsView: UITableViewDelegate {
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return heightForRow
-    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard tableView == repoTableView, let cell = tableView.cellForRow(at: indexPath) as? RepositoryCell else { return }
-        if cell.selectCell() { // 추가
-            print("\(repos[indexPath.row]) 추가")
-        } else { // 삭제
-            print("\(repos[indexPath.row]) 삭제")
-        }
-    }
-    
-    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
-        if tableView == deletedRepoTableView {
-            return .delete
-        }
-        return .none
-    }
-    
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            delegate?.presentAlertViewController { [weak self] in
-                guard let self = self else { return }
-                deletedRepos.remove(at: indexPath.row)
-                tableView.reloadData()
-                remakeDeletedRepoTableViewConstraints()
-            }
-        }
-    }
-    
-    private func remakeDeletedRepoTableViewConstraints() {
-        deletedRepoTableView.snp.remakeConstraints { make in
-            make.top.equalTo(deletedRepoLabel.snp.bottom).offset(offsetFromFriendView)
-            make.leading.trailing.equalToSuperview().inset(insetFromSuperView)
-            make.height.equalTo(heightForRow * CGFloat(deletedRepos.count))
-            make.bottom.equalToSuperview().inset(insetFromSuperView)
-        }
-    }
-    
-}
-
-extension RepositorySettingsView: UITableViewDataSource {
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if tableView == repoTableView {
-            return repos.count
-        } else {
-            return deletedRepos.count
-        }
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: RepositoryCell.reuseIdentifier) as? RepositoryCell else {
-            fatalError("Unable to dequeue RepositoryCell")
-        }
-        if tableView == repoTableView {
-            cell.configure(withName: repos[indexPath.row])
-        } else {
-            cell.configure(withName: deletedRepos[indexPath.row])
-        }
-        return cell
-    }
-    
-}
-
 extension RepositorySettingsView: UICollectionViewDelegate {
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let viewModel = viewModel else { return }
         delegate?.presentRepositoryInfoViewController(repository: viewModel.repo(at: indexPath))
     }
+    
 }

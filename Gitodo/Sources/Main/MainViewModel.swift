@@ -89,7 +89,7 @@ final class MainViewModel {
     
     private func fetchRepos() {
         let fetchedRepos = TempRepository.getRepos()
-        repos.accept(fetchedRepos)
+        repos.accept(fetchedRepos.filter { $0.isPublic })
         if selectedRepo.value == nil && fetchedRepos.count > 0 {
             selectedRepo.accept(fetchedRepos[0].id)
         } else {
