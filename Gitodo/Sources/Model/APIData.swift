@@ -12,13 +12,6 @@ struct User: Codable {
     let avatarUrl: String
 }
 
-struct Organization: Codable {
-    let login: String
-    let id: Int
-    let url: URL
-    let avatarUrl: String
-}
-
 struct Repository: Codable {
     let id: Int
     let name: String
