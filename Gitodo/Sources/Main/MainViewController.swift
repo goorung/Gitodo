@@ -9,17 +9,20 @@ import UIKit
 
 class MainViewController: BaseViewController<MainView>, BaseViewControllerProtocol {
 
+    private let viewModel = MainViewModel()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         setupNavigationBar()
         hideKeyboardWhenTappedAround()
+        contentView.bind(with: viewModel)
         contentView.setIssueDelegate(self)
         NotificationCenter.default.addObserver(self, selector: #selector(handleRepoOrderChange), name: .RepositoryOrderDidUpdate, object: nil)
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        contentView.viewModel.input.viewWillAppear.onNext(())
+        viewModel.input.viewWillAppear.onNext(())
     }
     
     deinit {
@@ -60,7 +63,7 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
     }
     
     @objc private func handleRepoOrderChange() {
-        contentView.viewModel.input.viewWillAppear.onNext(())
+        viewModel.input.viewWillAppear.onNext(())
     }
     
 }

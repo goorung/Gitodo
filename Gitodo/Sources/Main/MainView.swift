@@ -14,7 +14,7 @@ import SnapKit
 
 class MainView: UIView {
     
-    let viewModel = MainViewModel()
+    private var viewModel: MainViewModel?
     private let issueViewModel = IssueViewModel()
     private let disposeBag = DisposeBag()
     
@@ -86,7 +86,6 @@ class MainView: UIView {
         super.init(frame: frame)
         
         setupLayout()
-        bindViewModel()
     }
     
     required init?(coder: NSCoder) {
@@ -150,10 +149,12 @@ class MainView: UIView {
     }
     
     @objc private func todoAddButtonTapped() {
-        viewModel.input.appendTodo.onNext(())
+        viewModel?.input.appendTodo.onNext(())
     }
     
-    private func bindViewModel() {
+    func bind(with viewModel: MainViewModel) {
+        self.viewModel = viewModel
+        
         todoTableView.rx
             .setDelegate(self)
             .disposed(by: disposeBag)
@@ -190,7 +191,7 @@ class MainView: UIView {
                 cell.checkbox.rx.tapGesture()
                     .when(.recognized)
                     .subscribe(onNext: { _ in
-                        self?.viewModel.input.toggleTodo.onNext(todo.id)
+                        self?.viewModel?.input.toggleTodo.onNext(todo.id)
                     })
                     .disposed(by: cell.disposeBag)
             }.disposed(by: disposeBag)
@@ -224,7 +225,7 @@ extension MainView: UITableViewDelegate {
         let deleteAction = UIContextualAction(style: .normal, title: "Delete") { [weak self] action, view, completionHandler in
             guard let cell = tableView.cellForRow(at: indexPath) as? TodoCell, 
                     let id = cell.viewModel?.id else { return }
-            self?.viewModel.input.deleteTodo.onNext(id)
+            self?.viewModel?.input.deleteTodo.onNext(id)
         }
         deleteAction.backgroundColor = .systemGray4
         
@@ -237,6 +238,6 @@ extension MainView: UITableViewDelegate {
 
 extension MainView: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        viewModel.input.selectRepoIndex.onNext(indexPath.row)
+        viewModel?.input.selectRepoIndex.onNext(indexPath.row)
     }
 }
