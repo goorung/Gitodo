@@ -14,7 +14,6 @@ import RxSwift
 class RepositoryInfoView: UIView {
     
     private var viewModel: RepositoryInfoViewModel?
-    private var initialName: String?
     private let disposeBag = DisposeBag()
     
     private let insetFromSuperView: CGFloat = 20.0
@@ -152,8 +151,8 @@ class RepositoryInfoView: UIView {
         nicknameTextField.rx.text.orEmpty
             .distinctUntilChanged()
             .subscribe(onNext: { [weak self] text in
-                guard let self = self, let viewModel = self.viewModel, let initialName = self.initialName else { return }
-                let nameToSet = text.isEmpty ? initialName : text
+                guard let self = self, let viewModel = self.viewModel else { return }
+                let nameToSet = text.isEmpty ? viewModel.name : text
                 self.previewView.setName(nameToSet)
                 viewModel.nickname = nameToSet
             }).disposed(by: disposeBag)
@@ -177,8 +176,6 @@ class RepositoryInfoView: UIView {
     
     func bind(with viewModel: RepositoryInfoViewModel) {
         self.viewModel = viewModel
-        
-        initialName = viewModel.nickname
         
         previewLabel.text = "\(viewModel.fullName) 미리보기"
         previewView.setName(viewModel.nickname)

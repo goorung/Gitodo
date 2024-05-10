@@ -9,8 +9,10 @@ import Foundation
 
 struct MyRepo: Hashable {
     let id: Int // github에서 가져온 id
-    var nickname: String
+    let name: String
     var fullName: String
+    let ownerName: String
+    var nickname: String
     var symbol: String?
     var hexColor: UInt
     var todos: [TodoItem] = []
@@ -30,8 +32,10 @@ struct MyRepo: Hashable {
 extension MyRepo {
     static func initItem(repository: Repository) -> Self {
         .init(id: repository.id,
-              nickname: repository.name,
+              name: repository.name,
               fullName: repository.fullName,
+              ownerName: repository.owner.login,
+              nickname: repository.name,
               hexColor: PaletteColor.green.hex)
     }
 }

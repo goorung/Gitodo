@@ -18,6 +18,10 @@ final class RepositoryInfoViewModel {
         repository.id
     }
     
+    var name: String {
+        repository.name
+    }
+    
     var fullName: String {
         repository.fullName
     }

@@ -68,7 +68,7 @@ final class RepositorySettingsViewModel {
                     MyRepo.initItem(repository: $0)
                 }
                 TempRepository.syncRepos(fetchedRepos)
-                repos.accept(sortedRepos())
+                repos.accept(TempRepository.getRepos())
             } catch {
                 print("[RepositorySettingsViewModel] fetchRepos failed : \(error.localizedDescription)")
             }
@@ -77,22 +77,16 @@ final class RepositorySettingsViewModel {
     
     private func togglePublic(_ id: Int) {
         TempRepository.togglePublic(id)
-        repos.accept(sortedRepos())
+        repos.accept(TempRepository.getRepos())
     }
     
     private func updateRepoInfo(_ repo: MyRepo) {
         TempRepository.updateRepoInfo(repo)
-        repos.accept(sortedRepos())
-    }
-    
-    private func sortedRepos() -> [MyRepo] {
-        return TempRepository.getRepos().sorted {
-            $0.isPublic && !$1.isPublic
-        }
+        repos.accept(TempRepository.getRepos())
     }
     
     private func removeRepo(_ id: Int) {
         TempRepository.removeRepo(id)
-        repos.accept(sortedRepos())
+        repos.accept(TempRepository.getRepos())
     }
 }

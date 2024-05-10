@@ -15,13 +15,8 @@ import SnapKit
 class MainView: UIView {
     
     let viewModel = MainViewModel()
+    private let issueViewModel = IssueViewModel()
     private let disposeBag = DisposeBag()
-    
-    let tempIssue = [
-        Issue(title: "title", body: "body\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nbody\n\n\n\n\n\n\n\n\n\n\n\n\n\nbody", assignees: [User(login: "login0", avatarUrl: ""), User(login: "login1", avatarUrl: ""), User(login: "login2", avatarUrl: ""), User(login: "login3", avatarUrl: ""), User(login: "login4", avatarUrl: ""), User(login: "login5", avatarUrl: ""), User(login: "login6", avatarUrl: ""), User(login: "login7", avatarUrl: ""), User(login: "login8", avatarUrl: ""), User(login: "login9", avatarUrl: "")], labels: [Label(name: "✨ enhancement", color: "BFD4F2")]),
-        Issue(title: "title", body: "body\nbody\nbody", assignees: [User(login: "login", avatarUrl: "")], labels: [Label(name: "🐛 bug", color: "E99695"), Label(name: "🪐 build", color: "D4C5F9"), Label(name: "📋 documentation", color: "C2E0C6"), Label(name: "✨ enhancement", color: "BFD4F2"), Label(name: "🛠️ refactoring", color: "FEF2C0")]),
-        Issue(title: "title\ntitle\ntitle", body: "body", assignees: [User(login: "login", avatarUrl: "")], labels: [Label(name: "✨ enhancement", color: "BFD4F2")])
-    ]
     
     private lazy var repoCollectionView = {
         let collectionView = RepoCollectionView()
@@ -82,6 +77,7 @@ class MainView: UIView {
     
     private lazy var issueView = {
         let view = IssueTableView()
+        view.bind(with: issueViewModel)
         view.isHidden = true
         return view
     }()
@@ -148,7 +144,9 @@ class MainView: UIView {
         todoView.isHidden = segment.selectedSegmentIndex != 0
         issueView.isHidden = !todoView.isHidden
         if !issueView.isHidden {
-            issueView.configure(with: tempIssue)
+            guard let index = viewModel.selectedRepoIndex else { return }
+            let repo = TempRepository.getRepo(index: index)
+            issueViewModel.input.fetchIssue.onNext(repo)
         }
     }
     

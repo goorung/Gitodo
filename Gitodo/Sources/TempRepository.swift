@@ -13,8 +13,10 @@ class TempRepository {
     static private var repos = [
         MyRepo(
             id: 1,
-            nickname: "algorithm",
+            name: "algorithm",
             fullName: "goorung/algorithm",
+            ownerName: "jikoo",
+            nickname: "algorithm",
             symbol: "🪼",
             hexColor: PaletteColor.blue.hex,
             todos: [
@@ -26,8 +28,10 @@ class TempRepository {
         ),
         MyRepo(
             id: 3,
-            nickname: "42",
+            name: "42",
             fullName: "goorung/42",
+            ownerName: "jihyeole",
+            nickname: "42",
             symbol: "🤍",
             hexColor: PaletteColor.red.hex,
             todos: [
@@ -37,7 +41,15 @@ class TempRepository {
             ],
             isPublic: true
         ),
-    ]
+    ] {
+        didSet {
+            repos.sort(by: { $0.isPublic && !$1.isPublic })
+        }
+    }
+    
+    static func getRepo(index: Int) -> MyRepo {
+        return repos[index]
+    }
     
     static func getRepos() -> [MyRepo] {
         repos

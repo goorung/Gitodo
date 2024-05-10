@@ -7,19 +7,18 @@
 
 import UIKit
 
+import RxCocoa
+import RxSwift
+
 protocol IssueDelegate: AnyObject {
     func presentInfoViewController(issue: Issue)
 }
 
 class IssueTableView: UITableView {
     
-    private var issues: [Issue]? {
-        didSet {
-            reloadData()
-        }
-    }
-    
     weak var issueDelegate: IssueDelegate?
+    private var viewModel: IssueViewModel?
+    private let disposeBag = DisposeBag()
     
     // MARK: - Initializer
     
@@ -40,8 +39,7 @@ class IssueTableView: UITableView {
     // MARK: - Setup Methods
     
     private func setupProperty() {
-        delegate = self
-        dataSource = self
+        rowHeight = UITableView.automaticDimension
         register(IssueCell.self, forCellReuseIdentifier: IssueCell.reuseIdentifier)
         
         NotificationCenter.default.addObserver(self, selector: #selector(handleHeightChange), name: .AssigneeCollectionViewHeightDidUpdate, object: nil)
@@ -55,38 +53,13 @@ class IssueTableView: UITableView {
         }
     }
     
-    func configure(with issues: [Issue]?) {
-        self.issues = issues
-    }
-    
-}
-
-extension IssueTableView: UITableViewDelegate {
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return UITableView.automaticDimension
-    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let issues = issues else { return }
-        issueDelegate?.presentInfoViewController(issue: issues[indexPath.row])
-    }
-    
-}
-
-extension IssueTableView: UITableViewDataSource {
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return issues?.count ?? 0
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let issues = issues else { return UITableViewCell() }
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: IssueCell.reuseIdentifier) as? IssueCell else {
-            fatalError("Unable to dequeue IssueCell")
-        }
-        cell.configure(with: issues[indexPath.row])
-        return cell
+    func bind(with viewModel: IssueViewModel) {
+        self.viewModel = viewModel
+        
+        viewModel.output.issues
+            .drive(self.rx.items(cellIdentifier: IssueCell.reuseIdentifier, cellType: IssueCell.self)) { _, issue, cell in
+                cell.configure(with: issue)
+            }.disposed(by: disposeBag)
     }
     
 }
