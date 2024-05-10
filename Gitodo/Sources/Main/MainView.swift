@@ -143,11 +143,6 @@ class MainView: UIView {
     @objc private func segmentedControlChanged(_ segment: UISegmentedControl) {
         todoView.isHidden = segment.selectedSegmentIndex != 0
         issueView.isHidden = !todoView.isHidden
-        if !issueView.isHidden {
-            guard let index = viewModel.selectedRepoIndex else { return }
-            let repo = TempRepository.getRepo(index: index)
-            issueViewModel.input.fetchIssue.onNext(repo)
-        }
     }
     
     func setIssueDelegate(_ viewController: IssueDelegate) {
@@ -171,7 +166,6 @@ class MainView: UIView {
         viewModel.output.selectedRepo
             .drive{ [weak self] repoId in
                 guard let self = self, let repoIndex = viewModel.selectedRepoIndex else { return }
-                
                 repoCollectionView.selectedIndex = repoIndex
                 
                 let color: UIColor
@@ -180,20 +174,10 @@ class MainView: UIView {
                 } else {
                     color = .label
                 }
+                setSegmentedControlTintColor(color)
+                setAddButtonTinkColor(color)
                 
-                let selectedAttributes = [
-                    NSAttributedString.Key.foregroundColor: color,
-                    NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15, weight: .semibold)
-                ]
-                segmentedControl.setTitleTextAttributes(selectedAttributes, for: .selected)
-                
-                if segmentedControl.selectedSegmentIndex == 0 {
-                    todoAddButton.setTitleColor(color, for: .normal)
-                    todoAddButton.tintColor = color
-                } else {
-                    let repo = TempRepository.getRepo(index: repoIndex)
-                    issueViewModel.input.fetchIssue.onNext(repo)
-                }
+                issueViewModel.input.fetchIssue.onNext(TempRepository.getRepo(index: repoIndex))
             }.disposed(by: disposeBag)
         
         viewModel.output.todos
@@ -217,6 +201,19 @@ class MainView: UIView {
                       let cell = self?.todoTableView.cellForRow(at: indexPath) as? TodoCell else { return }
                 cell.todoBecomeFirstResponder()
             }).disposed(by: disposeBag)
+    }
+    
+    private func setSegmentedControlTintColor(_ color: UIColor) {
+        let selectedAttributes = [
+            NSAttributedString.Key.foregroundColor: color,
+            NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15, weight: .semibold)
+        ]
+        segmentedControl.setTitleTextAttributes(selectedAttributes, for: .selected)
+    }
+    
+    private func setAddButtonTinkColor(_ color: UIColor) {
+        todoAddButton.setTitleColor(color, for: .normal)
+        todoAddButton.tintColor = color
     }
     
 }
