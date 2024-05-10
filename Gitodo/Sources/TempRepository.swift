@@ -32,8 +32,8 @@ class TempRepository {
             fullName: "goorung/42",
             ownerName: "jihyeole",
             nickname: "42",
-            symbol: "🤍",
-            hexColor: PaletteColor.red.hex,
+            symbol: "🍄",
+            hexColor: PaletteColor.yellow.hex,
             todos: [
                 TodoItem(todo: "inception", isComplete: false),
                 TodoItem(todo: "minirt", isComplete: false),

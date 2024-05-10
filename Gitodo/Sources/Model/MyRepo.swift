@@ -36,6 +36,6 @@ extension MyRepo {
               fullName: repository.fullName,
               ownerName: repository.owner.login,
               nickname: repository.name,
-              hexColor: PaletteColor.green.hex)
+              hexColor: PaletteColor.gray.hex)
     }
 }
