@@ -14,6 +14,7 @@ class TempRepository {
         MyRepo(
             id: 1,
             nickname: "algorithm",
+            fullName: "goorung/algorithm",
             symbol: "🪼",
             hexColor: PaletteColor.blue.hex,
             todos: [
@@ -23,48 +24,15 @@ class TempRepository {
             ]
         ),
         MyRepo(
-            id: 2,
-            nickname: "iOS",
-            symbol: "🍄",
-            hexColor: PaletteColor.yellow.hex,
-            todos: [
-                TodoItem(todo: "1", isComplete: false),
-                TodoItem(todo: "2", isComplete: false),
-                TodoItem(todo: "3", isComplete: true)
-            ]
-        ),
-        MyRepo(
             id: 3,
             nickname: "42",
+            fullName: "goorung/42",
             symbol: "🤍",
             hexColor: PaletteColor.red.hex,
             todos: [
                 TodoItem(todo: "inception", isComplete: false),
                 TodoItem(todo: "minirt", isComplete: false),
                 TodoItem(todo: "ft_irc", isComplete: true)
-            ]
-        ),
-        MyRepo(
-            id: 4,
-            nickname: "운동",
-            symbol: "💪",
-            hexColor: PaletteColor.green.hex,
-            todos: [
-                TodoItem(todo: "달리기", isComplete: false),
-                TodoItem(todo: "요가", isComplete: false),
-                TodoItem(todo: "검도", isComplete: true),
-                TodoItem(todo: "수영", isComplete: true)
-            ]
-        ),
-        MyRepo(
-            id: 5,
-            nickname: "책",
-            symbol: "📗",
-            hexColor: PaletteColor.purple.hex,
-            todos: [
-                TodoItem(todo: "1", isComplete: false),
-                TodoItem(todo: "2", isComplete: false),
-                TodoItem(todo: "3", isComplete: true)
             ]
         ),
     ]

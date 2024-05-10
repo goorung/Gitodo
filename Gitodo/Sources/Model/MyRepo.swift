@@ -10,13 +10,19 @@ import Foundation
 struct MyRepo {
     let id: Int // github에서 가져온 id
     var nickname: String
+    var fullName: String
     var symbol: String?
     var hexColor: UInt
     var todos: [TodoItem] = []
+    var isPublic: Bool = false // 메인 뷰에서 공개적으로 보여질지 여부
+    var isDeleted: Bool = false // 원격에서 삭제되었는지 여부
 }
 
 extension MyRepo {
-    static func initItem(id: Int, repoName: String) -> Self {
-        .init(id: id, nickname: repoName, hexColor: PaletteColor.green.hex)
+    static func initItem(repository: Repository) -> Self {
+        .init(id: repository.id,
+              nickname: repository.name,
+              fullName: repository.fullName,
+              hexColor: PaletteColor.green.hex)
     }
 }
