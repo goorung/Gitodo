@@ -1,5 +1,5 @@
 //
-//  RepositorySettingViewModel.swift
+//  RepositorySettingsViewModel.swift
 //  Gitodo
 //
 //  Created by 이지현 on 5/8/24.
@@ -10,7 +10,7 @@ import Foundation
 import RxCocoa
 import RxSwift
 
-final class RepositorySettingViewModel {
+final class RepositorySettingsViewModel {
     let input: Input
     let output: Output
     

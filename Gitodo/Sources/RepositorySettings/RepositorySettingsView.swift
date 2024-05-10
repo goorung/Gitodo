@@ -17,7 +17,8 @@ protocol RepositorySettingsDelegate: AnyObject {
 }
 
 class RepositorySettingsView: UIView {
-    let viewModel = RepositorySettingViewModel()
+    
+    private var viewModel: RepositorySettingsViewModel?
     private let disposeBag = DisposeBag()
     
     // temp !
@@ -92,7 +93,6 @@ class RepositorySettingsView: UIView {
         
         backgroundColor = .secondarySystemBackground
         setupLayout()
-        bindViewModel()
     }
     
     required init?(coder: NSCoder) {
@@ -148,7 +148,9 @@ class RepositorySettingsView: UIView {
         }
     }
     
-    private func bindViewModel() {
+    func bind(with viewModel: RepositorySettingsViewModel) {
+        self.viewModel = viewModel
+        
         viewModel.output.repos
             .drive { [weak self] repos in
                 self?.previewView.repos = repos
@@ -251,6 +253,7 @@ extension RepositorySettingsView: UITableViewDataSource {
 
 extension RepositorySettingsView: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let viewModel = viewModel else { return }
         delegate?.presentRepositoryInfoViewController(repository: viewModel.repo(at: indexPath))
     }
 }
