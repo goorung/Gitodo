@@ -52,7 +52,6 @@ final class APIManager {
         let repoName = repo.name
         let ownerName = repo.ownerName
         let url = URL(string: "\(baseURL)/repos/\(ownerName)/\(repoName)/issues")
-        print(url)
         return try await fetchData(from: url)
     }
     

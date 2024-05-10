@@ -170,22 +170,30 @@ class MainView: UIView {
         
         viewModel.output.selectedRepo
             .drive{ [weak self] repoId in
-                self?.repoCollectionView.selectedIndex = self?.viewModel.selectedRepoIndex
+                guard let self = self, let repoIndex = viewModel.selectedRepoIndex else { return }
+                
+                repoCollectionView.selectedIndex = repoIndex
+                
                 let color: UIColor
-                if let hex = self?.viewModel.selectedHexColor {
+                if let hex = viewModel.selectedHexColor {
                     color = UIColor(hex: hex)
                 } else {
                     color = .label
                 }
-                self?.todoAddButton.setTitleColor(color, for: .normal)
-                self?.todoAddButton.tintColor = color
                 
                 let selectedAttributes = [
                     NSAttributedString.Key.foregroundColor: color,
                     NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15, weight: .semibold)
                 ]
+                segmentedControl.setTitleTextAttributes(selectedAttributes, for: .selected)
                 
-                self?.segmentedControl.setTitleTextAttributes(selectedAttributes, for: .selected)
+                if segmentedControl.selectedSegmentIndex == 0 {
+                    todoAddButton.setTitleColor(color, for: .normal)
+                    todoAddButton.tintColor = color
+                } else {
+                    let repo = TempRepository.getRepo(index: repoIndex)
+                    issueViewModel.input.fetchIssue.onNext(repo)
+                }
             }.disposed(by: disposeBag)
         
         viewModel.output.todos
