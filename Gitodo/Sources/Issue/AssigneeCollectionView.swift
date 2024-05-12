@@ -111,8 +111,7 @@ extension AssigneeCollectionView: UICollectionViewDataSource {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: AssigneeCell.reuseIdentifier, for: indexPath) as? AssigneeCell else {
             fatalError("Unable to dequeue AssigneeCell")
         }
-//        cell.configure(with: assignees[indexPath.row].avataUrl)
-        cell.configure(with: "https://avatars.githubusercontent.com/u/116897060")
+        cell.configure(with: assignees[indexPath.row].avatarUrl)
         return cell
     }
     

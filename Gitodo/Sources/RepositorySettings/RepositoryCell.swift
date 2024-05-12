@@ -12,6 +12,7 @@ import SnapKit
 class RepositoryCell: UITableViewCell {
     
     static let reuseIdentifier = "RepositoryCell"
+    private var repo: MyRepo?
     private let insetFromSuperView: CGFloat = 20.0
     
     // MARK: - UI Components
@@ -46,6 +47,11 @@ class RepositoryCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        repo = nil
+    }
+    
     // MARK: - Setup Methods
     
     private func setupLayout() {
@@ -63,13 +69,15 @@ class RepositoryCell: UITableViewCell {
         }
     }
     
-    func configure(withName name: String) {
-        nameLabel.text = name
+    func configure(with repo: MyRepo) {
+        self.repo = repo
+        nameLabel.text = repo.fullName
+        selectedButton.isHidden = !repo.isPublic
     }
     
-    func selectCell() -> Bool {
+    func selectCell() -> Int? {
         selectedButton.isHidden.toggle()
-        return !selectedButton.isHidden
+        return repo?.id
     }
     
 }

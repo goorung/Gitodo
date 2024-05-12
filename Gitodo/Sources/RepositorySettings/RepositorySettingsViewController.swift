@@ -9,12 +9,15 @@ import UIKit
 
 class RepositorySettingsViewController: BaseViewController<RepositorySettingsView>, BaseViewControllerProtocol {
     
+    private let viewModel = RepositorySettingsViewModel()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         setupNavigationBar()
         contentView.delegate = self
-        contentView.viewModel.input.viewDidLoad.onNext(())
+        contentView.bind(with: viewModel)
+        viewModel.input.viewDidLoad.onNext(())
         NotificationCenter.default.addObserver(self, selector: #selector(handleRepoOrderChange), name: .RepositoryOrderDidUpdate, object: nil)
     }
     
@@ -28,7 +31,7 @@ class RepositorySettingsViewController: BaseViewController<RepositorySettingsVie
     }
     
     @objc private func handleRepoOrderChange() {
-        contentView.viewModel.input.viewDidLoad.onNext(())
+        viewModel.input.viewDidLoad.onNext(())
     }
     
 }
@@ -62,7 +65,7 @@ extension RepositorySettingsViewController: RepositorySettingsDelegate {
 
 extension RepositorySettingsViewController: RepositoryInfoViewControllerDelegate {
     func doneButtonTapped(repository: MyRepo) {
-        contentView.viewModel.input.updateRepo.onNext(repository)
+        viewModel.input.updateRepoInfo.onNext(repository)
     }
     
 }

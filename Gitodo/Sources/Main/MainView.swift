@@ -14,14 +14,9 @@ import SnapKit
 
 class MainView: UIView {
     
-    let viewModel = MainViewModel()
+    private var viewModel: MainViewModel?
+    private let issueViewModel = IssueViewModel()
     private let disposeBag = DisposeBag()
-    
-    let tempIssue = [
-        Issue(title: "title", body: "body\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nbody\n\n\n\n\n\n\n\n\n\n\n\n\n\nbody", assignees: [User(login: "login0", avatarUrl: ""), User(login: "login1", avatarUrl: ""), User(login: "login2", avatarUrl: ""), User(login: "login3", avatarUrl: ""), User(login: "login4", avatarUrl: ""), User(login: "login5", avatarUrl: ""), User(login: "login6", avatarUrl: ""), User(login: "login7", avatarUrl: ""), User(login: "login8", avatarUrl: ""), User(login: "login9", avatarUrl: "")], labels: [Label(name: "✨ enhancement", color: "BFD4F2")]),
-        Issue(title: "title", body: "body\nbody\nbody", assignees: [User(login: "login", avatarUrl: "")], labels: [Label(name: "🐛 bug", color: "E99695"), Label(name: "🪐 build", color: "D4C5F9"), Label(name: "📋 documentation", color: "C2E0C6"), Label(name: "✨ enhancement", color: "BFD4F2"), Label(name: "🛠️ refactoring", color: "FEF2C0")]),
-        Issue(title: "title\ntitle\ntitle", body: "body", assignees: [User(login: "login", avatarUrl: "")], labels: [Label(name: "✨ enhancement", color: "BFD4F2")])
-    ]
     
     private lazy var repoCollectionView = {
         let collectionView = RepoCollectionView()
@@ -82,6 +77,7 @@ class MainView: UIView {
     
     private lazy var issueView = {
         let view = IssueTableView()
+        view.bind(with: issueViewModel)
         view.isHidden = true
         return view
     }()
@@ -90,7 +86,6 @@ class MainView: UIView {
         super.init(frame: frame)
         
         setupLayout()
-        bindViewModel()
     }
     
     required init?(coder: NSCoder) {
@@ -147,9 +142,6 @@ class MainView: UIView {
     @objc private func segmentedControlChanged(_ segment: UISegmentedControl) {
         todoView.isHidden = segment.selectedSegmentIndex != 0
         issueView.isHidden = !todoView.isHidden
-        if !issueView.isHidden {
-            issueView.configure(with: tempIssue)
-        }
     }
     
     func setIssueDelegate(_ viewController: IssueDelegate) {
@@ -157,10 +149,12 @@ class MainView: UIView {
     }
     
     @objc private func todoAddButtonTapped() {
-        viewModel.input.appendTodo.onNext(())
+        viewModel?.input.appendTodo.onNext(())
     }
     
-    private func bindViewModel() {
+    func bind(with viewModel: MainViewModel) {
+        self.viewModel = viewModel
+        
         todoTableView.rx
             .setDelegate(self)
             .disposed(by: disposeBag)
@@ -172,22 +166,19 @@ class MainView: UIView {
         
         viewModel.output.selectedRepo
             .drive{ [weak self] repoId in
-                self?.repoCollectionView.selectedIndex = self?.viewModel.selectedRepoIndex
+                guard let self = self, let repoIndex = viewModel.selectedRepoIndex else { return }
+                repoCollectionView.selectedIndex = repoIndex
+                
                 let color: UIColor
-                if let hex = self?.viewModel.selectedHexColor {
+                if let hex = viewModel.selectedHexColor {
                     color = UIColor(hex: hex)
                 } else {
                     color = .label
                 }
-                self?.todoAddButton.setTitleColor(color, for: .normal)
-                self?.todoAddButton.tintColor = color
+                setSegmentedControlTintColor(color)
+                setAddButtonTinkColor(color)
                 
-                let selectedAttributes = [
-                    NSAttributedString.Key.foregroundColor: color,
-                    NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15, weight: .semibold)
-                ]
-                
-                self?.segmentedControl.setTitleTextAttributes(selectedAttributes, for: .selected)
+                issueViewModel.input.fetchIssue.onNext(TempRepository.getRepo(index: repoIndex))
             }.disposed(by: disposeBag)
         
         viewModel.output.todos
@@ -200,7 +191,7 @@ class MainView: UIView {
                 cell.checkbox.rx.tapGesture()
                     .when(.recognized)
                     .subscribe(onNext: { _ in
-                        self?.viewModel.input.toggleTodo.onNext(todo.id)
+                        self?.viewModel?.input.toggleTodo.onNext(todo.id)
                     })
                     .disposed(by: cell.disposeBag)
             }.disposed(by: disposeBag)
@@ -213,6 +204,19 @@ class MainView: UIView {
             }).disposed(by: disposeBag)
     }
     
+    private func setSegmentedControlTintColor(_ color: UIColor) {
+        let selectedAttributes = [
+            NSAttributedString.Key.foregroundColor: color,
+            NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15, weight: .semibold)
+        ]
+        segmentedControl.setTitleTextAttributes(selectedAttributes, for: .selected)
+    }
+    
+    private func setAddButtonTinkColor(_ color: UIColor) {
+        todoAddButton.setTitleColor(color, for: .normal)
+        todoAddButton.tintColor = color
+    }
+    
 }
 
 extension MainView: UITableViewDelegate {
@@ -221,7 +225,7 @@ extension MainView: UITableViewDelegate {
         let deleteAction = UIContextualAction(style: .normal, title: "Delete") { [weak self] action, view, completionHandler in
             guard let cell = tableView.cellForRow(at: indexPath) as? TodoCell, 
                     let id = cell.viewModel?.id else { return }
-            self?.viewModel.input.deleteTodo.onNext(id)
+            self?.viewModel?.input.deleteTodo.onNext(id)
         }
         deleteAction.backgroundColor = .systemGray4
         
@@ -234,6 +238,6 @@ extension MainView: UITableViewDelegate {
 
 extension MainView: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        viewModel.input.selectRepoIndex.onNext(indexPath.row)
+        viewModel?.input.selectRepoIndex.onNext(indexPath.row)
     }
 }

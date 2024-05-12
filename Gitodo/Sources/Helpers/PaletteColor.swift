@@ -25,4 +25,8 @@ enum PaletteColor: CaseIterable {
         case .gray: 0xC3C3C3
         }
     }
+    
+    static func findIndex(_ hex: UInt) -> Int? {
+        return PaletteColor.allCases.firstIndex(where: { $0.hex == hex })
+    }
 }
