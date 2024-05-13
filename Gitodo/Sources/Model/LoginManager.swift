@@ -12,8 +12,14 @@ final class LoginManager {
     static let shared = LoginManager() // Singleton instance
     private init() {}
     
-    private let clientID = "Ov23liXtaG7W7YfAUotb"
-    private let clientSecret = "0fc0289364abf389f0262ae271a7cc132afd8505"
+    private var clientID: String {
+        return Bundle.main.object(forInfoDictionaryKey: "CLIENT_ID") as? String ?? ""
+    }
+    
+    private var clientSecret: String {
+        return Bundle.main.object(forInfoDictionaryKey: "CLIENT_SECRET") as? String ?? ""
+    }
+    
     private let baseURL = "https://github.com/login/oauth/"
     
     func getLoginURL() -> URL? {
