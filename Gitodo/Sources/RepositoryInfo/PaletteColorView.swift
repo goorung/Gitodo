@@ -40,7 +40,7 @@ class PaletteColorView: UICollectionView {
         self.register(PaletteColorCell.self, forCellWithReuseIdentifier: PaletteColorCell.reuseIdentifier)
     }
     
-    func setSelectedColor(_ hex: UInt) {
+    func setInitialColor(_ hex: UInt) {
         selectedIndex = PaletteColor.findIndex(hex)
         reloadData()
     }
@@ -61,15 +61,17 @@ extension PaletteColorView: UICollectionViewDelegateFlowLayout {
 extension PaletteColorView: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        // 이전 선택된 셀 unhighlight
+        if let selectedIndex = selectedIndex,
+           let cell = collectionView.cellForItem(at: IndexPath(row: selectedIndex, section: 0)) as? PaletteColorCell {
+            cell.unhighlightCell()
+        }
+        // 새로 선택된 셀 highlight
         guard let cell = collectionView.cellForItem(at: indexPath) as? PaletteColorCell else { return }
         cell.highlightCell()
         selectedIndex = indexPath.row
+        
         colorDelegate?.selectColor(PaletteColor.allCases[indexPath.row])
-    }
-
-    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        guard let cell = collectionView.cellForItem(at: indexPath) as? PaletteColorCell else { return }
-        cell.unhighlightCell()
     }
     
 }
