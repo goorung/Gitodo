@@ -18,10 +18,14 @@ final class APIManager {
         guard let url = url else {
             throw URLError(.badURL)
         }
+        
+        guard let accessToken = KeychainManager.shared.read(key: "accessToken") else {
+            throw URLError(.userAuthenticationRequired)
+        }
             
         var request = URLRequest(url: url)
         request.addValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
-        request.addValue("token \(UserDefaultsManager.accessToken)", forHTTPHeaderField: "Authorization")
+        request.addValue("token \(accessToken)", forHTTPHeaderField: "Authorization")
         
         let (data, response) = try await URLSession.shared.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
