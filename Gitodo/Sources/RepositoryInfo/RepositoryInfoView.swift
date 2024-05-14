@@ -184,7 +184,7 @@ class RepositoryInfoView: UIView {
         
         nicknameTextField.text = viewModel.nickname
         symbolTextField.text = viewModel.symbol
-        colorView.setSelectedColor(viewModel.hexColor)
+        colorView.setInitialColor(viewModel.hexColor)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {

@@ -18,7 +18,7 @@ class TempRepository {
             ownerName: "jikoo",
             nickname: "algorithm",
             symbol: "🪼",
-            hexColor: PaletteColor.blue.hex,
+            hexColor: PaletteColor.blue2.hex,
             todos: [
                 TodoItem(todo: "끝내주게 숨쉬기", isComplete: false),
                 TodoItem(todo: "간지나게 자기", isComplete: false),
@@ -33,7 +33,7 @@ class TempRepository {
             ownerName: "jihyeole",
             nickname: "42",
             symbol: "🍄",
-            hexColor: PaletteColor.yellow.hex,
+            hexColor: PaletteColor.yellow2.hex,
             todos: [
                 TodoItem(todo: "inception", isComplete: false),
                 TodoItem(todo: "minirt", isComplete: false),

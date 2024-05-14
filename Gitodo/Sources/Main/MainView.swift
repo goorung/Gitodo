@@ -39,7 +39,7 @@ class MainView: UIView {
             NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15, weight: .semibold)
         ]
         let selectedAttributes = [
-            NSAttributedString.Key.foregroundColor: UIColor(hex: PaletteColor.blue.hex),
+            NSAttributedString.Key.foregroundColor: UIColor(hex: PaletteColor.blue2.hex),
             NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15, weight: .semibold)
         ]
         
@@ -69,8 +69,8 @@ class MainView: UIView {
         button.setImage(UIImage(systemName: "plus.circle.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), for: .highlighted)
         button.setTitle(" 할 일 추가", for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
-        button.tintColor = .init(hex: PaletteColor.blue.hex)
-        button.setTitleColor(.init(hex: PaletteColor.blue.hex), for: .normal)
+        button.tintColor = .init(hex: PaletteColor.blue2.hex)
+        button.setTitleColor(.init(hex: PaletteColor.blue2.hex), for: .normal)
         button.addTarget(self, action: #selector(todoAddButtonTapped), for: .touchUpInside)
         return button
     }()
