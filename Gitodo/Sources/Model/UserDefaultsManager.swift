@@ -15,4 +15,7 @@ struct UserDefaultsManager {
     @UserDefaultsData(key: "isLogin", defaultValue: false)
     static var isLogin: Bool
     
+    @UserDefaultsData(key: "isFirst", defaultValue: true)
+    static var isFirst: Bool
+    
 }

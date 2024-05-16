@@ -19,6 +19,12 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
         contentView.bind(with: viewModel)
         contentView.setIssueDelegate(self)
         NotificationCenter.default.addObserver(self, selector: #selector(handleRepoOrderChange), name: .RepositoryOrderDidUpdate, object: nil)
+        
+        if UserDefaultsManager.isFirst {
+            UserDefaultsManager.isFirst = false
+            let repositorySettingsViewController = RepositorySettingsViewController()
+            navigationController?.pushViewController(repositorySettingsViewController, animated: true)
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
