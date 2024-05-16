@@ -10,20 +10,20 @@ let packageSettings = PackageSettings(
         "SnapKit": .framework,
         "Kingfisher": .framework,
         "RxSwift": .framework,
+        "RxGesture": .framework,
     ]
 )
 #endif
 
 
 let package = Package(
-    name: "PackageName",
+    name: "Gitodo",
     dependencies: [
         .package(url: "https://github.com/SnapKit/SnapKit", from: "5.0.1"),
-        .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMajor(from: "6.0.0")),
-        .package(url: "https://github.com/RxSwiftCommunity/RxGesture", .upToNextMajor(from: "4.0.0")),
-        .package(url: "https://github.com/onevcat/Kingfisher.git", .upToNextMajor(from: "7.0.0")),
-    ],
-    targets: [
-      .target(name: "PackageName", dependencies: ["RxSwift", .product(name: "RxCocoa", package: "RxSwift")]),
+        .package(url: "https://github.com/onevcat/Kingfisher.git", from: "7.0.0"),
+        .package(url: "https://github.com/ReactiveX/RxSwift.git",from: "6.0.0"),
+        .package(url: "https://github.com/RxSwiftCommunity/RxGesture", from: "4.0.0"),
+        .package(url: "https://github.com/realm/realm-swift", exact: "10.49.2"),
     ]
 )
+    
