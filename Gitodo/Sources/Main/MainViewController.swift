@@ -9,7 +9,7 @@ import UIKit
 
 class MainViewController: BaseViewController<MainView>, BaseViewControllerProtocol {
 
-    private let viewModel = MainViewModel()
+    private let viewModel: MainViewModel
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,6 +31,15 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
     
     override func viewWillAppear(_ animated: Bool) {
         viewModel.input.viewWillAppear.onNext(())
+    }
+    
+    init(viewModel: MainViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     deinit {

@@ -16,7 +16,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
         if UserDefaultsManager.isLogin {
-            window?.rootViewController = UINavigationController(rootViewController: MainViewController())
+            window?.rootViewController = UINavigationController(rootViewController: MainViewController(viewModel: MainViewModel(localRepositoryService: LocalRepositoryService())))
         } else {
             window?.rootViewController = LoginViewController()
         }
@@ -39,7 +39,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 print("Access Token 발급 완료")
                 UserDefaultsManager.isLogin = true
                 DispatchQueue.main.async {
-                    self.window?.rootViewController = UINavigationController(rootViewController: MainViewController())
+                    self.window?.rootViewController = UINavigationController(rootViewController: MainViewController(viewModel: MainViewModel(localRepositoryService: LocalRepositoryService())))
                 }
             } catch {
                 print("Access Token 요청 실패: \(error.localizedDescription)")

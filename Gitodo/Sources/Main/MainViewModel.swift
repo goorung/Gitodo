@@ -41,7 +41,11 @@ final class MainViewModel {
     private var makeResponder = PublishRelay<IndexPath?>()
     private let disposeBag = DisposeBag()
     
-    init() {
+    private let localRepositoryService: LocalRepositoryServiceProtocol
+    
+    init(localRepositoryService: LocalRepositoryServiceProtocol) {
+        self.localRepositoryService = localRepositoryService
+        
         input = Input(
             viewWillAppear: viewWillAppearSubject.asObserver(), 
             selectRepoIndex: selectRepoIndexSubject.asObserver(),
@@ -89,6 +93,7 @@ final class MainViewModel {
     
     private func fetchRepos() {
         let fetchedRepos = TempRepository.getRepos().filter { $0.isPublic }
+//        let fetchedRepos = localRepositoryService.fetchAllRepositories().filter { $0.isPublic }
         repos.accept(fetchedRepos)
         if selectedRepo.value == nil && fetchedRepos.count > 0 {
             selectedRepo.accept(fetchedRepos[0].id)
