@@ -15,6 +15,7 @@ import SnapKit
 class MainView: UIView {
     
     private var viewModel: MainViewModel?
+    private let todoViewModel = TodoViewModel()
     private let issueViewModel = IssueViewModel()
     private let disposeBag = DisposeBag()
     
@@ -51,28 +52,10 @@ class MainView: UIView {
         return control
     }()
     
-    private lazy var todoView = UIView()
-    
-    private lazy var todoTableView = {
-        let view = UITableView()
-        view.separatorStyle = .none
-        view.rowHeight = 46
-        view.register(TodoCell.self, forCellReuseIdentifier: TodoCell.reuseIdentifier)
-        view.keyboardDismissMode = .interactive
+    private lazy var todoView = {
+        let view = TodoView()
+        view.bind(with: todoViewModel)
         return view
-    }()
-    
-    private lazy var todoAddButton = {
-        let button = UIButton()
-        button.tintAdjustmentMode = .normal
-        button.setImage(UIImage(systemName: "plus.circle.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), for: .normal)
-        button.setImage(UIImage(systemName: "plus.circle.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), for: .highlighted)
-        button.setTitle(" 할 일 추가", for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
-        button.tintColor = .init(hex: PaletteColor.blue2.hex)
-        button.setTitleColor(.init(hex: PaletteColor.blue2.hex), for: .normal)
-        button.addTarget(self, action: #selector(todoAddButtonTapped), for: .touchUpInside)
-        return button
     }()
     
     private lazy var issueView = {
@@ -121,18 +104,6 @@ class MainView: UIView {
             make.bottom.equalTo(keyboardLayoutGuide.snp.top)
         }
         
-        todoView.addSubview(todoTableView)
-        todoTableView.snp.makeConstraints { make in
-            make.top.horizontalEdges.equalToSuperview()
-        }
-        
-        todoView.addSubview(todoAddButton)
-        todoAddButton.snp.makeConstraints { make in
-            make.top.equalTo(todoTableView.snp.bottom).offset(10)
-            make.trailing.equalToSuperview().inset(20)
-            make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(10)
-        }
-        
         addSubview(issueView)
         issueView.snp.makeConstraints { make in
             make.edges.equalTo(todoView)
@@ -148,16 +119,8 @@ class MainView: UIView {
         issueView.issueDelegate = viewController
     }
     
-    @objc private func todoAddButtonTapped() {
-        viewModel?.input.appendTodo.onNext(())
-    }
-    
     func bind(with viewModel: MainViewModel) {
         self.viewModel = viewModel
-        
-        todoTableView.rx
-            .setDelegate(self)
-            .disposed(by: disposeBag)
         
         viewModel.output.repos
             .drive { [weak self] repos in
@@ -165,43 +128,17 @@ class MainView: UIView {
             }.disposed(by: disposeBag)
         
         viewModel.output.selectedRepo
-            .drive{ [weak self] repoId in
-                guard let self = self, let repoIndex = viewModel.selectedRepoIndex else { return }
-                repoCollectionView.selectedIndex = repoIndex
+            .drive{ [weak self] repo in
+                guard let self = self, let repo else { return }
+                repoCollectionView.selectedRepoId = repo.id
                 
-                let color: UIColor
-                if let hex = viewModel.selectedHexColor {
-                    color = UIColor(hex: hex)
-                } else {
-                    color = .label
-                }
+                let color = UIColor(hex: repo.hexColor)
                 setSegmentedControlTintColor(color)
-                setAddButtonTinkColor(color)
+                todoView.setAddButtonTintColor(color)
                 
-                issueViewModel.input.fetchIssue.onNext(TempRepository.getRepo(index: repoIndex))
+                todoViewModel.input.fetchTodo.onNext(repo)
+                issueViewModel.input.fetchIssue.onNext(repo)
             }.disposed(by: disposeBag)
-        
-        viewModel.output.todos
-            .map({
-                $0.sorted { !$0.isComplete || $1.isComplete }
-            })
-            .drive(todoTableView.rx.items(cellIdentifier: TodoCell.reuseIdentifier, cellType: TodoCell.self)) { [weak self] index, todo, cell in
-                cell.selectionStyle = .none
-                cell.configure(with: todo)
-                cell.checkbox.rx.tapGesture()
-                    .when(.recognized)
-                    .subscribe(onNext: { _ in
-                        self?.viewModel?.input.toggleTodo.onNext(todo.id)
-                    })
-                    .disposed(by: cell.disposeBag)
-            }.disposed(by: disposeBag)
-        
-        viewModel.output.makeFirstResponder
-            .drive(onNext: { [weak self] indexPath in
-                guard let indexPath,
-                      let cell = self?.todoTableView.cellForRow(at: indexPath) as? TodoCell else { return }
-                cell.todoBecomeFirstResponder()
-            }).disposed(by: disposeBag)
     }
     
     private func setSegmentedControlTintColor(_ color: UIColor) {
@@ -210,28 +147,6 @@ class MainView: UIView {
             NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15, weight: .semibold)
         ]
         segmentedControl.setTitleTextAttributes(selectedAttributes, for: .selected)
-    }
-    
-    private func setAddButtonTinkColor(_ color: UIColor) {
-        todoAddButton.setTitleColor(color, for: .normal)
-        todoAddButton.tintColor = color
-    }
-    
-}
-
-extension MainView: UITableViewDelegate {
-    
-    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let deleteAction = UIContextualAction(style: .normal, title: "Delete") { [weak self] action, view, completionHandler in
-            guard let cell = tableView.cellForRow(at: indexPath) as? TodoCell, 
-                    let id = cell.viewModel?.id else { return }
-            self?.viewModel?.input.deleteTodo.onNext(id)
-        }
-        deleteAction.backgroundColor = .systemGray4
-        
-        let configuration = UISwipeActionsConfiguration(actions: [deleteAction])
-        
-        return configuration
     }
     
 }

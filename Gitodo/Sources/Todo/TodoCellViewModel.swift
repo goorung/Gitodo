@@ -33,6 +33,13 @@ class TodoCellViewModel {
         }
     }
     
+    var statusChangedAt: Date {
+        get { todoItem.statusChangedAt }
+        set {
+            todoItem.statusChangedAt = newValue
+        }
+    }
+    
     var todo: String {
         get { todoItem.todo }
         set {

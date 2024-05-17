@@ -11,6 +11,7 @@ struct TodoItem {
     var id: UUID = .init()
     var todo: String
     var isComplete: Bool
+    var statusChangedAt: Date = Date()
 }
 
 extension TodoItem {

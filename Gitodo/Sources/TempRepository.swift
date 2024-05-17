@@ -47,12 +47,12 @@ class TempRepository {
         }
     }
     
-    static func getRepo(index: Int) -> MyRepo {
-        return repos[index]
-    }
-    
     static func getRepos() -> [MyRepo] {
         repos
+    }
+    
+    static func getRepoIndex(with id: Int?) -> Int? {
+        return repos.firstIndex(where: { $0.id == id })
     }
     
     static func syncRepos(_ fetchedRepos: [MyRepo]) {
@@ -112,52 +112,41 @@ class TempRepository {
         repos = result
     }
     
-    static func todoIndex(repoIndex: Int, with id: UUID) -> Int? {
+    static func todoIndex(repoId: Int, with id: UUID) -> Int? {
+        guard let repoIndex = getRepoIndex(with: repoId) else { return nil }
         let repo = repos[repoIndex]
         guard let firstIndex = repo.todos.firstIndex(where: { $0.id == id }) else { return nil }
         return firstIndex
     }
     
-    static func countIndex(repoIndex: Int, of id: UUID) -> Int {
-        guard let index = todoIndex(repoIndex: repoIndex, with: id) else { return 0 }
-        var count = 0
-        for i in 0..<index {
-            if repos[repoIndex].todos[i].isComplete == false {
-                count += 1
-            }
-        }
-        return count
-    }
-    
-    static func getTodos(repoIndex: Int) -> [TodoItem] {
+    static func getTodos(repoId: Int) -> [TodoItem] {
+        guard let repoIndex = getRepoIndex(with: repoId) else { return [] }
         return repos[repoIndex].todos
     }
     
-    static func appendTodo(repoIndex: Int) -> UUID {
+    static func appendTodo(repoId: Int) -> UUID? {
+        guard let repoIndex = getRepoIndex(with: repoId) else { return nil }
         let todoItem = TodoItem.placeholderItem()
         repos[repoIndex].todos.append(todoItem)
         return todoItem.id
     }
     
-    static func appendTodo(repoIndex: Int, after id: UUID) -> UUID? {
-        guard let index = todoIndex(repoIndex: repoIndex, with: id) else { return nil}
-        let todoItem = TodoItem.placeholderItem()
-        repos[repoIndex].todos.insert(todoItem, at: index + 1)
-        return todoItem.id
-    }
-    
-    static func deleteTodo(repoIndex: Int, with id: UUID) {
-        guard let index = todoIndex(repoIndex: repoIndex, with: id) else { return }
+    static func deleteTodo(repoId: Int, with id: UUID) {
+        guard let repoIndex = getRepoIndex(with: repoId) else { return }
+        guard let index = todoIndex(repoId: repoId, with: id) else { return }
         repos[repoIndex].todos.remove(at: index)
     }
     
-    static func toggleTodo(repoIndex: Int, with id: UUID) {
-        guard let index = todoIndex(repoIndex: repoIndex, with: id) else { return }
+    static func toggleTodo(repoId: Int, with id: UUID) {
+        guard let repoIndex = getRepoIndex(with: repoId) else { return }
+        guard let index = todoIndex(repoId: repoId, with: id) else { return }
         repos[repoIndex].todos[index].isComplete.toggle()
+        repos[repoIndex].todos[index].statusChangedAt = Date()
     }
     
-    static func updateTodo(repoIndex: Int, _ newValue: TodoItem) {
-        guard let index = todoIndex(repoIndex: repoIndex, with: newValue.id) else { return }
+    static func updateTodo(repoId: Int, _ newValue: TodoItem) {
+        guard let repoIndex = getRepoIndex(with: repoId) else { return }
+        guard let index = todoIndex(repoId: repoId, with: newValue.id) else { return }
         repos[repoIndex].todos[index] = newValue
     }
     

@@ -14,7 +14,7 @@ class RepoCollectionView: UICollectionView {
         }
     }
     
-    var selectedIndex: Int? {
+    var selectedRepoId: Int? {
         didSet {
             reloadData()
         }
@@ -56,8 +56,8 @@ extension RepoCollectionView: UICollectionViewDataSource {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RepositoryInfoCell.reuseIdentifier, for: indexPath) as? RepositoryInfoCell else { return UICollectionViewCell() }
         let repo = repos[indexPath.row]
         cell.configure(name: repo.nickname, color: UIColor(hex: repo.hexColor), symbol: repo.symbol)
-        if let selectedIndex,
-           selectedIndex != indexPath.row {
+        if let selectedRepoId,
+           selectedRepoId != repo.id {
             cell.contentView.alpha = 0.5
         } else {
             cell.contentView.alpha = 1
