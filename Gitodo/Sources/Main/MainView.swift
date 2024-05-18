@@ -124,7 +124,18 @@ class MainView: UIView {
         
         viewModel.output.repos
             .drive { [weak self] repos in
-                self?.repoCollectionView.repos = repos
+                guard let self else { return }
+                self.repoCollectionView.repos = repos
+                self.segmentedControl.isHidden = repos.isEmpty
+                
+                if repos.isEmpty {
+                    self.todoView.isHidden = true
+                    self.issueView.isHidden = true
+                } else {
+                    self.todoView.isHidden = self.segmentedControl.selectedSegmentIndex != 0
+                    self.issueView.isHidden = !self.todoView.isHidden
+                }
+
             }.disposed(by: disposeBag)
         
         viewModel.output.selectedRepo
