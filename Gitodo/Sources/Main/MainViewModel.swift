@@ -60,10 +60,13 @@ final class MainViewModel {
         do {
             let fetchedRepos = try localRepositoryService.fetchPublic()
             repos.accept(fetchedRepos)
-            if selectedRepo.value == nil && fetchedRepos.count > 0 {
+            
+            if let repo = fetchedRepos.first(where: { $0.id == selectedRepo.value?.id }) {
+                selectedRepo.accept(repo)
+            } else if fetchedRepos.count > 0 {
                 selectedRepo.accept(fetchedRepos[0])
             } else {
-                selectedRepo.accept(selectedRepo.value)
+                selectedRepo.accept(nil)
             }
         } catch {
             print("[MainViewModel] fetchRepos failed : \(error.localizedDescription)")
