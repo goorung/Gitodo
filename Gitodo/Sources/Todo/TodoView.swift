@@ -19,7 +19,7 @@ class TodoView: UIView {
     private lazy var todoTableView = {
         let view = UITableView()
         view.separatorStyle = .none
-        view.rowHeight = 46
+        view.rowHeight = UITableView.automaticDimension
         view.register(TodoCell.self, forCellReuseIdentifier: TodoCell.reuseIdentifier)
         view.keyboardDismissMode = .interactive
         view.delegate = self
@@ -82,6 +82,7 @@ class TodoView: UIView {
                     viewModel.input.toggleTodo.onNext(itemIdentifier.id)
                 })
                 .disposed(by: cell.disposeBag)
+            cell.delegate = self
             return cell
         }
     }
@@ -175,4 +176,16 @@ extension TodoView: UITableViewDelegate {
         cell.todoBecomeFirstResponder()
     }
     
+}
+
+extension TodoView: TodoCellDelegate {
+    func updateHeightOfRow(_ cell: TodoCell, _ textView: UITextView) {
+        guard let viewModel = cell.viewModel,
+            var snapshot = todoDataSource?.snapshot() else { return }
+        snapshot.reconfigureItems([viewModel.identifier])
+        todoDataSource?.apply(snapshot)
+        if let indexPath = todoTableView.indexPath(for: cell) {
+            todoTableView.scrollToRow(at: indexPath, at: .bottom, animated: false)
+        }
+    }
 }

@@ -10,7 +10,12 @@ import UIKit
 import RxSwift
 import SnapKit
 
+protocol TodoCellDelegate: AnyObject {
+    func updateHeightOfRow(_ cell: TodoCell, _ textView: UITextView)
+}
+
 class TodoCell: UITableViewCell {
+    weak var delegate: TodoCellDelegate?
     static let reuseIdentifier = "TodoCell"
     var viewModel: TodoCellViewModel?
     var disposeBag = DisposeBag()
@@ -26,21 +31,22 @@ class TodoCell: UITableViewCell {
         return imageView
     }()
     
-    private lazy var todoTextField = {
-        let textField = UITextField()
-        textField.font = .systemFont(ofSize: 15)
-        textField.textColor = .label
-        textField.autocorrectionType = .no
-        textField.autocapitalizationType = .none
-        textField.delegate = self
-        return textField
+    private lazy var todoTextView = {
+        let textView = UITextView()
+        textView.font = .systemFont(ofSize: 15)
+        textView.textColor = .label
+        textView.autocorrectionType = .no
+        textView.autocapitalizationType = .none
+        textView.delegate = self
+        textView.isScrollEnabled = false
+        textView.textContainer.maximumNumberOfLines = 0
+        return textView
     }()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
         setupLayout()
-        observeTextChanges()
     }
     
     required init?(coder: NSCoder) {
@@ -53,8 +59,8 @@ class TodoCell: UITableViewCell {
         disposeBag = DisposeBag()
         checkbox.image = UIImage(systemName: "circle")
         checkbox.tintColor = .systemGray4
-        todoTextField.text = nil
-        todoTextField.textColor = .label
+        todoTextView.text = nil
+        todoTextView.textColor = .label
     }
     
     private func setupLayout() {
@@ -65,34 +71,27 @@ class TodoCell: UITableViewCell {
             make.centerY.equalToSuperview()
         }
         
-        contentView.addSubview(todoTextField)
-        todoTextField.snp.makeConstraints { make in
+        contentView.addSubview(todoTextView)
+        todoTextView.snp.makeConstraints { make in
             make.leading.equalTo(checkbox.snp.trailing).offset(10)
             make.trailing.equalToSuperview().inset(20)
             make.centerY.equalToSuperview()
+            make.verticalEdges.equalToSuperview().inset(3)
         }
     }
     
     func configure(with viewModel: TodoCellViewModel) {
         self.viewModel = viewModel
-        todoTextField.text = viewModel.todo
+        todoTextView.text = viewModel.todo
         configureCheckbox()
     }
     
     func todoBecomeFirstResponder() {
-        todoTextField.becomeFirstResponder()
+        todoTextView.becomeFirstResponder()
     }
     
     @objc private func toggleCheckbox() {
         viewModel?.isComplete.toggle()
-    }
-    
-    private func observeTextChanges() {
-        todoTextField.addTarget(self, action: #selector(todoDidChange(_:)), for: .editingChanged)
-    }
-    
-    @objc private func todoDidChange(_ textField: UITextField) {
-        viewModel?.todo = textField.text ?? ""
     }
     
     private func configureCheckbox() {
@@ -105,27 +104,36 @@ class TodoCell: UITableViewCell {
         
         checkbox.image = UIImage(systemName: isComplete ? "checkmark.circle" : "circle")
         checkbox.tintColor = isComplete ? tintColor : .systemGray4
-        todoTextField.textColor = isComplete ? .secondaryLabel : .label
-        todoTextField.isUserInteractionEnabled = !isComplete
+        todoTextView.textColor = isComplete ? .secondaryLabel : .label
+//        todoTextView.isUserInteractionEnabled = !isComplete
+        todoTextView.isEditable = !isComplete
     }
 }
 
-extension TodoCell: UITextFieldDelegate {
-    func textFieldDidBeginEditing(_ textField: UITextField) {
+extension TodoCell: UITextViewDelegate {
+    func textViewDidBeginEditing(_ textView: UITextView) {
         viewModel?.beginEditing()
     }
     
-    func textFieldDidEndEditing(_ textField: UITextField) {
-            viewModel?.endEditingTodo(with: textField.text)
+    func textViewDidChange(_ textView: UITextView) {
+        viewModel?.todo = textView.text ?? ""
+        delegate?.updateHeightOfRow(self, textView)
     }
-
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        if textField.text?.isEmpty == false {
-            viewModel?.addNewTodoItem()
-            return false
-        } else {
-            textField.resignFirstResponder()
-            return false
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        viewModel?.endEditingTodo(with: textView.text)
+    }
+    
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        if text == "\n" {
+            if textView.text?.isEmpty == false {
+                viewModel?.addNewTodoItem()
+                return false
+            } else {
+                textView.resignFirstResponder()
+                return false
+            }
         }
+        return true
     }
 }
