@@ -16,21 +16,23 @@ final class RepositorySettingsViewModel {
     
     struct Input {
         let viewDidLoad: AnyObserver<Void>
-        let togglePublic: AnyObserver<Int>
+        let togglePublic: AnyObserver<MyRepo>
         let updateRepoInfo: AnyObserver<MyRepo>
-        let removeRepo: AnyObserver<Int>
+        let removeRepo: AnyObserver<MyRepo>
     }
     
     struct Output {
         var repos: Driver<[MyRepo]>
+        var publicRepos: Driver<[MyRepo]>
     }
     
     private let viewDidLoadSubject = PublishSubject<Void>()
-    private let togglePublicSubject = PublishSubject<Int>()
+    private let togglePublicSubject = PublishSubject<MyRepo>()
     private let updateRepoInfoSubject = PublishSubject<MyRepo>()
-    private let removeRepoSuject = PublishSubject<Int>()
+    private let removeRepoSuject = PublishSubject<MyRepo>()
     
-    private let repos = BehaviorRelay<[MyRepo]>(value: [])
+    private let repos = PublishRelay<[MyRepo]>()
+    private let publicRepos = PublishRelay<[MyRepo]>()
     private let disposeBag = DisposeBag()
     
     private let localRepositoryService: LocalRepositoryServiceProtocol
@@ -45,15 +47,16 @@ final class RepositorySettingsViewModel {
             removeRepo: removeRepoSuject.asObserver()
         )
         output = Output(
-            repos: repos.asDriver(onErrorJustReturn: [])
+            repos: repos.asDriver(onErrorJustReturn: []),
+            publicRepos: publicRepos.asDriver(onErrorJustReturn: [])
         )
         
         viewDidLoadSubject.subscribe(onNext: { [weak self] in
             self?.fetchRepos()
         }).disposed(by: disposeBag)
         
-        togglePublicSubject.subscribe(onNext: { [weak self] id in
-            self?.togglePublic(id)
+        togglePublicSubject.subscribe(onNext: { [weak self] repo in
+            self?.togglePublic(repo)
         }).disposed(by: disposeBag)
         
         updateRepoInfoSubject.subscribe(onNext: { [weak self] repo in
@@ -71,26 +74,31 @@ final class RepositorySettingsViewModel {
                 let fetchedRepos = try await APIManager.shared.fetchRepositories().map {
                     MyRepo.initItem(repository: $0)
                 }
-                localRepositoryService.syncRepositories(fetchedRepos)
-                repos.accept(localRepositoryService.fetchRepositories())
+                localRepositoryService.sync(with: fetchedRepos)
+                updateRepos()
             } catch {
                 print("[RepositorySettingsViewModel] fetchRepos failed : \(error.localizedDescription)")
             }
         }
     }
     
-    private func togglePublic(_ id: Int) {
-        TempRepository.togglePublic(id)
-        repos.accept(TempRepository.getRepos())
+    private func togglePublic(_ repo: MyRepo) {
+        localRepositoryService.togglePublicStatus(of: repo)
+        updateRepos()
     }
     
     private func updateRepoInfo(_ repo: MyRepo) {
-        TempRepository.updateRepoInfo(repo)
-        repos.accept(TempRepository.getRepos())
+        localRepositoryService.updateInfo(of: repo)
+        updateRepos()
     }
     
-    private func removeRepo(_ id: Int) {
-        TempRepository.removeRepo(id)
-        repos.accept(TempRepository.getRepos())
+    private func removeRepo(_ repo: MyRepo) {
+        localRepositoryService.remove(repo)
+        updateRepos()
+    }
+    
+    private func updateRepos() {
+        repos.accept(localRepositoryService.fetchAll())
+        publicRepos.accept(localRepositoryService.fetchPublic())
     }
 }

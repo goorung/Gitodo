@@ -8,6 +8,9 @@
 import UIKit
 
 class RepoCollectionView: UICollectionView {
+    
+    let localRepositoryService = LocalRepositoryService()
+    
     var repos: [MyRepo] = [] {
         didSet {
             reloadData()
@@ -112,7 +115,7 @@ extension RepoCollectionView: UICollectionViewDropDelegate {
         DispatchQueue.main.async {
             self.repos.remove(at: sourceIndexPath.item)
             self.repos.insert(sourceItem, at: destinationIndexPath.item)
-            TempRepository.updateRepoOrder(self.repos.map{ $0.id })
+            self.localRepositoryService.updateOrder(of: self.repos)
             NotificationCenter.default.post(name: .RepositoryOrderDidUpdate, object: self)
             let indexPaths = self.repos
                 .enumerated()

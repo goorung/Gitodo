@@ -20,6 +20,7 @@ class RepositoryEntity: Object {
     @Persisted var todos: List<TodoEntity> = List<TodoEntity>()
     @Persisted var isPublic: Bool = false
     @Persisted var isDeleted: Bool = false
+    @Persisted var order: Int = 0
     
     convenience init(_ repository: MyRepo) {
         self.init()

@@ -57,7 +57,7 @@ final class MainViewModel {
     }
     
     private func fetchRepos() {
-        let fetchedRepos = localRepositoryService.fetchRepositories { $0.isPublic }
+        let fetchedRepos = localRepositoryService.fetchPublic()
         repos.accept(fetchedRepos)
         if selectedRepo.value == nil && fetchedRepos.count > 0 {
             selectedRepo.accept(fetchedRepos[0])

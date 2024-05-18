@@ -10,32 +10,37 @@ import Foundation
 import RealmSwift
 
 protocol LocalRepositoryServiceProtocol {
-    func fetchRepositories(filter: ((Query<RepositoryEntity>) -> Query<Bool>)?) -> [MyRepo]
-    func syncRepositories(_ remoteRepos: [MyRepo])
-}
-
-extension LocalRepositoryServiceProtocol {
-    func fetchRepositories(filter: ((Query<RepositoryEntity>) -> Query<Bool>)? = nil) -> [MyRepo] {
-        return fetchRepositories(filter: filter)
-    }
+    func fetchAll() -> [MyRepo]
+    func fetchPublic() -> [MyRepo]
+    func sync(with remoteRepos: [MyRepo])
+    func togglePublicStatus(of repo: MyRepo)
+    func updateInfo(of repo: MyRepo)
+    func updateOrder(of repos: [MyRepo])
+    func remove(_ repo: MyRepo)
 }
 
 final class LocalRepositoryService: LocalRepositoryServiceProtocol {
-    func fetchRepositories(filter: ((Query<RepositoryEntity>) -> Query<Bool>)? = nil) -> [MyRepo] {
+    
+    /// 모든 레포지토리 가져오기.
+    func fetchAll() -> [MyRepo] {
         guard let realm = try? Realm() else { return [] }
         
-        var repositoryEntities = realm.objects(RepositoryEntity.self)
+        return realm.objects(RepositoryEntity.self).map { $0.toDomain() }
+    }
+    
+    /// Public인 레포지토리 순서대로 가져오기.
+    func fetchPublic() -> [MyRepo] {
+        guard let realm = try? Realm() else { return [] }
         
-        if let filter {
-            repositoryEntities = repositoryEntities.where(filter)
-        }
+        let repositoryEntities = realm.objects(RepositoryEntity.self)
+            .where { $0.isPublic }
+            .sorted(byKeyPath: "order", ascending: true)
         
         return repositoryEntities.map { $0.toDomain() }
     }
     
-    
     /// 로컬 저장소에 저장된 repository와 원격 저장소에서 가져온 repository의 sync를 맞춤.
-    func syncRepositories(_ remoteRepos: [MyRepo]) {
+    func sync(with remoteRepos: [MyRepo]) {
         guard let realm = try? Realm() else { return }
         
         let localRepos = realm.objects(RepositoryEntity.self)
@@ -67,8 +72,10 @@ final class LocalRepositoryService: LocalRepositoryServiceProtocol {
 
     /// 원격 저장소에서 가져온 새 레포지토리를 로컬 저장소에 추가.
     private func addNewRepositories(_ newRepos: [MyRepo], realm: Realm) {
-        for remoteRepo in newRepos {
+        let maxOrder = getPublicMaxOrder(realm: realm)
+        for (index, remoteRepo) in newRepos.enumerated() {
             let repositoryEntity = RepositoryEntity(remoteRepo)
+            repositoryEntity.order = maxOrder + index + 1
             realm.add(repositoryEntity)
         }
     }
@@ -82,6 +89,62 @@ final class LocalRepositoryService: LocalRepositoryServiceProtocol {
                 }
             }
         }
+    }
+    
+    /// 레포지토리의 isPublic 속성을 토글하여 업데이트.
+    func togglePublicStatus(of repo: MyRepo) {
+        guard let realm = try? Realm() else { return }
+        guard let repositoryEntity = realm.object(ofType: RepositoryEntity.self, forPrimaryKey: repo.id) else { return }
+                
+        try! realm.write {
+            repositoryEntity.isPublic.toggle()
+            if repositoryEntity.isPublic {
+                repositoryEntity.order = getPublicMaxOrder(realm: realm) + 1
+            }
+        }
+    }
+    
+    /// 레포지토리 정보(nickname, symbol, hexColor)를 업데이트.
+    func updateInfo(of repo: MyRepo) {
+        guard let realm = try? Realm() else { return }
+        guard let repositoryEntity = realm.object(ofType: RepositoryEntity.self, forPrimaryKey: repo.id) else { return }
+        
+        try! realm.write {
+            repositoryEntity.nickname = repo.nickname
+            repositoryEntity.symbol = repo.symbol
+            repositoryEntity.hexColor = Int(repo.hexColor)
+        }
+    }
+    
+    /// 레포지토리 삭제.
+    func remove(_ repo: MyRepo) {
+        guard let realm = try? Realm() else { return }
+        guard let repositoryEntity = realm.object(ofType: RepositoryEntity.self, forPrimaryKey: repo.id) else { return }
+        
+        try! realm.write({
+            realm.delete(repositoryEntity)
+        })
+        
+    }
+    
+    /// 레포지토리 순서 변경.
+    func updateOrder(of repos: [MyRepo]) {
+        guard let realm = try? Realm() else { return }
+        
+        try! realm.write {
+            for (index, repo) in repos.enumerated() {
+                if let repositoryEntity = realm.object(ofType: RepositoryEntity.self, forPrimaryKey: repo.id) {
+                    repositoryEntity.order = index
+                }
+            }
+        }
+    }
+    
+    /// Public 레포지토리 중 가장 큰 order 가져오기.
+    private func getPublicMaxOrder(realm: Realm) -> Int {
+        return (realm.objects(RepositoryEntity.self)
+            .where { $0.isPublic }
+            .max(ofProperty: "order") as Int?) ?? -1
     }
     
 }
