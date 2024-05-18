@@ -39,6 +39,26 @@ class TodoView: UIView {
         return button
     }()
     
+    private lazy var emptyLabel = {
+        let label = UILabel()
+        
+        let text = """
+        할 일이 비었어요.
+        할 일을 추가해주세요! 😙
+        """
+        let attributedString = NSMutableAttributedString(string: text)
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = 4
+        attributedString.addAttribute(NSAttributedString.Key.paragraphStyle, value: paragraphStyle, range: NSMakeRange(0, attributedString.length))
+        label.attributedText = attributedString
+        
+        label.textAlignment = .center
+        label.font = .systemFont(ofSize: 16, weight: .bold)
+        label.textColor = .tertiaryLabel
+        label.numberOfLines = 2
+        return label
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -67,6 +87,12 @@ class TodoView: UIView {
             make.top.equalTo(todoTableView.snp.bottom).offset(10)
             make.trailing.equalToSuperview().inset(20)
             make.bottom.equalToSuperview().inset(10)
+        }
+        
+        addSubview(emptyLabel)
+        emptyLabel.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.centerY.equalToSuperview().offset(-45)
         }
     }
     
@@ -126,6 +152,7 @@ class TodoView: UIView {
         
         viewModel.output.todos
             .drive(onNext: { [weak self] viewModels in
+                self?.emptyLabel.isHidden = !viewModels.isEmpty
                 self?.applySnapshot(with: viewModels)
             }).disposed(by: disposeBag)
         
@@ -158,9 +185,16 @@ extension TodoView: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let deleteAction = UIContextualAction(style: .normal, title: "Delete") { [weak self] action, view, completionHandler in
-            guard let cell = tableView.cellForRow(at: indexPath) as? TodoCell,
-                    let id = cell.viewModel?.id else { return }
-            self?.viewModel?.input.deleteTodo.onNext(id)
+            guard let self = self,
+                  let cell = tableView.cellForRow(at: indexPath) as? TodoCell,
+                  let viewModel = cell.viewModel else { return }
+            self.viewModel?.input.deleteTodo.onNext(viewModel.id)
+            
+            var snapshot = self.todoDataSource?.snapshot()
+            snapshot?.deleteItems([viewModel.identifier])
+            self.todoDataSource?.apply(snapshot!, animatingDifferences: true)
+            
+            completionHandler(true)
         }
         deleteAction.backgroundColor = .systemGray4
         
@@ -182,10 +216,17 @@ extension TodoView: TodoCellDelegate {
     func updateHeightOfRow(_ cell: TodoCell, _ textView: UITextView) {
         guard let viewModel = cell.viewModel,
             var snapshot = todoDataSource?.snapshot() else { return }
-        snapshot.reconfigureItems([viewModel.identifier])
-        todoDataSource?.apply(snapshot)
-        if let indexPath = todoTableView.indexPath(for: cell) {
-            todoTableView.scrollToRow(at: indexPath, at: .bottom, animated: false)
+        
+        let newSize = textView.sizeThatFits(CGSize(width: textView.frame.width, height: CGFloat.greatestFiniteMagnitude))
+        let newHeight = newSize.height
+        
+        if cell.previousHeight != newHeight {
+            cell.previousHeight = newHeight
+            snapshot.reconfigureItems([viewModel.identifier])
+            todoDataSource?.apply(snapshot)
+            if let indexPath = todoTableView.indexPath(for: cell) {
+                todoTableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
+            }
         }
     }
 }

@@ -20,6 +20,8 @@ class TodoCell: UITableViewCell {
     var viewModel: TodoCellViewModel?
     var disposeBag = DisposeBag()
     
+    var previousHeight: CGFloat = 0
+    
     lazy var checkbox = {
         let imageView = UIImageView(image: UIImage(systemName: "circle"))
         imageView.contentMode = .scaleAspectFit
@@ -76,7 +78,7 @@ class TodoCell: UITableViewCell {
             make.leading.equalTo(checkbox.snp.trailing).offset(10)
             make.trailing.equalToSuperview().inset(20)
             make.centerY.equalToSuperview()
-            make.verticalEdges.equalToSuperview().inset(3)
+            make.verticalEdges.equalToSuperview().inset(7)
         }
     }
     
