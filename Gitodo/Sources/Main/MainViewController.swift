@@ -19,6 +19,13 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
         contentView.bind(with: viewModel)
         contentView.setIssueDelegate(self)
         NotificationCenter.default.addObserver(self, selector: #selector(handleRepoOrderChange), name: .RepositoryOrderDidUpdate, object: nil)
+        
+        if UserDefaultsManager.isFirst {
+            UserDefaultsManager.isFirst = false
+            let repositorySettingsViewController = RepositorySettingsViewController()
+            navigationController?.pushViewController(repositorySettingsViewController, animated: true)
+        }
+
         NotificationCenter.default.addObserver(self, selector: #selector(handleAccessTokenExpire), name: .AccessTokenDidExpire, object: nil)
     }
     

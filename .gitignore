@@ -69,5 +69,6 @@ Derived/
 ### Tuist managed dependencies ###
 .build
 
+.mise.toml
 *.xcconfig
 
