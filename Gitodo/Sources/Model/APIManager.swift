@@ -18,19 +18,31 @@ final class APIManager {
         guard let url = url else {
             throw URLError(.badURL)
         }
+        
+        guard let accessToken = KeychainManager.shared.read(key: "accessToken") else {
+            throw URLError(.userAuthenticationRequired)
+        }
             
         var request = URLRequest(url: url)
         request.addValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
-        request.addValue("token \(UserDefaultsManager.accessToken)", forHTTPHeaderField: "Authorization")
+        request.addValue("token \(accessToken)", forHTTPHeaderField: "Authorization")
         
         let (data, response) = try await URLSession.shared.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+        guard let httpResponse = response as? HTTPURLResponse else {
             throw URLError(.badServerResponse)
         }
         
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        return try decoder.decode(T.self, from: data)
+        switch httpResponse.statusCode {
+        case 200:
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            return try decoder.decode(T.self, from: data)
+        case 401: // 액세스 토큰 만료
+            NotificationCenter.default.post(name: .AccessTokenDidExpire, object: nil)
+            throw URLError(.userAuthenticationRequired)
+        default:
+            throw URLError(.badServerResponse)
+        }
     }
     
     func fetchMe() async throws -> User {

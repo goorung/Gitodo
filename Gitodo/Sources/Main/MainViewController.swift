@@ -25,6 +25,8 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
             let repositorySettingsViewController = RepositorySettingsViewController()
             navigationController?.pushViewController(repositorySettingsViewController, animated: true)
         }
+
+        NotificationCenter.default.addObserver(self, selector: #selector(handleAccessTokenExpire), name: .AccessTokenDidExpire, object: nil)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -70,6 +72,12 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
     
     @objc private func handleRepoOrderChange() {
         viewModel.input.viewWillAppear.onNext(())
+    }
+    
+    @objc private func handleAccessTokenExpire() {
+        UserDefaultsManager.isLogin = false
+        guard let window = view.window else { return }
+        window.rootViewController = LoginViewController()
     }
     
 }
