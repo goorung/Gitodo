@@ -111,6 +111,10 @@ class TodoCell: UITableViewCell {
 }
 
 extension TodoCell: UITextFieldDelegate {
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        viewModel?.beginEditing()
+    }
+    
     func textFieldDidEndEditing(_ textField: UITextField) {
             viewModel?.endEditingTodo(with: textField.text)
     }

@@ -59,7 +59,6 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
             }
         }
         setProfileImageViewAction(#selector(handleProfileImageViewTap))
-        remakeConstraintWithKeyboardLayoutGuide()
     }
     
     @objc private func handleProfileImageViewTap(_ gesture: UITapGestureRecognizer) {

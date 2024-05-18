@@ -11,6 +11,10 @@ import RxCocoa
 import RxRelay
 import RxSwift
 
+enum TodoSection: CaseIterable {
+    case main
+}
+
 final class TodoViewModel {
     
     private let localTodoService: LocalTodoServiceProtocol
@@ -39,6 +43,7 @@ final class TodoViewModel {
     private let disposeBag = DisposeBag()
     
     var selectedRepo: MyRepo?
+    var firstResponderIndexPath: IndexPath? 
     
     init(localTodoService: LocalTodoServiceProtocol) {
         self.localTodoService = localTodoService
@@ -54,6 +59,10 @@ final class TodoViewModel {
         )
         
         bindInputs()
+    }
+    
+    func viewModel(at indexPath: IndexPath) -> TodoCellViewModel {
+        todos.value[indexPath.row]
     }
     
     private func bindInputs() {
@@ -80,7 +89,8 @@ final class TodoViewModel {
         do {
             let todos = try localTodoService.fetchAll(in: repo.id)
             
-            let todoViewModels = todos.map{ (todoItem) -> TodoCellViewModel in
+            let todoViewModels = todos
+                .map{ (todoItem) -> TodoCellViewModel in
                 let viewModel = TodoCellViewModel(todoItem: todoItem, tintColorHex: repo.hexColor)
                 viewModel.delegate = self
                 return viewModel
@@ -96,10 +106,21 @@ final class TodoViewModel {
     private func appendTodo() {
         do {
             guard let repo = selectedRepo else { return }
-            try localTodoService.create(.placeholderItem(), for: repo.id)
+            try localTodoService.append(.placeholderItem(), in: repo.id)
             fetchTodos()
             let rowIndex = todos.value.filter { !$0.isComplete }.count - 1
             makeFirstResponder.accept(IndexPath(row: rowIndex, section: 0))
+        } catch {
+            logError(in: "appendTodo", error)
+        }
+        
+    }
+    
+    private func appendTodo(after todo: TodoItem) {
+        do {
+            try localTodoService.append(.placeholderItem(), below: todo.id)
+            fetchTodos()
+            makeFirstResponder.accept(IndexPath(row: todo.order + 1, section: 0))
         } catch {
             logError(in: "appendTodo", error)
         }
@@ -130,13 +151,21 @@ final class TodoViewModel {
 }
 
 extension TodoViewModel: TodoCellViewModelDelegate {
+    func todoCellViewModelDidBeginEditing(_ viewModel: TodoCellViewModel) {
+        firstResponderIndexPath = IndexPath(row: viewModel.order, section: 0)
+    }
+    
     func todoCellViewModelDidReturnTodo(_ viewModel: TodoCellViewModel) {
         if !viewModel.todo.isEmpty {
-            appendTodo()
+            appendTodo(after: viewModel.todoItem)
         }
     }
     
     func todoCellViewModel(_ viewModel: TodoCellViewModel, didEndEditingWith todo: String?) {
+        if viewModel.order == firstResponderIndexPath?.row {
+            firstResponderIndexPath = nil
+        }
+        
         if todo == nil || todo?.isEmpty == true {
             deleteTodo(with: viewModel.id)
         }

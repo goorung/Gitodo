@@ -11,10 +11,17 @@ protocol TodoCellViewModelDelegate: AnyObject {
     func todoCellViewModel(_ viewModel: TodoCellViewModel, didUpdateItem: TodoItem)
     func todoCellViewModelDidReturnTodo(_ viewModel: TodoCellViewModel)
     func todoCellViewModel(_ viewModel: TodoCellViewModel, didEndEditingWith todo: String?)
+    func todoCellViewModelDidBeginEditing(_ viewModel: TodoCellViewModel)
+}
+
+struct TodoIdentifierItem: Hashable {
+    var id: UUID
+    var isComplete: Bool
+    var order: Int
 }
 
 class TodoCellViewModel {
-    private var todoItem: TodoItem
+    private(set) var todoItem: TodoItem
     weak var delegate: TodoCellViewModelDelegate?
     
     init(todoItem: TodoItem, tintColorHex: UInt? = nil) {
@@ -33,19 +40,20 @@ class TodoCellViewModel {
         }
     }
     
-    var statusChangedAt: Date {
-        get { todoItem.statusChangedAt }
-        set {
-            todoItem.statusChangedAt = newValue
-        }
-    }
-    
     var todo: String {
         get { todoItem.todo }
         set {
             todoItem.todo = newValue
             delegate?.todoCellViewModel(self, didUpdateItem: todoItem)
         }
+    }
+    
+    var order: Int {
+        todoItem.order
+    }
+    
+    func beginEditing() {
+        delegate?.todoCellViewModelDidBeginEditing(self)
     }
     
     func addNewTodoItem() {
@@ -57,5 +65,9 @@ class TodoCellViewModel {
     }
     
     var tintColorHex: UInt?
+    
+    var identifier: TodoIdentifierItem {
+        TodoIdentifierItem(id: todoItem.id, isComplete: todoItem.isComplete, order: todoItem.order)
+    }
     
 }

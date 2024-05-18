@@ -13,6 +13,7 @@ import SnapKit
 
 class TodoView: UIView {
     private var viewModel: TodoViewModel?
+    private var todoDataSource: UITableViewDiffableDataSource<TodoSection, TodoIdentifierItem>?
     private let disposeBag = DisposeBag()
     
     private lazy var todoTableView = {
@@ -21,6 +22,7 @@ class TodoView: UIView {
         view.rowHeight = 46
         view.register(TodoCell.self, forCellReuseIdentifier: TodoCell.reuseIdentifier)
         view.keyboardDismissMode = .interactive
+        view.delegate = self
         return view
     }()
     
@@ -41,11 +43,17 @@ class TodoView: UIView {
         super.init(frame: frame)
         
         setupLayout()
-        bind()
+        configureDataSource()
+        setupKeyboardObservers()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
     private func setupLayout() {
@@ -58,50 +66,85 @@ class TodoView: UIView {
         todoAddButton.snp.makeConstraints { make in
             make.top.equalTo(todoTableView.snp.bottom).offset(10)
             make.trailing.equalToSuperview().inset(20)
-            make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(10)
+            make.bottom.equalToSuperview().inset(10)
         }
     }
     
-    @objc private func todoAddButtonTapped() {
-        viewModel?.input.appendTodo.onNext(())
+    private func configureDataSource() {
+        todoDataSource = UITableViewDiffableDataSource(tableView: todoTableView) { [weak self] tableView, indexPath, itemIdentifier in
+            guard let self, let viewModel = self.viewModel else { fatalError() }
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: TodoCell.reuseIdentifier, for: indexPath) as? TodoCell else { fatalError() }
+            cell.selectionStyle = .none
+            cell.configure(with: viewModel.viewModel(at: indexPath))
+            cell.checkbox.rx.tapGesture()
+                .when(.recognized)
+                .subscribe(onNext: { _ in
+                    viewModel.input.toggleTodo.onNext(itemIdentifier.id)
+                })
+                .disposed(by: cell.disposeBag)
+            return cell
+        }
     }
     
-    private func bind() {
-        todoTableView.rx
-            .setDelegate(self)
-            .disposed(by: disposeBag)
-        
+    private func setupKeyboardObservers() {
+       NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+       NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+   }
+
+   @objc private func keyboardWillShow(notification: Notification) {
+       todoAddButton.isHidden = true
+       todoAddButton.snp.remakeConstraints { make in
+           make.top.equalTo(todoTableView.snp.bottom)
+           make.height.equalTo(0)
+           make.trailing.leading.bottom.equalToSuperview()
+       }
+       layoutIfNeeded()
+       
+       if let firstResponderIndexPath = viewModel?.firstResponderIndexPath {
+           todoTableView.scrollToRow(at: firstResponderIndexPath, at: .none, animated: true)
+           viewModel?.firstResponderIndexPath = nil
+       }
+   }
+
+   @objc private func keyboardWillHide(notification: Notification) {
+       todoAddButton.isHidden = false
+       todoAddButton.snp.remakeConstraints { make in
+           make.top.equalTo(todoTableView.snp.bottom).offset(10)
+           make.trailing.equalToSuperview().inset(20)
+           make.bottom.equalToSuperview().inset(10)
+       }
+       layoutIfNeeded()
+   }
+    
+    @objc private func todoAddButtonTapped() {
+        viewModel?.input.appendTodo.onNext(())
     }
     
     func bind(with viewModel: TodoViewModel) {
         self.viewModel = viewModel
         
         viewModel.output.todos
-            .map({
-                $0.sorted {
-                    if $0.isComplete == $1.isComplete {
-                        return $0.statusChangedAt < $1.statusChangedAt
-                    }
-                    return !$0.isComplete && $1.isComplete
-                }
-            })
-            .drive(todoTableView.rx.items(cellIdentifier: TodoCell.reuseIdentifier, cellType: TodoCell.self)) { [weak self] index, todo, cell in
-                cell.selectionStyle = .none
-                cell.configure(with: todo)
-                cell.checkbox.rx.tapGesture()
-                    .when(.recognized)
-                    .subscribe(onNext: { _ in
-                        self?.viewModel?.input.toggleTodo.onNext(todo.id)
-                    })
-                    .disposed(by: cell.disposeBag)
-            }.disposed(by: disposeBag)
+            .drive(onNext: { [weak self] viewModels in
+                self?.applySnapshot(with: viewModels)
+            }).disposed(by: disposeBag)
         
         viewModel.output.makeFirstResponder
             .drive(onNext: { [weak self] indexPath in
-                guard let indexPath,
-                      let cell = self?.todoTableView.cellForRow(at: indexPath) as? TodoCell else { return }
+                guard let indexPath else { return }
+                self?.todoTableView.scrollToRow(at: indexPath, at: .none, animated: true)
+                guard let cell = self?.todoTableView.cellForRow(at: indexPath) as? TodoCell else { 
+                    self?.viewModel?.firstResponderIndexPath = indexPath
+                    return
+                }
                 cell.todoBecomeFirstResponder()
             }).disposed(by: disposeBag)
+    }
+    
+    private func applySnapshot(with viewModels: [TodoCellViewModel]) {
+        var snapshot = NSDiffableDataSourceSnapshot<TodoSection, TodoIdentifierItem>()
+        snapshot.appendSections([.main])
+        snapshot.appendItems(viewModels.map{ $0.identifier })
+        todoDataSource?.apply(snapshot, animatingDifferences: false)
     }
     
     func setAddButtonTintColor(_ color: UIColor) {
@@ -123,6 +166,13 @@ extension TodoView: UITableViewDelegate {
         let configuration = UISwipeActionsConfiguration(actions: [deleteAction])
         
         return configuration
+    }
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        guard let firstResponderIndexPath = viewModel?.firstResponderIndexPath, indexPath == firstResponderIndexPath else { return }
+        guard let cell = cell as? TodoCell else { return }
+
+        cell.todoBecomeFirstResponder()
     }
     
 }

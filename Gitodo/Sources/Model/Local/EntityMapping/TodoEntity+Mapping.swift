@@ -13,7 +13,7 @@ class TodoEntity: Object {
     @Persisted(primaryKey: true) var id: UUID
     @Persisted var todo: String
     @Persisted var isComplete: Bool
-    @Persisted var statusChangedAt: Date
+    @Persisted var order: Int
     
     @Persisted(originProperty: "todos") var repository: LinkingObjects<RepositoryEntity>
     
@@ -22,7 +22,7 @@ class TodoEntity: Object {
         id = todoItem.id
         todo = todoItem.todo
         isComplete = todoItem.isComplete
-        statusChangedAt = todoItem.statusChangedAt
+        order = todoItem.order
     }
 }
 
@@ -32,7 +32,7 @@ extension TodoEntity {
             id: id,
             todo: todo,
             isComplete: isComplete,
-            statusChangedAt: statusChangedAt
+            order: order
         )
     }
 }
