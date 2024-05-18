@@ -9,7 +9,7 @@ import UIKit
 
 class RepositorySettingsViewController: BaseViewController<RepositorySettingsView>, BaseViewControllerProtocol {
     
-    private let viewModel = RepositorySettingsViewModel()
+    private let viewModel = RepositorySettingsViewModel(localRepositoryService: LocalRepositoryService())
     
     override func viewDidLoad() {
         super.viewDidLoad()

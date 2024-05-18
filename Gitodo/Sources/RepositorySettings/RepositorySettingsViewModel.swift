@@ -33,7 +33,11 @@ final class RepositorySettingsViewModel {
     private let repos = BehaviorRelay<[MyRepo]>(value: [])
     private let disposeBag = DisposeBag()
     
-    init() {
+    private let localRepositoryService: LocalRepositoryServiceProtocol
+    
+    init(localRepositoryService: LocalRepositoryServiceProtocol) {
+        self.localRepositoryService = localRepositoryService
+
         input = Input(
             viewDidLoad: viewDidLoadSubject.asObserver(),
             togglePublic: togglePublicSubject.asObserver(),
@@ -67,8 +71,8 @@ final class RepositorySettingsViewModel {
                 let fetchedRepos = try await APIManager.shared.fetchRepositories().map {
                     MyRepo.initItem(repository: $0)
                 }
-                TempRepository.syncRepos(fetchedRepos)
-                repos.accept(TempRepository.getRepos())
+                localRepositoryService.syncRepositories(fetchedRepos)
+                repos.accept(localRepositoryService.fetchRepositories())
             } catch {
                 print("[RepositorySettingsViewModel] fetchRepos failed : \(error.localizedDescription)")
             }
