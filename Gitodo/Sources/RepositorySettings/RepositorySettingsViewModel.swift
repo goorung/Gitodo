@@ -29,7 +29,7 @@ final class RepositorySettingsViewModel {
     private let viewDidLoadSubject = PublishSubject<Void>()
     private let togglePublicSubject = PublishSubject<MyRepo>()
     private let updateRepoInfoSubject = PublishSubject<MyRepo>()
-    private let removeRepoSuject = PublishSubject<MyRepo>()
+    private let removeRepoSubject = PublishSubject<MyRepo>()
     
     private let repos = PublishRelay<[MyRepo]>()
     private let publicRepos = PublishRelay<[MyRepo]>()
@@ -44,13 +44,17 @@ final class RepositorySettingsViewModel {
             viewDidLoad: viewDidLoadSubject.asObserver(),
             togglePublic: togglePublicSubject.asObserver(),
             updateRepoInfo: updateRepoInfoSubject.asObserver(),
-            removeRepo: removeRepoSuject.asObserver()
+            removeRepo: removeRepoSubject.asObserver()
         )
         output = Output(
             repos: repos.asDriver(onErrorJustReturn: []),
             publicRepos: publicRepos.asDriver(onErrorJustReturn: [])
         )
         
+        bindInputs() 
+    }
+    
+    private func bindInputs() {
         viewDidLoadSubject.subscribe(onNext: { [weak self] in
             self?.fetchRepos()
         }).disposed(by: disposeBag)
@@ -63,7 +67,7 @@ final class RepositorySettingsViewModel {
             self?.updateRepoInfo(repo)
         }).disposed(by: disposeBag)
         
-        removeRepoSuject.subscribe(onNext: { [weak self] id in
+        removeRepoSubject.subscribe(onNext: { [weak self] id in
             self?.removeRepo(id)
         }).disposed(by: disposeBag)
     }
@@ -74,31 +78,49 @@ final class RepositorySettingsViewModel {
                 let fetchedRepos = try await APIManager.shared.fetchRepositories().map {
                     MyRepo.initItem(repository: $0)
                 }
-                localRepositoryService.sync(with: fetchedRepos)
-                updateRepos()
+                try localRepositoryService.sync(with: fetchedRepos)
+                try updateRepos()
             } catch {
-                print("[RepositorySettingsViewModel] fetchRepos failed : \(error.localizedDescription)")
+                logError(in: "fetchRepos", error)
             }
         }
     }
     
     private func togglePublic(_ repo: MyRepo) {
-        localRepositoryService.togglePublicStatus(of: repo)
-        updateRepos()
+        do {
+            try localRepositoryService.togglePublicStatus(of: repo)
+            try updateRepos()
+        } catch {
+            logError(in: "togglePublic", error)
+        }
+        
     }
     
     private func updateRepoInfo(_ repo: MyRepo) {
-        localRepositoryService.updateInfo(of: repo)
-        updateRepos()
+        do {
+            try localRepositoryService.updateInfo(of: repo)
+            try updateRepos()
+        } catch {
+            logError(in: "updateRepoInfo", error)
+        }
     }
     
     private func removeRepo(_ repo: MyRepo) {
-        localRepositoryService.remove(repo)
-        updateRepos()
+        do {
+            try localRepositoryService.remove(repo)
+            try updateRepos()
+        } catch {
+            logError(in: "removeRepo", error)
+        }
+        
     }
     
-    private func updateRepos() {
-        repos.accept(localRepositoryService.fetchAll())
-        publicRepos.accept(localRepositoryService.fetchPublic())
+    private func updateRepos() throws {
+        repos.accept(try localRepositoryService.fetchAll())
+        publicRepos.accept(try localRepositoryService.fetchPublic())
+    }
+    
+    private func logError(in functionName: String, _ error: Error) {
+        print("[RepositorySettingsViewModel] \(functionName) failed : \(error.localizedDescription)")
     }
 }

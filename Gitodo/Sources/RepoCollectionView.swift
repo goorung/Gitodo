@@ -113,16 +113,20 @@ extension RepoCollectionView: UICollectionViewDropDelegate {
         let sourceItem = repos[sourceIndexPath.item]
         
         DispatchQueue.main.async {
-            self.repos.remove(at: sourceIndexPath.item)
-            self.repos.insert(sourceItem, at: destinationIndexPath.item)
-            self.localRepositoryService.updateOrder(of: self.repos)
-            NotificationCenter.default.post(name: .RepositoryOrderDidUpdate, object: self)
-            let indexPaths = self.repos
-                .enumerated()
-                .map(\.offset)
-                .map{ IndexPath(row: $0, section: 0) }
-            UIView.performWithoutAnimation {
-                self.reloadItems(at: indexPaths)
+            do {
+                self.repos.remove(at: sourceIndexPath.item)
+                self.repos.insert(sourceItem, at: destinationIndexPath.item)
+                try self.localRepositoryService.updateOrder(of: self.repos)
+                NotificationCenter.default.post(name: .RepositoryOrderDidUpdate, object: self)
+                let indexPaths = self.repos
+                    .enumerated()
+                    .map(\.offset)
+                    .map{ IndexPath(row: $0, section: 0) }
+                UIView.performWithoutAnimation {
+                    self.reloadItems(at: indexPaths)
+                }
+            } catch {
+                print("[RepoCollectionView] move failed : \(error.localizedDescription)")
             }
         }
     }

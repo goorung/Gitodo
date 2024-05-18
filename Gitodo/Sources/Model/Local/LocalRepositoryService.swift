@@ -10,27 +10,59 @@ import Foundation
 import RealmSwift
 
 protocol LocalRepositoryServiceProtocol {
-    func fetchAll() -> [MyRepo]
-    func fetchPublic() -> [MyRepo]
-    func sync(with remoteRepos: [MyRepo])
-    func togglePublicStatus(of repo: MyRepo)
-    func updateInfo(of repo: MyRepo)
-    func updateOrder(of repos: [MyRepo])
-    func remove(_ repo: MyRepo)
+    func fetchAll() throws -> [MyRepo]
+    func fetchPublic() throws -> [MyRepo]
+    func sync(with remoteRepos: [MyRepo]) throws
+    func togglePublicStatus(of repo: MyRepo) throws
+    func updateInfo(of repo: MyRepo) throws
+    func updateOrder(of repos: [MyRepo]) throws
+    func remove(_ repo: MyRepo) throws
+}
+
+enum LocalRepositoryServiceError: Error {
+    case initializationError(Error)
+    case noDataError
+    case syncError(Error)
+    case updateError(Error)
+    case deleteError(Error)
+    
+    var localizedDescription: String {
+        switch self {
+        case .initializationError(let error):
+            return "Initialization failed: \(error.localizedDescription)"
+        case .noDataError:
+            return "No data found."
+        case .syncError(let error):
+            return "Sync failed: \(error.localizedDescription)"
+        case .updateError(let error):
+            return "Update failed: \(error.localizedDescription)"
+        case .deleteError(let error):
+            return "Delete failed: \(error.localizedDescription)"
+        }
+    }
 }
 
 final class LocalRepositoryService: LocalRepositoryServiceProtocol {
     
+    /// Initialize Realm instance.
+    private func initializeRealm() throws -> Realm {
+        do {
+            return try Realm()
+        } catch {
+            throw LocalRepositoryServiceError.initializationError(error)
+        }
+    }
+    
     /// 모든 레포지토리 가져오기.
-    func fetchAll() -> [MyRepo] {
-        guard let realm = try? Realm() else { return [] }
+    func fetchAll() throws -> [MyRepo] {
+        let realm = try initializeRealm()
         
         return realm.objects(RepositoryEntity.self).map { $0.toDomain() }
     }
     
     /// Public인 레포지토리 순서대로 가져오기.
-    func fetchPublic() -> [MyRepo] {
-        guard let realm = try? Realm() else { return [] }
+    func fetchPublic() throws -> [MyRepo] {
+        let realm = try initializeRealm()
         
         let repositoryEntities = realm.objects(RepositoryEntity.self)
             .where { $0.isPublic }
@@ -40,8 +72,8 @@ final class LocalRepositoryService: LocalRepositoryServiceProtocol {
     }
     
     /// 로컬 저장소에 저장된 repository와 원격 저장소에서 가져온 repository의 sync를 맞춤.
-    func sync(with remoteRepos: [MyRepo]) {
-        guard let realm = try? Realm() else { return }
+    func sync(with remoteRepos: [MyRepo]) throws {
+        let realm = try initializeRealm()
         
         let localRepos = realm.objects(RepositoryEntity.self)
         let localRepoIDs = Set(localRepos.map { $0.id })
@@ -51,10 +83,14 @@ final class LocalRepositoryService: LocalRepositoryServiceProtocol {
         let newRepos = remoteRepos.filter { !localRepoIDs.contains($0.id) }
         let updatedRepos = remoteRepos.filter { localRepoIDs.contains($0.id) }
 
-        try! realm.write {
-            handleDeletedRepositories(deletedRepos, realm: realm)
-            addNewRepositories(newRepos, realm: realm)
-            updateExistingRepositories(updatedRepos, localRepos: localRepos, realm: realm)
+        do {
+            try realm.write {
+                handleDeletedRepositories(deletedRepos, realm: realm)
+                addNewRepositories(newRepos, realm: realm)
+                updateExistingRepositories(updatedRepos, localRepos: localRepos, realm: realm)
+            }
+        } catch {
+            throw LocalRepositoryServiceError.syncError(error)
         }
         
     }
@@ -92,52 +128,75 @@ final class LocalRepositoryService: LocalRepositoryServiceProtocol {
     }
     
     /// 레포지토리의 isPublic 속성을 토글하여 업데이트.
-    func togglePublicStatus(of repo: MyRepo) {
-        guard let realm = try? Realm() else { return }
-        guard let repositoryEntity = realm.object(ofType: RepositoryEntity.self, forPrimaryKey: repo.id) else { return }
-                
-        try! realm.write {
-            repositoryEntity.isPublic.toggle()
-            if repositoryEntity.isPublic {
-                repositoryEntity.order = getPublicMaxOrder(realm: realm) + 1
-            }
+    func togglePublicStatus(of repo: MyRepo) throws {
+        let realm = try initializeRealm()
+        guard let repositoryEntity = realm.object(ofType: RepositoryEntity.self, forPrimaryKey: repo.id) else {
+            throw LocalRepositoryServiceError.noDataError
         }
+        do {
+            try realm.write {
+                repositoryEntity.isPublic.toggle()
+                if repositoryEntity.isPublic {
+                    repositoryEntity.order = getPublicMaxOrder(realm: realm) + 1
+                }
+            }
+        } catch {
+            throw LocalRepositoryServiceError.updateError(error)
+        }
+        
     }
     
     /// 레포지토리 정보(nickname, symbol, hexColor)를 업데이트.
-    func updateInfo(of repo: MyRepo) {
-        guard let realm = try? Realm() else { return }
-        guard let repositoryEntity = realm.object(ofType: RepositoryEntity.self, forPrimaryKey: repo.id) else { return }
-        
-        try! realm.write {
-            repositoryEntity.nickname = repo.nickname
-            repositoryEntity.symbol = repo.symbol
-            repositoryEntity.hexColor = Int(repo.hexColor)
+    func updateInfo(of repo: MyRepo) throws {
+        let realm = try initializeRealm()
+        guard let repositoryEntity = realm.object(ofType: RepositoryEntity.self, forPrimaryKey: repo.id) else {
+            throw LocalRepositoryServiceError.noDataError
         }
+        do {
+            try realm.write {
+                repositoryEntity.nickname = repo.nickname
+                repositoryEntity.symbol = repo.symbol
+                repositoryEntity.hexColor = Int(repo.hexColor)
+            }
+        } catch {
+            throw LocalRepositoryServiceError.updateError(error)
+        }
+        
     }
     
     /// 레포지토리 삭제.
-    func remove(_ repo: MyRepo) {
-        guard let realm = try? Realm() else { return }
-        guard let repositoryEntity = realm.object(ofType: RepositoryEntity.self, forPrimaryKey: repo.id) else { return }
+    func remove(_ repo: MyRepo) throws {
+        let realm = try initializeRealm()
+        guard let repositoryEntity = realm.object(ofType: RepositoryEntity.self, forPrimaryKey: repo.id) else {
+            throw LocalRepositoryServiceError.noDataError
+        }
         
-        try! realm.write({
-            realm.delete(repositoryEntity)
-        })
+        do {
+            try realm.write({
+                realm.delete(repositoryEntity)
+            })
+        } catch {
+            throw LocalRepositoryServiceError.deleteError(error)
+        }
         
     }
     
     /// 레포지토리 순서 변경.
-    func updateOrder(of repos: [MyRepo]) {
-        guard let realm = try? Realm() else { return }
+    func updateOrder(of repos: [MyRepo]) throws {
+        let realm = try initializeRealm()
         
-        try! realm.write {
-            for (index, repo) in repos.enumerated() {
-                if let repositoryEntity = realm.object(ofType: RepositoryEntity.self, forPrimaryKey: repo.id) {
-                    repositoryEntity.order = index
+        do {
+            try realm.write {
+                for (index, repo) in repos.enumerated() {
+                    if let repositoryEntity = realm.object(ofType: RepositoryEntity.self, forPrimaryKey: repo.id) {
+                        repositoryEntity.order = index
+                    }
                 }
             }
+        } catch {
+            throw LocalRepositoryServiceError.updateError(error)
         }
+        
     }
     
     /// Public 레포지토리 중 가장 큰 order 가져오기.
