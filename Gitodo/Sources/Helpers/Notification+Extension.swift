@@ -12,5 +12,6 @@ extension Notification.Name {
     static let AssigneeCollectionViewHeightDidUpdate = Notification.Name("AssigneeCollectionViewHeightDidUpdate")
     static let LabelCollectionViewHeightDidUpdate = Notification.Name("LabelCollectionViewHeightDidUpdate")
     static let RepositoryOrderDidUpdate = Notification.Name("RepositoryOrderDidUpdate")
+    static let AccessTokenDidExpire = Notification.Name("AccessTokenDidExpire")
     
 }

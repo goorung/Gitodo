@@ -31,7 +31,9 @@ let project = Project(
                         "CFBundleTypeRole": "Editor",
                         "CFBundleURLSchemes": ["gitodo"]
                     ]
-                ]
+                ],
+                "CLIENT_ID": "$(CLIENT_ID)",
+                "CLIENT_SECRET": "$(CLIENT_SECRET)"
             ]),
             sources: ["Gitodo/Sources/**"],
             resources: ["Gitodo/Resources/**"],
@@ -41,7 +43,13 @@ let project = Project(
                 .external(name: "RxCocoa", condition: .none),
                 .external(name: "RxSwift", condition: .none),
                 .external(name: "RxGesture", condition: .none)
-            ]
+            ],
+            settings: .settings(
+                configurations: [
+                    .debug(name: "Debug", xcconfig: "Configurations/secrets.xcconfig"),
+                    .release(name: "Release", xcconfig: "Configurations/secrets.xcconfig")
+                ]
+            )
         ),
         //        .target(
         //            name: "GitodoTests",

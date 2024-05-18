@@ -19,6 +19,7 @@ class RepositorySettingsViewController: BaseViewController<RepositorySettingsVie
         contentView.bind(with: viewModel)
         viewModel.input.viewDidLoad.onNext(())
         NotificationCenter.default.addObserver(self, selector: #selector(handleRepoOrderChange), name: .RepositoryOrderDidUpdate, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleAccessTokenExpire), name: .AccessTokenDidExpire, object: nil)
     }
     
     deinit {
@@ -32,6 +33,12 @@ class RepositorySettingsViewController: BaseViewController<RepositorySettingsVie
     
     @objc private func handleRepoOrderChange() {
         viewModel.input.viewDidLoad.onNext(())
+    }
+    
+    @objc private func handleAccessTokenExpire() {
+        UserDefaultsManager.isLogin = false
+        guard let window = view.window else { return }
+        window.rootViewController = LoginViewController()
     }
     
 }
