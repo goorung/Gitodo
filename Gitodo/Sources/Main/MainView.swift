@@ -15,7 +15,7 @@ import SnapKit
 class MainView: UIView {
     
     private var viewModel: MainViewModel?
-    private let todoViewModel = TodoViewModel()
+    private let todoViewModel = TodoViewModel(localTodoService: LocalTodoService())
     private let issueViewModel = IssueViewModel()
     private let disposeBag = DisposeBag()
     

@@ -107,7 +107,7 @@ final class RepositorySettingsViewModel {
     
     private func removeRepo(_ repo: MyRepo) {
         do {
-            try localRepositoryService.remove(repo)
+            try localRepositoryService.delete(repo)
             try updateRepos()
         } catch {
             logError(in: "removeRepo", error)

@@ -12,6 +12,9 @@ import RxRelay
 import RxSwift
 
 final class TodoViewModel {
+    
+    private let localTodoService: LocalTodoServiceProtocol
+    
     let input: Input
     let output: Output
     
@@ -37,7 +40,8 @@ final class TodoViewModel {
     
     var selectedRepo: MyRepo?
     
-    init() {
+    init(localTodoService: LocalTodoServiceProtocol) {
+        self.localTodoService = localTodoService
         input = Input(
             fetchTodo: fetchTodoSubject.asObserver(),
             appendTodo: appendTodoSubject.asObserver(),
@@ -49,6 +53,10 @@ final class TodoViewModel {
             makeFirstResponder: makeFirstResponder.asDriver(onErrorJustReturn: nil)
         )
         
+        bindInputs()
+    }
+    
+    private func bindInputs() {
         fetchTodoSubject.subscribe(onNext: {[weak self] repo in
             self?.selectedRepo = repo
             self?.fetchTodos()
@@ -69,42 +77,55 @@ final class TodoViewModel {
     
     private func fetchTodos() {
         guard let repo = selectedRepo else { return }
-        let todos = TempRepository.getTodos(repoId: repo.id)
-        
-        let todoViewModels = todos.map{ (todoItem) -> TodoCellViewModel in
-            let viewModel = TodoCellViewModel(todoItem: todoItem, tintColorHex: repo.hexColor)
-            viewModel.delegate = self
-            return viewModel
+        do {
+            let todos = try localTodoService.fetchAll(in: repo.id)
+            
+            let todoViewModels = todos.map{ (todoItem) -> TodoCellViewModel in
+                let viewModel = TodoCellViewModel(todoItem: todoItem, tintColorHex: repo.hexColor)
+                viewModel.delegate = self
+                return viewModel
+            }
+            
+            self.todos.accept(todoViewModels)
+        } catch {
+            logError(in: "fetchTodos", error)
         }
         
-        self.todos.accept(todoViewModels)
     }
     
     private func appendTodo() {
-        guard let repo = selectedRepo,
-              let id = TempRepository.appendTodo(repoId: repo.id) else { return }
-        fetchTodos()
-        let sortedTodos = todos.value.sorted {
-            if $0.isComplete == $1.isComplete {
-                return $0.statusChangedAt < $1.statusChangedAt
-            }
-            return !$0.isComplete && $1.isComplete
+        do {
+            guard let repo = selectedRepo else { return }
+            try localTodoService.create(.placeholderItem(), for: repo.id)
+            fetchTodos()
+            let rowIndex = todos.value.filter { !$0.isComplete }.count - 1
+            makeFirstResponder.accept(IndexPath(row: rowIndex, section: 0))
+        } catch {
+            logError(in: "appendTodo", error)
         }
-        guard let rowIndex = sortedTodos.firstIndex(where: { id == $0.id }) else { return }
-        makeFirstResponder.accept(IndexPath(row: rowIndex, section: 0))
+        
     }
     
     private func toggleTodo(with id: UUID) {
-        guard let repo = selectedRepo else { return }
-        TempRepository.toggleTodo(repoId: repo.id, with: id)
-        fetchTodos()
+        do {
+            try localTodoService.toggleCompleteStatus(of: id)
+            fetchTodos()
+        } catch {
+            logError(in: "toggleTodo", error)
+        }
     }
     
-    
     private func deleteTodo(with id: UUID) {
-        guard let repo = selectedRepo else { return }
-        TempRepository.deleteTodo(repoId: repo.id, with: id)
-        fetchTodos()
+        do {
+            try localTodoService.delete(id)
+            fetchTodos()
+        } catch {
+            logError(in: "deleteTodo", error)
+        }
+    }
+    
+    private func logError(in functionName: String, _ error: Error) {
+        print("[TodoViewModel] \(functionName) failed : \(error.localizedDescription)")
     }
 }
 
@@ -122,7 +143,11 @@ extension TodoViewModel: TodoCellViewModelDelegate {
     }
     
     func todoCellViewModel(_ viewModel: TodoCellViewModel, didUpdateItem todoItem: TodoItem) {
-        guard let repo = selectedRepo else { return }
-        TempRepository.updateTodo(repoId: repo.id, todoItem)
+        do {
+            try localTodoService.update(todoItem)
+        } catch {
+            logError(in: "didUpdateItem", error)
+        }
+        
     }
 }

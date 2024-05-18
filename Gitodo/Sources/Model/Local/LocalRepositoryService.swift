@@ -16,30 +16,7 @@ protocol LocalRepositoryServiceProtocol {
     func togglePublicStatus(of repo: MyRepo) throws
     func updateInfo(of repo: MyRepo) throws
     func updateOrder(of repos: [MyRepo]) throws
-    func remove(_ repo: MyRepo) throws
-}
-
-enum LocalRepositoryServiceError: Error {
-    case initializationError(Error)
-    case noDataError
-    case syncError(Error)
-    case updateError(Error)
-    case deleteError(Error)
-    
-    var localizedDescription: String {
-        switch self {
-        case .initializationError(let error):
-            return "Initialization failed: \(error.localizedDescription)"
-        case .noDataError:
-            return "No data found."
-        case .syncError(let error):
-            return "Sync failed: \(error.localizedDescription)"
-        case .updateError(let error):
-            return "Update failed: \(error.localizedDescription)"
-        case .deleteError(let error):
-            return "Delete failed: \(error.localizedDescription)"
-        }
-    }
+    func delete(_ repo: MyRepo) throws
 }
 
 final class LocalRepositoryService: LocalRepositoryServiceProtocol {
@@ -49,7 +26,7 @@ final class LocalRepositoryService: LocalRepositoryServiceProtocol {
         do {
             return try Realm()
         } catch {
-            throw LocalRepositoryServiceError.initializationError(error)
+            throw RealmError.initializationError(error)
         }
     }
     
@@ -90,7 +67,7 @@ final class LocalRepositoryService: LocalRepositoryServiceProtocol {
                 updateExistingRepositories(updatedRepos, localRepos: localRepos, realm: realm)
             }
         } catch {
-            throw LocalRepositoryServiceError.syncError(error)
+            throw RealmError.syncError(error)
         }
         
     }
@@ -131,7 +108,7 @@ final class LocalRepositoryService: LocalRepositoryServiceProtocol {
     func togglePublicStatus(of repo: MyRepo) throws {
         let realm = try initializeRealm()
         guard let repositoryEntity = realm.object(ofType: RepositoryEntity.self, forPrimaryKey: repo.id) else {
-            throw LocalRepositoryServiceError.noDataError
+            throw RealmError.noDataError
         }
         do {
             try realm.write {
@@ -141,7 +118,7 @@ final class LocalRepositoryService: LocalRepositoryServiceProtocol {
                 }
             }
         } catch {
-            throw LocalRepositoryServiceError.updateError(error)
+            throw RealmError.updateError(error)
         }
         
     }
@@ -150,7 +127,7 @@ final class LocalRepositoryService: LocalRepositoryServiceProtocol {
     func updateInfo(of repo: MyRepo) throws {
         let realm = try initializeRealm()
         guard let repositoryEntity = realm.object(ofType: RepositoryEntity.self, forPrimaryKey: repo.id) else {
-            throw LocalRepositoryServiceError.noDataError
+            throw RealmError.noDataError
         }
         do {
             try realm.write {
@@ -159,16 +136,16 @@ final class LocalRepositoryService: LocalRepositoryServiceProtocol {
                 repositoryEntity.hexColor = Int(repo.hexColor)
             }
         } catch {
-            throw LocalRepositoryServiceError.updateError(error)
+            throw RealmError.updateError(error)
         }
         
     }
     
     /// 레포지토리 삭제.
-    func remove(_ repo: MyRepo) throws {
+    func delete(_ repo: MyRepo) throws {
         let realm = try initializeRealm()
         guard let repositoryEntity = realm.object(ofType: RepositoryEntity.self, forPrimaryKey: repo.id) else {
-            throw LocalRepositoryServiceError.noDataError
+            throw RealmError.noDataError
         }
         
         do {
@@ -176,7 +153,7 @@ final class LocalRepositoryService: LocalRepositoryServiceProtocol {
                 realm.delete(repositoryEntity)
             })
         } catch {
-            throw LocalRepositoryServiceError.deleteError(error)
+            throw RealmError.deleteError(error)
         }
         
     }
@@ -194,7 +171,7 @@ final class LocalRepositoryService: LocalRepositoryServiceProtocol {
                 }
             }
         } catch {
-            throw LocalRepositoryServiceError.updateError(error)
+            throw RealmError.updateError(error)
         }
         
     }
