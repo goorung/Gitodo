@@ -25,9 +25,17 @@ struct Issue: Codable {
     let body: String?
     let assignees: [User]?
     let labels: [Label]?
+    var pullRequest: PullRequest?
 }
 
 struct Label: Codable {
     let name: String
     let color: String
+}
+
+struct PullRequest: Codable {
+    let url: URL?
+    let html_url: URL?
+    let diff_url: URL?
+    let patch_url: URL?
 }

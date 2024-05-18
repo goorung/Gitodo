@@ -45,7 +45,7 @@ final class IssueViewModel {
         Task {
             do {
                 let fetchedIssue = try await APIManager.shared.fetchIssues(for: repo)
-                issues.accept(fetchedIssue)
+                issues.accept(fetchedIssue.filter { $0.pullRequest == nil })
             } catch {
                 print("[IssueViewModel] fetchIssue failed : \(error.localizedDescription)")
                 issues.accept([])
