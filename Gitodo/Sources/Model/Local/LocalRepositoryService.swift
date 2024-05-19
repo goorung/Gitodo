@@ -17,6 +17,7 @@ protocol LocalRepositoryServiceProtocol {
     func updateInfo(of repo: MyRepo) throws
     func updateOrder(of repos: [MyRepo]) throws
     func delete(_ repo: MyRepo) throws
+    func reset() throws
 }
 
 final class LocalRepositoryService: LocalRepositoryServiceProtocol {
@@ -181,6 +182,20 @@ final class LocalRepositoryService: LocalRepositoryServiceProtocol {
         return (realm.objects(RepositoryEntity.self)
             .where { $0.isPublic }
             .max(ofProperty: "order") as Int?) ?? -1
+    }
+    
+    /// 모든 레포지토리 삭제
+    func reset() throws {
+        let realm = try initializeRealm()
+        let allRepos = realm.objects(RepositoryEntity.self)
+        
+        do {
+            try realm.write {
+                realm.delete(allRepos)
+            }
+        } catch {
+            throw RealmError.deleteError(error)
+        }
     }
     
 }
