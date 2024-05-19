@@ -95,7 +95,6 @@ final class TodoViewModel {
                 viewModel.delegate = self
                 return viewModel
             }
-            
             self.todos.accept(todoViewModels)
         } catch {
             logError(in: "fetchTodos", error)

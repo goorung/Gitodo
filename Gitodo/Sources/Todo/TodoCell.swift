@@ -84,6 +84,7 @@ class TodoCell: UITableViewCell {
     
     func configure(with viewModel: TodoCellViewModel) {
         self.viewModel = viewModel
+        disposeBag = DisposeBag()
         todoTextView.text = viewModel.todo
         configureCheckbox()
     }
@@ -107,7 +108,6 @@ class TodoCell: UITableViewCell {
         checkbox.image = UIImage(systemName: isComplete ? "checkmark.circle" : "circle")
         checkbox.tintColor = isComplete ? tintColor : .systemGray4
         todoTextView.textColor = isComplete ? .secondaryLabel : .label
-//        todoTextView.isUserInteractionEnabled = !isComplete
         todoTextView.isEditable = !isComplete
     }
 }

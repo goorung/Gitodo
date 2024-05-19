@@ -91,15 +91,16 @@ final class LocalTodoService: LocalTodoServiceProtocol {
         
         do {
             try realm.write {
+                let destination: Int
+                let incompleteCount = todos.where { !$0.isComplete }.count
                 if !todoEntity.isComplete {
-                    updateOrder(of: todos, after: todoEntity.order, offset: -1)
-                    todoEntity.order = todos.count - 1
+                    destination = incompleteCount - 1
                 } else {
-                    let destination = todos.where { !$0.isComplete }.count
-                    updateOrder(of: todos, after: todoEntity.order, offset: -1)
-                    updateOrder(of: todos, after: destination - 1, offset: +1)
-                    todoEntity.order = destination
+                    destination = incompleteCount
                 }
+                updateOrder(of: todos, after: todoEntity.order, offset: -1)
+                updateOrder(of: todos, after: destination - 1, offset: +1)
+                todoEntity.order = destination
                 todoEntity.isComplete.toggle()
             }
         } catch {
@@ -143,9 +144,9 @@ final class LocalTodoService: LocalTodoServiceProtocol {
     
     /// 투두 순서 업데이트
     private func updateOrder(of todos: List<TodoEntity>, after order: Int, offset: Int) {
-        for (index, todo) in todos.enumerated() {
+        for todo in todos {
             if todo.order > order {
-                todos[index].order += offset
+                todo.order += offset
             }
         }
     }
