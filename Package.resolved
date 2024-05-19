@@ -53,6 +53,15 @@
         "revision" : "2842e6e84e82eb9a8dac0100ca90d9444b0307f4",
         "version" : "5.7.1"
       }
+    },
+    {
+      "identity" : "swiftytoaster",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/noeyiz/SwiftyToaster.git",
+      "state" : {
+        "revision" : "4ed905fdecf7426e3e7a7af03b09674980f9c1a7",
+        "version" : "1.0.2"
+      }
     }
   ],
   "version" : 2
