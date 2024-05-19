@@ -17,6 +17,7 @@ final class MainViewModel {
     struct Input {
         let viewWillAppear: AnyObserver<Void>
         let selectRepoIndex: AnyObserver<Int>
+        let resetAllRepository: AnyObserver<Void>
     }
     
     struct Output {
@@ -29,6 +30,7 @@ final class MainViewModel {
     
     private let viewWillAppearSubject = PublishSubject<Void>()
     private let selectRepoIndexSubject = PublishSubject<Int>()
+    private let resetAllRepositorySubject = PublishSubject<Void>()
     private let disposeBag = DisposeBag()
     
     private let localRepositoryService: LocalRepositoryServiceProtocol
@@ -38,7 +40,8 @@ final class MainViewModel {
         
         input = Input(
             viewWillAppear: viewWillAppearSubject.asObserver(),
-            selectRepoIndex: selectRepoIndexSubject.asObserver()
+            selectRepoIndex: selectRepoIndexSubject.asObserver(),
+            resetAllRepository: resetAllRepositorySubject.asObserver()
         )
         output = Output(
             selectedRepo: selectedRepo.asDriver(onErrorJustReturn: nil),
@@ -54,6 +57,13 @@ final class MainViewModel {
             self?.selectedRepo.accept(repo)
         }).disposed(by: disposeBag)
         
+        resetAllRepositorySubject.subscribe(onNext: {
+            do {
+                try localRepositoryService.reset()
+            } catch {
+                print("[MainViewModel] reset all repository failed : \(error.localizedDescription)")
+            }
+        }).disposed(by: disposeBag)
     }
     
     private func fetchRepos() {
