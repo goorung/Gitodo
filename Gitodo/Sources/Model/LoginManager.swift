@@ -61,4 +61,8 @@ final class LoginManager {
         KeychainManager.shared.save(key: "accessToken", data: token.accessToken)
     }
     
+    func logout() {
+        KeychainManager.shared.delete(key: "accessToken")
+    }
+
 }
