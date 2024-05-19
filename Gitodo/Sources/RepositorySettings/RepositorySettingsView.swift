@@ -130,18 +130,18 @@ class RepositorySettingsView: UIView {
             .subscribe(onNext: { [weak self] indexPath in
                 guard let self = self,
                       let cell = repoTableView.cellForRow(at: indexPath) as? RepositoryCell,
-                      let id = cell.selectCell()
+                      let repo = cell.selectCell()
                 else { return }
-                viewModel?.input.togglePublic.onNext(id)
+                viewModel?.input.togglePublic.onNext(repo)
             }).disposed(by: disposeBag)
         
         deletedRepoTableView.rx.itemSelected
             .subscribe(onNext: { [weak self] indexPath in
                 guard let self = self,
                       let cell = deletedRepoTableView.cellForRow(at: indexPath) as? RepositoryCell,
-                      let id = cell.selectCell()
+                      let repo = cell.selectCell()
                 else { return }
-                viewModel?.input.togglePublic.onNext(id)
+                viewModel?.input.togglePublic.onNext(repo)
             }).disposed(by: disposeBag)
         
         deletedRepoTableView.rx.itemDeleted
@@ -159,8 +159,7 @@ class RepositorySettingsView: UIView {
     func bind(with viewModel: RepositorySettingsViewModel) {
         self.viewModel = viewModel
         
-        viewModel.output.repos
-            .map { $0.filter { $0.isPublic } }
+        viewModel.output.publicRepos
             .drive { [weak self] repos in
                 guard let self = self else { return }
                 previewView.repos = repos

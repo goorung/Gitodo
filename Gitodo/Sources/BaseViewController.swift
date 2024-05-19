@@ -186,13 +186,5 @@ class BaseViewController<View: UIView>: UIViewController, UIGestureRecognizerDel
     func changeProfileImage(image: UIImage?) {
         profileImageView.setImage(image)
     }
-    
-    func remakeConstraintWithKeyboardLayoutGuide() {
-        contentView.snp.remakeConstraints { make in
-            make.top.equalTo(navigationBarView.snp.bottom)
-            make.leading.trailing.equalToSuperview()
-            make.bottom.equalTo(view.keyboardLayoutGuide.snp.top)
-        }
-    }
 
 }

@@ -8,13 +8,16 @@
 import UIKit
 
 class RepoCollectionView: UICollectionView {
+    
+    let localRepositoryService = LocalRepositoryService()
+    
     var repos: [MyRepo] = [] {
         didSet {
             reloadData()
         }
     }
     
-    var selectedIndex: Int? {
+    var selectedRepoId: Int? {
         didSet {
             reloadData()
         }
@@ -56,8 +59,8 @@ extension RepoCollectionView: UICollectionViewDataSource {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RepositoryInfoCell.reuseIdentifier, for: indexPath) as? RepositoryInfoCell else { return UICollectionViewCell() }
         let repo = repos[indexPath.row]
         cell.configure(name: repo.nickname, color: UIColor(hex: repo.hexColor), symbol: repo.symbol)
-        if let selectedIndex,
-           selectedIndex != indexPath.row {
+        if let selectedRepoId,
+           selectedRepoId != repo.id {
             cell.contentView.alpha = 0.5
         } else {
             cell.contentView.alpha = 1
@@ -110,16 +113,20 @@ extension RepoCollectionView: UICollectionViewDropDelegate {
         let sourceItem = repos[sourceIndexPath.item]
         
         DispatchQueue.main.async {
-            self.repos.remove(at: sourceIndexPath.item)
-            self.repos.insert(sourceItem, at: destinationIndexPath.item)
-            TempRepository.updateRepoOrder(self.repos.map{ $0.id })
-            NotificationCenter.default.post(name: .RepositoryOrderDidUpdate, object: self)
-            let indexPaths = self.repos
-                .enumerated()
-                .map(\.offset)
-                .map{ IndexPath(row: $0, section: 0) }
-            UIView.performWithoutAnimation {
-                self.reloadItems(at: indexPaths)
+            do {
+                self.repos.remove(at: sourceIndexPath.item)
+                self.repos.insert(sourceItem, at: destinationIndexPath.item)
+                try self.localRepositoryService.updateOrder(of: self.repos)
+                NotificationCenter.default.post(name: .RepositoryOrderDidUpdate, object: self)
+                let indexPaths = self.repos
+                    .enumerated()
+                    .map(\.offset)
+                    .map{ IndexPath(row: $0, section: 0) }
+                UIView.performWithoutAnimation {
+                    self.reloadItems(at: indexPaths)
+                }
+            } catch {
+                print("[RepoCollectionView] move failed : \(error.localizedDescription)")
             }
         }
     }
