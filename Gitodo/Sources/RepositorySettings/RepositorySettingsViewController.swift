@@ -15,31 +15,25 @@ class RepositorySettingsViewController: BaseViewController<RepositorySettingsVie
     private let viewModel = RepositorySettingsViewModel(localRepositoryService: LocalRepositoryService())
     private let disposeBag = DisposeBag()
     
+    // MARK: - Life Cycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         setupNavigationBar()
         setupNotificationCenterObserver()
+        bind()
+        
         contentView.delegate = self
         contentView.bind(with: viewModel)
         viewModel.input.viewDidLoad.onNext(())
-        viewModel.output.publicRepos
-            .map { $0.count }
-            .drive(onNext: { [weak self] count in
-                guard let self = self else { return }
-                if count > 0 {
-                    navigationController?.interactivePopGestureRecognizer?.delegate = self
-                    navigationController?.interactivePopGestureRecognizer?.isEnabled = true
-                } else {
-                    navigationController?.interactivePopGestureRecognizer?.delegate = nil
-                    navigationController?.interactivePopGestureRecognizer?.isEnabled = false
-                }
-            }).disposed(by: disposeBag)
     }
     
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
+    
+    // MARK: - Setup Navigation Bar
     
     func setupNavigationBar() {
         setTitle("레포지토리 설정")
@@ -48,13 +42,14 @@ class RepositorySettingsViewController: BaseViewController<RepositorySettingsVie
     }
     
     @objc private func popViewControllerIf() {
-        guard let isPopable = navigationController?.interactivePopGestureRecognizer?.isEnabled else { return }
-        if isPopable {
+        if UserDefaultsManager.isPublicRepoSet {
             navigationController?.popViewController(animated: true)
         } else {
             Toaster.shared.makeToast("한 개 이상의 레포지토리를 선택해야 합니다.")
         }
     }
+    
+    // MARK: - Setup NotificationCenter Observer
     
     private func setupNotificationCenterObserver() {
         NotificationCenter.default.addObserver(
@@ -79,6 +74,25 @@ class RepositorySettingsViewController: BaseViewController<RepositorySettingsVie
         UserDefaultsManager.isLogin = false
         guard let window = view.window else { return }
         window.rootViewController = LoginViewController()
+    }
+    
+    // MARK: - Bind
+    
+    private func bind() {
+        viewModel.output.publicRepos
+            .map { $0.count }
+            .drive(onNext: { [weak self] count in
+                guard let self = self else { return }
+                if count > 0 {
+                    UserDefaultsManager.isPublicRepoSet = true
+                    navigationController?.interactivePopGestureRecognizer?.delegate = self
+                    navigationController?.interactivePopGestureRecognizer?.isEnabled = true
+                } else {
+                    UserDefaultsManager.isPublicRepoSet = false
+                    navigationController?.interactivePopGestureRecognizer?.delegate = nil
+                    navigationController?.interactivePopGestureRecognizer?.isEnabled = false
+                }
+            }).disposed(by: disposeBag)
     }
     
 }
