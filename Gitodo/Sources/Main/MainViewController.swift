@@ -115,7 +115,7 @@ extension MainViewController: MenuDelegate {
             // 모든 레포지토리 삭제
             self?.viewModel.input.resetAllRepository.onNext(())
             // 액세스 토큰 삭제 및 설정 초기화
-            LoginManager.shared.logout()
+            LoginManager.shared.deleteAccessToken()
             UserDefaultsManager.isLogin = false
             UserDefaultsManager.isFirst = true
             // 화면 이동
