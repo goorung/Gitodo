@@ -18,8 +18,8 @@ class RepoMenuViewController: UIViewController {
     weak var delegate: RepoMenuDelegate?
     let repo: MyRepo
     
-    let buttonWidth = 60
-    let buttonHeight = 35
+    let buttonWidth = 65
+    let buttonHeight = 37
     let buttonFontSize = 13
     let separatorWidth = 1
     

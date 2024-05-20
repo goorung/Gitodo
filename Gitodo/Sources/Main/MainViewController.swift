@@ -7,15 +7,21 @@
 
 import UIKit
 
+import RxSwift
+import SwiftyToaster
+
 class MainViewController: BaseViewController<MainView>, BaseViewControllerProtocol {
 
     private let viewModel: MainViewModel
+    private let disposeBag = DisposeBag()
     
     // MARK: - Initializer
     
     init(viewModel: MainViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
+        
+        contentView.delegate = self
     }
     
     required init?(coder: NSCoder) {
@@ -31,6 +37,7 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
         hideKeyboardWhenTappedAround()
         setupNotificationCenterObserver()
         
+        bind()
         contentView.bind(with: viewModel)
         contentView.setIssueDelegate(self)
         
@@ -39,17 +46,6 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
     
     override func viewWillAppear(_ animated: Bool) {
         viewModel.input.viewWillAppear.onNext(())
-    }
-    
-    init(viewModel: MainViewModel) {
-        self.viewModel = viewModel
-        super.init(nibName: nil, bundle: nil)
-        
-        contentView.delegate = self
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
     
     deinit {
@@ -124,6 +120,16 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
         }
     }
     
+    // MARK: - Bind
+
+        private func bind() {
+            viewModel.output.hideDisabled
+                .drive(onNext: {
+                    Toaster.shared.setToastType(.round)
+                    Toaster.shared.makeToast("한 개 이상의 레포지토리가 있어야 합니다.")
+                }).disposed(by: disposeBag)
+        }
+    
 }
 
 extension MainViewController: MenuDelegate, RepoMenuDelegate {
@@ -142,8 +148,8 @@ extension MainViewController: MenuDelegate, RepoMenuDelegate {
     private func presentAlertViewController() {
         let alertController = UIAlertController(
             title: "",
+            message: "모든 설정 및 할 일이 삭제됩니다.", 
             preferredStyle: .alert
-            message: "모든 설정 및 할 일이 삭제됩니다.",
         )
         
         let deleteAction = UIAlertAction(title: "로그아웃", style: .destructive) { [weak self] _ in
@@ -152,7 +158,6 @@ extension MainViewController: MenuDelegate, RepoMenuDelegate {
             // 액세스 토큰 삭제 및 설정 초기화
             LoginManager.shared.deleteAccessToken()
             UserDefaultsManager.isLogin = false
-            UserDefaultsManager.isFirst = true
             // 화면 이동
             let loginViewController = LoginViewController()
             self?.view.window?.rootViewController = UINavigationController(rootViewController: loginViewController)

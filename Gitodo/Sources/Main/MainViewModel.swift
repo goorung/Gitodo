@@ -25,10 +25,12 @@ final class MainViewModel {
     struct Output {
         var selectedRepo: Driver<MyRepo?>
         var repos: Driver<[MyRepo]>
+        var hideDisabled: Driver<Void>
     }
     
     private var selectedRepo = BehaviorRelay<MyRepo?>(value: nil)
     private let repos = BehaviorRelay<[MyRepo]>(value: [])
+    private let hideDisabled = PublishRelay<Void>()
     
     private let viewWillAppearSubject = PublishSubject<Void>()
     private let selectRepoIndexSubject = PublishSubject<Int>()
@@ -45,13 +47,14 @@ final class MainViewModel {
         input = Input(
             viewWillAppear: viewWillAppearSubject.asObserver(),
             selectRepoIndex: selectRepoIndexSubject.asObserver(),
-            resetAllRepository: resetAllRepositorySubject.asObserver()
             updateRepoInfo: updateRepoInfoSubject.asObserver(),
-            hideRepo: hideRepoSubject.asObserver()
+            hideRepo: hideRepoSubject.asObserver(),
+            resetAllRepository: resetAllRepositorySubject.asObserver()
         )
         output = Output(
             selectedRepo: selectedRepo.asDriver(onErrorJustReturn: nil),
-            repos: repos.asDriver(onErrorJustReturn: [])
+            repos: repos.asDriver(onErrorJustReturn: []),
+            hideDisabled: hideDisabled.asDriver(onErrorJustReturn: ())
         )
         
         viewWillAppearSubject.subscribe(onNext: { [weak self] in
@@ -109,6 +112,11 @@ final class MainViewModel {
     }
     
     private func hideRepo(_ repo: MyRepo) {
+        if repos.value.count == 1 {
+            hideDisabled.accept(())
+            return
+        }
+        
         do {
             try localRepositoryService.togglePublicStatus(of: repo)
             fetchRepos()
