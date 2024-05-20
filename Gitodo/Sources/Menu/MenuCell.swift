@@ -64,4 +64,9 @@ class MenuCell: UITableViewCell {
         titleLabel.text = menu.title
     }
     
+    func configure(with menu: RepoMenuType) {
+        symbolImageView.image = UIImage(systemName: menu.symbol)
+        titleLabel.text = menu.title
+    }
+    
 }

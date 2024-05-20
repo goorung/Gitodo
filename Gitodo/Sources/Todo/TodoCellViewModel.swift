@@ -18,6 +18,7 @@ struct TodoIdentifierItem: Hashable {
     var id: UUID
     var isComplete: Bool
     var order: Int
+    var tintColorHex: UInt?
 }
 
 class TodoCellViewModel {
@@ -67,7 +68,7 @@ class TodoCellViewModel {
     var tintColorHex: UInt?
     
     var identifier: TodoIdentifierItem {
-        TodoIdentifierItem(id: todoItem.id, isComplete: todoItem.isComplete, order: todoItem.order)
+        TodoIdentifierItem(id: todoItem.id, isComplete: todoItem.isComplete, order: todoItem.order, tintColorHex: tintColorHex)
     }
     
 }
