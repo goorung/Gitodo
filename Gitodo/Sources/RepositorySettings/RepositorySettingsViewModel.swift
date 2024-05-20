@@ -33,6 +33,7 @@ final class RepositorySettingsViewModel {
     
     private let repos = PublishRelay<[MyRepo]>()
     private let publicRepos = PublishRelay<[MyRepo]>()
+    
     private let disposeBag = DisposeBag()
     
     private let localRepositoryService: LocalRepositoryServiceProtocol

@@ -7,28 +7,64 @@
 
 import UIKit
 
-class RepositorySettingsViewController: BaseViewController<RepositorySettingsView>, BaseViewControllerProtocol {
+import RxSwift
+import SwiftyToaster
+
+class RepositorySettingsViewController: BaseViewController<RepositorySettingsView>, BaseViewControllerProtocol, UIGestureRecognizerDelegate {
     
     private let viewModel = RepositorySettingsViewModel(localRepositoryService: LocalRepositoryService())
+    private let disposeBag = DisposeBag()
+    
+    // MARK: - Life Cycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
         setupNavigationBar()
+        setupNotificationCenterObserver()
+        bind()
+        
         contentView.delegate = self
         contentView.bind(with: viewModel)
         viewModel.input.viewDidLoad.onNext(())
-        NotificationCenter.default.addObserver(self, selector: #selector(handleRepoOrderChange), name: .RepositoryOrderDidUpdate, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(handleAccessTokenExpire), name: .AccessTokenDidExpire, object: nil)
     }
     
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
     
+    // MARK: - Setup Navigation Bar
+    
     func setupNavigationBar() {
         setTitle("레포지토리 설정")
-        setLeftBackButton()
+        setLeftButton(symbolName: "chevron.left")
+        setLeftButtonAction(#selector(popViewControllerIf))
+    }
+    
+    @objc private func popViewControllerIf() {
+        if UserDefaultsManager.isPublicRepoSet {
+            navigationController?.popViewController(animated: true)
+        } else {
+            Toaster.shared.setToastType(.round)
+            Toaster.shared.makeToast("한 개 이상의 레포지토리를 선택해야 합니다.")
+        }
+    }
+    
+    // MARK: - Setup NotificationCenter Observer
+    
+    private func setupNotificationCenterObserver() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleRepoOrderChange),
+            name: .RepositoryOrderDidUpdate,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleAccessTokenExpire),
+            name: .AccessTokenDidExpire,
+            object: nil
+        )
     }
     
     @objc private func handleRepoOrderChange() {
@@ -41,15 +77,34 @@ class RepositorySettingsViewController: BaseViewController<RepositorySettingsVie
         window.rootViewController = LoginViewController()
     }
     
+    // MARK: - Bind
+    
+    private func bind() {
+        viewModel.output.publicRepos
+            .map { $0.count }
+            .drive(onNext: { [weak self] count in
+                guard let self = self else { return }
+                if count > 0 {
+                    UserDefaultsManager.isPublicRepoSet = true
+                    navigationController?.interactivePopGestureRecognizer?.delegate = self
+                    navigationController?.interactivePopGestureRecognizer?.isEnabled = true
+                } else {
+                    UserDefaultsManager.isPublicRepoSet = false
+                    navigationController?.interactivePopGestureRecognizer?.delegate = nil
+                    navigationController?.interactivePopGestureRecognizer?.isEnabled = false
+                }
+            }).disposed(by: disposeBag)
+    }
+    
 }
 
 extension RepositorySettingsViewController: RepositorySettingsDelegate {
+    
     func presentRepositoryInfoViewController(repository: MyRepo) {
         let viewController = RepositoryInfoViewController(viewModel: RepositoryInfoViewModel(repository: repository))
         viewController.delegate = self
         present(viewController, animated: true)
     }
-    
     
     func presentAlertViewController(completion: @escaping (() -> Void)) {
         let alertController = UIAlertController(
@@ -71,6 +126,7 @@ extension RepositorySettingsViewController: RepositorySettingsDelegate {
 }
 
 extension RepositorySettingsViewController: RepositoryInfoViewControllerDelegate {
+    
     func doneButtonTapped(repository: MyRepo) {
         viewModel.input.updateRepoInfo.onNext(repository)
     }

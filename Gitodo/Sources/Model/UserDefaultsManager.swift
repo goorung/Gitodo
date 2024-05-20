@@ -12,7 +12,7 @@ struct UserDefaultsManager {
     @UserDefaultsData(key: "isLogin", defaultValue: false)
     static var isLogin: Bool
     
-    @UserDefaultsData(key: "isFirst", defaultValue: true)
-    static var isFirst: Bool
+    @UserDefaultsData(key: "isPublicRepoSet", defaultValue: false)
+    static var isPublicRepoSet: Bool
     
 }

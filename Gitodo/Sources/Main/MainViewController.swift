@@ -11,27 +11,7 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
 
     private let viewModel: MainViewModel
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        setupNavigationBar()
-        hideKeyboardWhenTappedAround()
-        contentView.bind(with: viewModel)
-        contentView.setIssueDelegate(self)
-        NotificationCenter.default.addObserver(self, selector: #selector(handleRepoOrderChange), name: .RepositoryOrderDidUpdate, object: nil)
-        
-        if UserDefaultsManager.isFirst {
-            UserDefaultsManager.isFirst = false
-            let repositorySettingsViewController = RepositorySettingsViewController()
-            navigationController?.pushViewController(repositorySettingsViewController, animated: true)
-        }
-
-        NotificationCenter.default.addObserver(self, selector: #selector(handleAccessTokenExpire), name: .AccessTokenDidExpire, object: nil)
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        viewModel.input.viewWillAppear.onNext(())
-    }
+    // MARK: - Initializer
     
     init(viewModel: MainViewModel) {
         self.viewModel = viewModel
@@ -42,9 +22,30 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Life Cycle
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        setupNavigationBar()
+        hideKeyboardWhenTappedAround()
+        setupNotificationCenterObserver()
+        
+        contentView.bind(with: viewModel)
+        contentView.setIssueDelegate(self)
+        
+        pushRepositorySettingViewControllerIf()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        viewModel.input.viewWillAppear.onNext(())
+    }
+    
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
+    
+    // MARK: - Setup Navigation Bar
     
     func setupNavigationBar() {
         setTitle("Gitodo",at: .left, font: .systemFont(ofSize: 20, weight: .bold))
@@ -78,6 +79,23 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
         present(menuViewController, animated: true)
     }
     
+    // MARK: - Setup NotificationCenter Observer
+    
+    private func setupNotificationCenterObserver() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleRepoOrderChange),
+            name: .RepositoryOrderDidUpdate,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleAccessTokenExpire),
+            name: .AccessTokenDidExpire,
+            object: nil
+        )
+    }
+    
     @objc private func handleRepoOrderChange() {
         viewModel.input.viewWillAppear.onNext(())
     }
@@ -86,6 +104,13 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
         UserDefaultsManager.isLogin = false
         guard let window = view.window else { return }
         window.rootViewController = LoginViewController()
+    }
+    
+    private func pushRepositorySettingViewControllerIf() {
+        if UserDefaultsManager.isPublicRepoSet == false {
+            let repositorySettingsViewController = RepositorySettingsViewController()
+            navigationController?.pushViewController(repositorySettingsViewController, animated: true)
+        }
     }
     
 }

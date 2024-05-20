@@ -14,7 +14,7 @@ protocol BaseViewControllerProtocol {
     func setupNavigationBar()
 }
 
-class BaseViewController<View: UIView>: UIViewController, UIGestureRecognizerDelegate {
+class BaseViewController<View: UIView>: UIViewController {
     
     enum TitlePosition {
         case left
@@ -50,8 +50,6 @@ class BaseViewController<View: UIView>: UIViewController, UIGestureRecognizerDel
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationController?.setNavigationBarHidden(true, animated: false)
-        navigationController?.interactivePopGestureRecognizer?.delegate = self
-        navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         
         view.backgroundColor = .systemBackground
 

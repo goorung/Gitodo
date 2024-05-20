@@ -16,6 +16,8 @@ class RepositoryInfoViewController: BaseViewController<RepositoryInfoView>, Base
     weak var delegate: RepositoryInfoViewControllerDelegate?
     private var viewModel: RepositoryInfoViewModel?
     
+    // MARK: - Initializer
+    
     init(viewModel: RepositoryInfoViewModel) {
         super.init(nibName: nil, bundle: nil)
         
@@ -27,11 +29,15 @@ class RepositoryInfoViewController: BaseViewController<RepositoryInfoView>, Base
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Life Cycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         setupNavigationBar()
     }
+    
+    // MARK: - Setup Navigation Bar
     
     func setupNavigationBar() {
         setTitle("레포지토리 정보")
