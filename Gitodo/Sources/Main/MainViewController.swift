@@ -100,8 +100,33 @@ extension MainViewController: MenuDelegate {
         case .contact:
             print("문의하기")
         case .logout:
-            print("로그아웃")
+            presentAlertViewController()
         }
+    }
+    
+    private func presentAlertViewController() {
+        let alertController = UIAlertController(
+            title: "",
+            message: "모든 설정 및 할 일이 삭제됩니다.",
+            preferredStyle: .alert
+        )
+        
+        let deleteAction = UIAlertAction(title: "로그아웃", style: .destructive) { [weak self] _ in
+            // 모든 레포지토리 삭제
+            self?.viewModel.input.resetAllRepository.onNext(())
+            // 액세스 토큰 삭제 및 설정 초기화
+            LoginManager.shared.deleteAccessToken()
+            UserDefaultsManager.isLogin = false
+            UserDefaultsManager.isFirst = true
+            // 화면 이동
+            let loginViewController = LoginViewController()
+            self?.view.window?.rootViewController = UINavigationController(rootViewController: loginViewController)
+        }
+        let cancelAction = UIAlertAction(title: "취소", style: .cancel)
+        
+        alertController.addAction(deleteAction)
+        alertController.addAction(cancelAction)
+        present(alertController, animated: true)
     }
     
 }
