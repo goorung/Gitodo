@@ -13,6 +13,16 @@ class RepositoryView: UIView {
     
     private lazy var circleView = SymbolCircleView()
     
+    private lazy var editLabel = {
+        let label = UILabel()
+        label.text = "편집"
+        label.textColor = .label
+        label.textAlignment = .center
+        label.font = .systemFont(ofSize: 12, weight: .semibold)
+        label.isHidden = true
+        return label
+    }()
+    
     private lazy var nameLabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 11, weight: .semibold)
@@ -31,6 +41,12 @@ class RepositoryView: UIView {
         circleView.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
             make.width.height.equalTo(frame.width)
+        }
+        
+        addSubview(editLabel)
+        editLabel.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.centerY.equalTo(circleView.snp.centerY).multipliedBy(1.5)
         }
         
         addSubview(nameLabel)
@@ -54,7 +70,13 @@ class RepositoryView: UIView {
     
     func reset() {
         nameLabel.text = nil
+        editLabel.isHidden = true
         circleView.reset()
+    }
+    
+    func setEditMode() {
+        circleView.alpha = 0.5
+        editLabel.isHidden = false
     }
     
 }

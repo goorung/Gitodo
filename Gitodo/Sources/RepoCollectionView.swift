@@ -10,6 +10,7 @@ import UIKit
 class RepoCollectionView: UICollectionView {
     
     let localRepositoryService = LocalRepositoryService()
+    let isEditMode: Bool
     
     var repos: [MyRepo] = [] {
         didSet {
@@ -23,7 +24,9 @@ class RepoCollectionView: UICollectionView {
         }
     }
     
-    init() {
+    init(isEditMode: Bool) {
+        self.isEditMode = isEditMode
+        
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         layout.itemSize = CGSize(width: 60, height: 80)
@@ -59,6 +62,12 @@ extension RepoCollectionView: UICollectionViewDataSource {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RepositoryInfoCell.reuseIdentifier, for: indexPath) as? RepositoryInfoCell else { return UICollectionViewCell() }
         let repo = repos[indexPath.row]
         cell.configure(name: repo.nickname, color: UIColor(hex: repo.hexColor), symbol: repo.symbol)
+        
+        if isEditMode {
+            cell.setEditMode()
+            return cell
+        }
+        
         if let selectedRepoId,
            selectedRepoId != repo.id {
             cell.contentView.alpha = 0.5

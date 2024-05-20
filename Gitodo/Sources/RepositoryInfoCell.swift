@@ -42,4 +42,8 @@ class RepositoryInfoCell: UICollectionViewCell {
         repositoryView.setColor(color)
         repositoryView.setSymbol(symbol)
     }
+    
+    func setEditMode() {
+        repositoryView.setEditMode()
+    }
 }

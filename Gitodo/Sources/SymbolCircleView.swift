@@ -25,6 +25,8 @@ class SymbolCircleView: UIImageView {
         super.init(frame: .zero)
         backgroundColor = .systemGray4
         contentMode = .scaleAspectFill
+        
+        setupLayout()
     }
     
     required init?(coder: NSCoder) {
@@ -35,7 +37,6 @@ class SymbolCircleView: UIImageView {
         super.layoutSubviews()
         
         makeCircle()
-        setupLayout()
     }
     
     private func makeCircle() {
@@ -46,7 +47,8 @@ class SymbolCircleView: UIImageView {
     private func setupLayout() {
         addSubview(symbolLabel)
         symbolLabel.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(frame.width / 5.5)
+            make.center.equalToSuperview()
+            make.width.height.equalToSuperview().multipliedBy(0.64)
         }
     }
     
@@ -63,6 +65,7 @@ class SymbolCircleView: UIImageView {
     }
     
     func reset() {
+        alpha = 1
         backgroundColor = .systemGray4
         symbolLabel.text = nil
         image = nil

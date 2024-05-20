@@ -20,7 +20,7 @@ class MainView: UIView {
     private let disposeBag = DisposeBag()
     
     private lazy var repoCollectionView = {
-        let collectionView = RepoCollectionView()
+        let collectionView = RepoCollectionView(isEditMode: false)
         collectionView.delegate = self
         return collectionView
     }()

@@ -34,7 +34,7 @@ class RepositorySettingsView: UIView {
     // MARK: - UI Components
     
     private lazy var previewView = {
-        let collectionView = RepoCollectionView()
+        let collectionView = RepoCollectionView(isEditMode: true)
         collectionView.delegate = self
         return collectionView
     }()
