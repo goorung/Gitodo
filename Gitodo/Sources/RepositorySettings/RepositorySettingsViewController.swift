@@ -45,6 +45,7 @@ class RepositorySettingsViewController: BaseViewController<RepositorySettingsVie
         if UserDefaultsManager.isPublicRepoSet {
             navigationController?.popViewController(animated: true)
         } else {
+            Toaster.shared.setToastType(.round)
             Toaster.shared.makeToast("한 개 이상의 레포지토리를 선택해야 합니다.")
         }
     }
