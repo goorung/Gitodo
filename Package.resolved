@@ -1,4 +1,5 @@
 {
+  "originHash" : "d5e4c88abd9e989dd9eeb83888c9548ec86ecfa8769d34f037b60a4eb892e942",
   "pins" : [
     {
       "identity" : "kingfisher",
@@ -7,6 +8,15 @@
       "state" : {
         "revision" : "5b92f029fab2cce44386d28588098b5be0824ef5",
         "version" : "7.11.0"
+      }
+    },
+    {
+      "identity" : "networkimage",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/gonzalezreal/NetworkImage",
+      "state" : {
+        "revision" : "7aff8d1b31148d32c5933d75557d42f6323ee3d1",
+        "version" : "6.0.0"
       }
     },
     {
@@ -55,6 +65,15 @@
       }
     },
     {
+      "identity" : "swift-markdown-ui",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/gonzalezreal/swift-markdown-ui",
+      "state" : {
+        "revision" : "ae799d015a5374708f7b4c85f3294c05f2a564e2",
+        "version" : "2.3.0"
+      }
+    },
+    {
       "identity" : "swiftytoaster",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/noeyiz/SwiftyToaster.git",
@@ -64,5 +83,5 @@
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }
