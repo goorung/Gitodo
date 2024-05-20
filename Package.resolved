@@ -1,5 +1,5 @@
 {
-  "originHash" : "d5e4c88abd9e989dd9eeb83888c9548ec86ecfa8769d34f037b60a4eb892e942",
+  "originHash" : "e81bc2d67303b02d73703eaba2f246dbb9a561c09bd7029be931c9644cec019a",
   "pins" : [
     {
       "identity" : "kingfisher",
@@ -11,12 +11,12 @@
       }
     },
     {
-      "identity" : "networkimage",
+      "identity" : "markdownview",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/gonzalezreal/NetworkImage",
+      "location" : "https://github.com/keitaoouchi/MarkdownView.git",
       "state" : {
-        "revision" : "7aff8d1b31148d32c5933d75557d42f6323ee3d1",
-        "version" : "6.0.0"
+        "revision" : "5e62a27f1002cd63c350ef1a4c640ddcd1f1ed48",
+        "version" : "1.9.1"
       }
     },
     {
@@ -56,21 +56,21 @@
       }
     },
     {
+      "identity" : "skeletonview",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Juanpe/SkeletonView.git",
+      "state" : {
+        "revision" : "2f5274827d310e32c09325dd3e0007120940988e",
+        "version" : "1.31.0"
+      }
+    },
+    {
       "identity" : "snapkit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SnapKit/SnapKit",
       "state" : {
         "revision" : "2842e6e84e82eb9a8dac0100ca90d9444b0307f4",
         "version" : "5.7.1"
-      }
-    },
-    {
-      "identity" : "swift-markdown-ui",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/gonzalezreal/swift-markdown-ui",
-      "state" : {
-        "revision" : "ae799d015a5374708f7b4c85f3294c05f2a564e2",
-        "version" : "2.3.0"
       }
     },
     {
