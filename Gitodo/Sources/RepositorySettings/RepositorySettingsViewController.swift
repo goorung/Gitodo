@@ -26,7 +26,7 @@ class RepositorySettingsViewController: BaseViewController<RepositorySettingsVie
         
         contentView.delegate = self
         contentView.bind(with: viewModel)
-        viewModel.input.viewDidLoad.onNext(())
+        viewModel.input.fetchRepo.onNext(())
     }
     
     deinit {
@@ -39,6 +39,8 @@ class RepositorySettingsViewController: BaseViewController<RepositorySettingsVie
         setTitle("레포지토리 설정")
         setLeftButton(symbolName: "chevron.left")
         setLeftButtonAction(#selector(popViewControllerIf))
+        setRightButton(symbolName: "arrow.clockwise")
+        setRightButtonAction(#selector(fetchRepo))
     }
     
     @objc private func popViewControllerIf() {
@@ -48,6 +50,10 @@ class RepositorySettingsViewController: BaseViewController<RepositorySettingsVie
             Toaster.shared.setToastType(.round)
             Toaster.shared.makeToast("한 개 이상의 레포지토리를 선택해야 합니다.")
         }
+    }
+    
+    @objc private func fetchRepo() {
+        viewModel.input.fetchRepo.onNext(())
     }
     
     // MARK: - Setup NotificationCenter Observer
@@ -68,13 +74,16 @@ class RepositorySettingsViewController: BaseViewController<RepositorySettingsVie
     }
     
     @objc private func handleRepoOrderChange() {
-        viewModel.input.viewDidLoad.onNext(())
+        viewModel.input.fetchRepo.onNext(())
     }
     
     @objc private func handleAccessTokenExpire() {
         UserDefaultsManager.isLogin = false
         guard let window = view.window else { return }
-        window.rootViewController = LoginViewController()
+        DispatchQueue.main.async {
+            window.rootViewController = LoginViewController()
+            Toaster.shared.makeToast("토큰이 만료됐습니다.\n다시 로그인해주세요.")
+        }
     }
     
     // MARK: - Bind

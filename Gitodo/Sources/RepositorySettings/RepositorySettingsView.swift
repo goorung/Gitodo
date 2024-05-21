@@ -62,6 +62,14 @@ class RepositorySettingsView: UIView {
         return tableView
     }()
     
+    private lazy var loadingView = {
+        let view = UIView()
+        view.backgroundColor = .secondarySystemBackground
+        return view
+    }()
+    
+    private lazy var loadingIndicator = UIActivityIndicatorView()
+    
     // MARK: - Initializer
     
     override init(frame: CGRect) {
@@ -123,6 +131,17 @@ class RepositorySettingsView: UIView {
             self.deletedRepoTableViewHeightConstraint = make.height.equalTo(0).constraint
             make.bottom.equalToSuperview().inset(insetFromSuperView)
         }
+        
+        addSubview(loadingView)
+        loadingView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        
+        loadingView.addSubview(loadingIndicator)
+        loadingIndicator.snp.makeConstraints { make in
+            make.width.height.equalTo(50)
+            make.center.equalToSuperview()
+        }
     }
     
     private func bind() {
@@ -169,7 +188,10 @@ class RepositorySettingsView: UIView {
             .map { $0.filter { !$0.isDeleted } }
         
         repos
-            .drive(repoTableView.rx.items(cellIdentifier: RepositoryCell.reuseIdentifier, cellType: RepositoryCell.self)) { _, repo, cell in
+            .drive(repoTableView.rx.items(
+                cellIdentifier: RepositoryCell.reuseIdentifier,
+                cellType: RepositoryCell.self)
+            ) { _, repo, cell in
                 cell.configure(with: repo)
             }.disposed(by: disposeBag)
 
@@ -185,7 +207,10 @@ class RepositorySettingsView: UIView {
             .map { $0.filter { $0.isDeleted } }
         
         deletedRepos
-            .drive(deletedRepoTableView.rx.items(cellIdentifier: RepositoryCell.reuseIdentifier, cellType: RepositoryCell.self)) { _, repo, cell in
+            .drive(deletedRepoTableView.rx.items(
+                cellIdentifier: RepositoryCell.reuseIdentifier,
+                cellType: RepositoryCell.self)
+            ) { _, repo, cell in
                 cell.configure(with: repo)
             }.disposed(by: disposeBag)
         
@@ -196,6 +221,25 @@ class RepositorySettingsView: UIView {
                 deletedRepoTableView.isHidden = height == 0
                 deletedRepoTableViewHeightConstraint?.update(offset: height)
                 deletedRepoTableView.layoutIfNeeded() // 즉시 레이아웃 업데이트
+            }).disposed(by: disposeBag)
+        
+        deletedRepos
+            .map { $0.count }
+            .drive(onNext: { [weak self] count in
+                self?.deletedRepoLabel.isHidden = count == 0
+            }).disposed(by: disposeBag)
+        
+        viewModel.output.isLoading
+            .drive(onNext: { [weak self] isLoading in
+                if isLoading {
+                    self?.loadingView.isHidden = false
+                    self?.loadingIndicator.startAnimating()
+                } else {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        self?.loadingIndicator.stopAnimating()
+                        self?.loadingView.isHidden = true
+                    }
+                }
             }).disposed(by: disposeBag)
     }
     

@@ -53,7 +53,7 @@ class TodoView: UIView {
         label.attributedText = attributedString
         
         label.textAlignment = .center
-        label.font = .systemFont(ofSize: 16, weight: .bold)
+        label.font = .systemFont(ofSize: 15, weight: .semibold)
         label.textColor = .tertiaryLabel
         label.numberOfLines = 2
         return label

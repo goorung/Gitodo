@@ -20,23 +20,6 @@ class AssigneeCollectionView: UICollectionView {
     private let itemsPerRow: CGFloat = 10.0
     private let spacing: CGFloat = 5.0
     
-    // MARK: - UI Components
-    
-    private lazy var personImageView = {
-        let imageView = UIImageView()
-        imageView.image = UIImage(systemName: "person.fill")
-        imageView.tintColor = .systemGray
-        return imageView
-    }()
-    
-    private lazy var assigneesLabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 13.0)
-        label.textColor = .systemGray
-        label.numberOfLines = 0
-        return label
-    }()
-    
     // MARK: - Reload Data
     
     override func reloadData() {

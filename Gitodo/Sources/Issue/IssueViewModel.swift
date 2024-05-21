@@ -16,32 +16,48 @@ final class IssueViewModel {
     let output: Output
     
     struct Input {
-        let fetchIssue: AnyObserver<MyRepo>
+        let setRepo: AnyObserver<MyRepo>
+        let fetchIssue: AnyObserver<Void>
     }
     
     struct Output {
         var issues: Driver<[Issue]>
+        var isLoading: Driver<Bool>
     }
     
-    private let fetchIssueSuject = PublishSubject<MyRepo>()
+    private let setRepoSubject = PublishSubject<MyRepo>()
+    private let fetchIssueSubject = PublishSubject<Void>()
     
     private let issues = BehaviorRelay<[Issue]>(value: [])
+    private let isLoading = BehaviorRelay<Bool>(value: false)
+    
+    private var currentRepo: MyRepo?
+    
     private let disposeBag = DisposeBag()
     
     init() {
         input = Input(
-            fetchIssue: fetchIssueSuject.asObserver()
+            setRepo: setRepoSubject.asObserver(),
+            fetchIssue: fetchIssueSubject.asObserver()
         )
         output = Output(
-            issues: issues.asDriver(onErrorJustReturn: [])
+            issues: issues.asDriver(),
+            isLoading: isLoading.asDriver()
         )
         
-        fetchIssueSuject.subscribe(onNext: { [weak self] repo in
-            self?.fetchIssue(repo)
+        setRepoSubject.subscribe(onNext: { [weak self] repo in
+            self?.currentRepo = repo
+            self?.fetchIssue()
+        }).disposed(by: disposeBag)
+        
+        fetchIssueSubject.subscribe(onNext: { [weak self] in
+            self?.fetchIssue()
         }).disposed(by: disposeBag)
     }
     
-    private func fetchIssue(_ repo: MyRepo) {
+    private func fetchIssue() {
+        isLoading.accept(true)
+        guard let repo = currentRepo else { return }
         Task {
             do {
                 let fetchedIssue = try await APIManager.shared.fetchIssues(for: repo)
@@ -50,6 +66,7 @@ final class IssueViewModel {
                 print("[IssueViewModel] fetchIssue failed : \(error.localizedDescription)")
                 issues.accept([])
             }
+            isLoading.accept(false)
         }
     }
     

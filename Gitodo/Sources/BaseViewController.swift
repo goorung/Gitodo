@@ -8,6 +8,7 @@
 import UIKit
 
 import Kingfisher
+import SkeletonView
 import SnapKit
 
 protocol BaseViewControllerProtocol {
@@ -128,7 +129,7 @@ class BaseViewController<View: UIView>: UIViewController {
     }
 
     func setRightButton(symbolName: String) {
-        let configuration = UIImage.SymbolConfiguration(pointSize: 25.0, weight: .medium)
+        let configuration = UIImage.SymbolConfiguration(weight: .medium)
         rightButton.setImage(UIImage(systemName: symbolName, withConfiguration: configuration), for: .normal)
         
         setupRightButtonLayout()
@@ -163,10 +164,7 @@ class BaseViewController<View: UIView>: UIViewController {
         navigationController?.popViewController(animated: true)
     }
     
-    func setProfileImageView(url: URL?) {
-        guard let url = url else { return }
-        profileImageView.kf.setImage(with: url)
-        
+    func setProfileImageView() {
         navigationBarView.addSubview(profileImageView)
         profileImageView.snp.makeConstraints { make in
             make.width.height.equalTo(40)
@@ -175,14 +173,27 @@ class BaseViewController<View: UIView>: UIViewController {
         }
     }
     
+    func setProfileImageViewImage(with url: URL?) {
+        guard let url = url else { return }
+        profileImageView.kf.setImage(with: url)
+    }
+    
     func setProfileImageViewAction(_ action: Selector) {
         let tapGesture = UITapGestureRecognizer(target: self, action: action)
         profileImageView.addGestureRecognizer(tapGesture)
         profileImageView.isUserInteractionEnabled = true
     }
     
-    func changeProfileImage(image: UIImage?) {
-        profileImageView.setImage(image)
+    func setProfileImageViewLoading(_ isLoading: Bool) {
+        if isLoading {
+            profileImageView.isSkeletonable = true
+            profileImageView.skeletonCornerRadius = Float(profileImageView.frame.width / 2)
+            profileImageView.showAnimatedGradientSkeleton()
+        } else {
+            profileImageView.hideSkeleton()
+            profileImageView.isSkeletonable = false
+            profileImageView.makeCircle() // cornerRadius 설정
+        }
     }
 
 }
