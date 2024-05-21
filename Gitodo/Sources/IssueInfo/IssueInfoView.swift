@@ -125,13 +125,12 @@ class IssueInfoView: UIView {
             make.top.equalTo(separatorView.snp.bottom)
             make.leading.trailing.equalToSuperview()
             make.bottom.lessThanOrEqualToSuperview().inset(20 * 2)
-            make.height.greaterThanOrEqualTo(400)
         }
         
         bodyContainerView.addSubview(markdownView)
         markdownView.snp.makeConstraints { make in
-            make.horizontalEdges.bottom.equalToSuperview().inset(10)
-            make.top.equalToSuperview()
+            make.edges.equalToSuperview().inset(10)
+            make.height.greaterThanOrEqualTo(400)
         }
         
         bodyContainerView.addSubview(loadingTextView)
@@ -164,10 +163,9 @@ class IssueInfoView: UIView {
         titleLabel.text = issue.title
         labelsView.configure(with: issue.labels)
         assigneesView.configure(with: issue.assignees)
-        loadMarkdown(markdown: issue.body)
     }
     
-    private func loadMarkdown(markdown: String?) {
+    func loadMarkdown(markdown: String?) {
         let css = """
         body { font-size: 16px; }
         code {

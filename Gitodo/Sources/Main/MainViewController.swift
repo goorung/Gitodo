@@ -202,7 +202,9 @@ extension MainViewController: IssueDelegate {
     func presentInfoViewController(issue: Issue) {
         let issueInfoViewController = IssueInfoViewController()
         issueInfoViewController.issue = issue
-        present(issueInfoViewController, animated: true)
+        present(issueInfoViewController, animated: true) {
+            issueInfoViewController.contentView.loadMarkdown(markdown: issue.body)
+        }
     }
     
 }
