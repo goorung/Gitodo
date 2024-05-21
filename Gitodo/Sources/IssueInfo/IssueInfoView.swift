@@ -5,13 +5,17 @@
 //  Created by jiyeon on 5/4/24.
 //
 
+import SafariServices
 import UIKit
 
+import MarkdownView
+import SkeletonView
 import SnapKit
 
 class IssueInfoView: UIView {
     
     private let insetFromSuperView: CGFloat = 20.0
+    private let insetFromBodyContainerView: CGFloat = 10.0
     private let offsetFromOtherView: CGFloat = 20.0
     private let offsetFromFriendView: CGFloat = 10.0
     
@@ -37,21 +41,25 @@ class IssueInfoView: UIView {
     
     private lazy var assigneesView = AssigneeCollectionView()
     
-    private lazy var bodyContainerView = {
+    private lazy var separatorView = {
         let view = UIView()
-        view.clipsToBounds = true
-        view.layer.cornerRadius = 8
-        view.layer.borderColor = UIColor.systemGray3.cgColor
-        view.layer.borderWidth = 1
+        view.backgroundColor = .systemGray6
         return view
     }()
     
-    private lazy var bodyLabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 15.0)
-        label.textColor = .label
-        label.numberOfLines = 0
-        return label
+    private lazy var bodyContainerView = UIView()
+    
+    private lazy var markdownView = MarkdownView()
+    
+    private lazy var loadingTextView = {
+        let textView = UITextView()
+        textView.isSkeletonable = true
+        textView.lastLineFillPercent = 30
+        textView.linesCornerRadius = 5
+        textView.skeletonTextNumberOfLines = 8
+        textView.skeletonTextLineHeight = .fixed(18)
+        textView.skeletonLineSpacing = 15
+        return textView
     }()
     
     // MARK: - Intiaizlier
@@ -60,6 +68,7 @@ class IssueInfoView: UIView {
         super.init(frame: frame)
         
         setupLayout()
+        configureMarkdownView()
     }
     
     required init?(coder: NSCoder) {
@@ -109,16 +118,49 @@ class IssueInfoView: UIView {
             make.leading.trailing.equalToSuperview().inset(insetFromSuperView)
         }
         
-        contentView.addSubview(bodyContainerView)
-        bodyContainerView.snp.makeConstraints { make in
+        contentView.addSubview(separatorView)
+        separatorView.snp.makeConstraints { make in
             make.top.equalTo(assigneesView.snp.bottom).offset(offsetFromOtherView)
-            make.leading.trailing.equalToSuperview().inset(insetFromSuperView)
-            make.bottom.lessThanOrEqualToSuperview().inset(insetFromSuperView * 2)
+            make.horizontalEdges.equalToSuperview()
+            make.height.equalTo(3)
         }
         
-        bodyContainerView.addSubview(bodyLabel)
-        bodyLabel.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(insetFromSuperView)
+        contentView.addSubview(bodyContainerView)
+        bodyContainerView.snp.makeConstraints { make in
+            make.top.equalTo(separatorView.snp.bottom)
+            make.leading.trailing.equalToSuperview()
+            make.bottom.lessThanOrEqualToSuperview().inset(insetFromSuperView * 2)
+            make.height.greaterThanOrEqualTo(400)
+        }
+        
+        bodyContainerView.addSubview(markdownView)
+        markdownView.snp.makeConstraints { make in
+            make.horizontalEdges.bottom.equalToSuperview().inset(insetFromBodyContainerView)
+            make.top.equalToSuperview()
+        }
+        
+        bodyContainerView.addSubview(loadingTextView)
+        loadingTextView.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(insetFromSuperView * 2)
+        }
+    }
+    
+    private func configureMarkdownView() {
+        loadingTextView.showAnimatedGradientSkeleton()
+        markdownView.isScrollEnabled = false
+        markdownView.onRendered = { [weak self] _ in
+            self?.loadingTextView.hideSkeleton()
+            self?.loadingTextView.isHidden = true
+        }
+        
+        markdownView.onTouchLink = { request in
+            guard let url = request.url else { return false }
+
+            if url.scheme == "http" || url.scheme == "https" {
+                UIApplication.shared.canOpenURL(url)
+                UIApplication.shared.open(url, options: [:])
+            }
+            return false
         }
     }
     
@@ -127,7 +169,100 @@ class IssueInfoView: UIView {
         titleLabel.text = issue.title
         labelsView.configure(with: issue.labels)
         assigneesView.configure(with: issue.assignees)
-        bodyLabel.text = issue.body
+        loadMarkdown(markdown: issue.body)
+    }
+    
+    private func loadMarkdown(markdown: String?) {
+        let css = """
+        body { font-size: 16px; }
+        code {
+            font-family: monospace;
+            font-size: 85%;
+        }
+        strong {
+            font-weight: 600;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            margin-top: 24px;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+        h1 {
+            font-size: 2em;
+            border-bottom: 1px solid var(--divider-color-light);
+            padding-bottom: 0.3em;
+            line-height: 1.125em;
+        }
+        h2 {
+            font-size: 1.5em;
+            border-bottom: 1px solid var(--divider-color-light);
+            padding-bottom: 0.3em;
+            line-height: 1.125em;
+        }
+        h3 {
+            font-size: 1.25em;
+            line-height: 1.125em;
+        }
+        h4 {
+            font-size: 1em;
+            line-height: 1.125em;
+        }
+        h5 {
+            font-size: 0.875em;
+            line-height: 1.125em;
+        }
+        h6 {
+            font-size: 0.85em;
+            line-height: 1.125em;
+        }
+        p {
+            margin-top: 0;
+            margin-bottom: 16px;
+            line-height: 1.25em;
+        }
+        blockquote {
+            display: flex;
+            margin: 16px 0;
+            padding: 0.5em;
+            border-left: 0.2em solid var(--border-color-light);
+        }
+        pre {
+            display: block;
+            margin: 16px 0;
+            padding: 16px;
+            overflow-x: auto;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 85%;
+            line-height: 1.225em;
+        }
+        li {
+            margin-top: 0.25em;
+        }
+        li input[type="checkbox"] {
+            margin-right: 0.5em;
+            min-width: 1.5em;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0;
+            margin-bottom: 16px;
+        }
+        th, td {
+            padding: 6px 13px;
+        }
+        thead th {
+            font-weight: 600;
+        }
+        hr {
+            height: 0.25em;
+            margin: 24px 0;
+            border: none;
+        }
+        """
+        
+        markdownView.load(markdown: markdown, css: css)
     }
     
 }

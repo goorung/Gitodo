@@ -44,7 +44,9 @@ let project = Project(
                 .external(name: "RxSwift", condition: .none),
                 .external(name: "RxGesture", condition: .none),
                 .external(name: "RealmSwift", condition: .none),
-                .external(name: "SwiftyToaster", condition: .none)
+                .external(name: "SwiftyToaster", condition: .none),
+                .external(name: "MarkdownView", condition: .none),
+                .external(name: "SkeletonView", condition: .none)
             ],
             settings: .settings(
                 configurations: [
