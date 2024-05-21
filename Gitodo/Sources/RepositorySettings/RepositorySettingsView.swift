@@ -22,11 +22,6 @@ class RepositorySettingsView: UIView {
     private let disposeBag = DisposeBag()
     weak var delegate: RepositorySettingsDelegate?
     
-    private let insetFromSuperView: CGFloat = 20.0
-    private let insetFromContentSuperViewTop: CGFloat = 10.0
-    private let offsetFromPreviewView: CGFloat = 10.0
-    private let offsetFromOtherView: CGFloat = 25.0
-    private let offsetFromFriendView: CGFloat = 10.0
     private let heightForRow: CGFloat = 50.0
     private var repoTableViewHeightConstraint: Constraint?
     private var deletedRepoTableViewHeightConstraint: Constraint?
@@ -89,13 +84,13 @@ class RepositorySettingsView: UIView {
     private func setupLayout() {
         addSubview(previewView)
         previewView.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview().inset(insetFromSuperView)
+            make.top.leading.trailing.equalToSuperview().inset(20)
             make.height.equalTo(80)
         }
         
         addSubview(scrollView)
         scrollView.snp.makeConstraints { make in
-            make.top.equalTo(previewView.snp.bottom).offset(offsetFromPreviewView)
+            make.top.equalTo(previewView.snp.bottom).offset(10)
             make.leading.trailing.bottom.equalToSuperview()
         }
         
@@ -107,29 +102,29 @@ class RepositorySettingsView: UIView {
         
         contentView.addSubview(repoLabel)
         repoLabel.snp.makeConstraints { make in
-            make.top.equalToSuperview().inset(insetFromContentSuperViewTop)
-            make.leading.trailing.equalToSuperview().inset(insetFromSuperView)
+            make.top.equalToSuperview().inset(10)
+            make.leading.trailing.equalToSuperview().inset(20)
         }
         
         contentView.addSubview(repoTableView)
         repoTableView.snp.makeConstraints { make in
-            make.top.equalTo(repoLabel.snp.bottom).offset(offsetFromFriendView)
-            make.leading.trailing.equalToSuperview().inset(insetFromSuperView)
+            make.top.equalTo(repoLabel.snp.bottom).offset(10)
+            make.leading.trailing.equalToSuperview().inset(20)
             self.repoTableViewHeightConstraint = make.height.equalTo(0).constraint
         }
         
         contentView.addSubview(deletedRepoLabel)
         deletedRepoLabel.snp.makeConstraints { make in
-            make.top.equalTo(repoTableView.snp.bottom).offset(offsetFromOtherView)
-            make.leading.equalToSuperview().inset(insetFromSuperView)
+            make.top.equalTo(repoTableView.snp.bottom).offset(25)
+            make.leading.equalToSuperview().inset(20)
         }
         
         contentView.addSubview(deletedRepoTableView)
         deletedRepoTableView.snp.makeConstraints { make in
-            make.top.equalTo(deletedRepoLabel.snp.bottom).offset(offsetFromFriendView)
-            make.leading.trailing.equalToSuperview().inset(insetFromSuperView)
+            make.top.equalTo(deletedRepoLabel.snp.bottom).offset(10)
+            make.leading.trailing.equalToSuperview().inset(20)
             self.deletedRepoTableViewHeightConstraint = make.height.equalTo(0).constraint
-            make.bottom.equalToSuperview().inset(insetFromSuperView)
+            make.bottom.equalToSuperview().inset(20)
         }
         
         addSubview(loadingView)
