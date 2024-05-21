@@ -108,7 +108,7 @@ class IssueView: UIView {
         viewModel.output.issues
             .map { $0.count }
             .drive(onNext: { [weak self] count in
-                self?.emptyLabel.isHidden = (count != 0)
+                self?.emptyLabel.isHidden = count != 0
             }).disposed(by: disposeBag)
         
         viewModel.output.issues

@@ -9,6 +9,7 @@ import UIKit
 
 import RxCocoa
 import RxSwift
+import SkeletonView
 import SnapKit
 
 protocol RepositorySettingsDelegate: AnyObject {
@@ -169,7 +170,10 @@ class RepositorySettingsView: UIView {
             .map { $0.filter { !$0.isDeleted } }
         
         repos
-            .drive(repoTableView.rx.items(cellIdentifier: RepositoryCell.reuseIdentifier, cellType: RepositoryCell.self)) { _, repo, cell in
+            .drive(repoTableView.rx.items(
+                cellIdentifier: RepositoryCell.reuseIdentifier,
+                cellType: RepositoryCell.self)
+            ) { _, repo, cell in
                 cell.configure(with: repo)
             }.disposed(by: disposeBag)
 
@@ -185,7 +189,10 @@ class RepositorySettingsView: UIView {
             .map { $0.filter { $0.isDeleted } }
         
         deletedRepos
-            .drive(deletedRepoTableView.rx.items(cellIdentifier: RepositoryCell.reuseIdentifier, cellType: RepositoryCell.self)) { _, repo, cell in
+            .drive(deletedRepoTableView.rx.items(
+                cellIdentifier: RepositoryCell.reuseIdentifier,
+                cellType: RepositoryCell.self)
+            ) { _, repo, cell in
                 cell.configure(with: repo)
             }.disposed(by: disposeBag)
         
@@ -196,6 +203,12 @@ class RepositorySettingsView: UIView {
                 deletedRepoTableView.isHidden = height == 0
                 deletedRepoTableViewHeightConstraint?.update(offset: height)
                 deletedRepoTableView.layoutIfNeeded() // 즉시 레이아웃 업데이트
+            }).disposed(by: disposeBag)
+        
+        deletedRepos
+            .map { $0.count }
+            .drive(onNext: { [weak self] count in
+                self?.deletedRepoLabel.isHidden = count == 0
             }).disposed(by: disposeBag)
     }
     
