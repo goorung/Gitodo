@@ -59,6 +59,7 @@ struct RepoTodoWidget: Widget {
             RepoTodoWidgetEntryView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
         }
+        .supportedFamilies([.systemMedium]) // Medium 크기만 지원
     }
 }
 

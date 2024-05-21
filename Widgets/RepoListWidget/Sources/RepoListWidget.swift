@@ -67,6 +67,7 @@ struct RepoListWidget: Widget {
                     .background()
             }
         }
+        .supportedFamilies([.systemSmall]) // Small 크기만 지원
     }
 }
 
