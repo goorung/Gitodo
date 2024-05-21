@@ -25,6 +25,7 @@ class SymbolCircleView: UIImageView {
         super.init(frame: .zero)
         backgroundColor = .systemGray4
         contentMode = .scaleAspectFill
+        clipsToBounds = true
         
         setupLayout()
     }
@@ -39,9 +40,8 @@ class SymbolCircleView: UIImageView {
         makeCircle()
     }
     
-    private func makeCircle() {
+    func makeCircle() {
         layer.cornerRadius = frame.width / 2
-        clipsToBounds = true
     }
     
     private func setupLayout() {

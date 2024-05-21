@@ -8,6 +8,7 @@
 import UIKit
 
 import Kingfisher
+import SkeletonView
 import SnapKit
 
 protocol BaseViewControllerProtocol {
@@ -163,15 +164,19 @@ class BaseViewController<View: UIView>: UIViewController {
         navigationController?.popViewController(animated: true)
     }
     
-    func setProfileImageView(url: URL?) {
-        guard let url = url else { return }
-        profileImageView.kf.setImage(with: url)
-        
+    func setProfileImageView() {
         navigationBarView.addSubview(profileImageView)
         profileImageView.snp.makeConstraints { make in
             make.width.height.equalTo(40)
             make.trailing.equalToSuperview().inset(20)
             make.centerY.equalToSuperview()
+        }
+    }
+    
+    func setProfileImageViewImage(with url: URL?) {
+        guard let url = url else { return }
+        profileImageView.kf.setImage(with: url) { [weak self] _ in
+            self?.profileImageView.makeCircle()
         }
     }
     
@@ -181,8 +186,14 @@ class BaseViewController<View: UIView>: UIViewController {
         profileImageView.isUserInteractionEnabled = true
     }
     
-    func changeProfileImage(image: UIImage?) {
-        profileImageView.setImage(image)
+    func setProfileImageViewLoading(_ isLoading: Bool) {
+        if isLoading {
+            profileImageView.isSkeletonable = true
+            profileImageView.showAnimatedGradientSkeleton()
+        } else {
+            profileImageView.hideSkeleton()
+            profileImageView.isSkeletonable = false
+        }
     }
 
 }

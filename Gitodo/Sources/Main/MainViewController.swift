@@ -56,17 +56,20 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
     
     func setupNavigationBar() {
         setTitle("Gitodo",at: .left, font: .systemFont(ofSize: 20, weight: .bold))
+        setProfileImageView()
+        setProfileImageViewAction(#selector(handleProfileImageViewTap))
+        setProfileImageViewLoading(true)
         Task {
             do {
                 let me = try await APIManager.shared.fetchMe()
                 DispatchQueue.main.async {
-                    self.setProfileImageView(url: URL(string:me.avatarUrl))
+                    self.setProfileImageViewImage(with: URL(string:me.avatarUrl))
                 }
             } catch {
                 print("실패: \(error.localizedDescription)")
             }
+            setProfileImageViewLoading(false)
         }
-        setProfileImageViewAction(#selector(handleProfileImageViewTap))
     }
     
     @objc private func handleProfileImageViewTap(_ gesture: UITapGestureRecognizer) {
