@@ -14,11 +14,6 @@ import SnapKit
 
 class IssueInfoView: UIView {
     
-    private let insetFromSuperView: CGFloat = 20.0
-    private let insetFromBodyContainerView: CGFloat = 10.0
-    private let offsetFromOtherView: CGFloat = 20.0
-    private let offsetFromFriendView: CGFloat = 10.0
-    
     // MARK: - UI Components
     
     private lazy var scrollView = UIScrollView()
@@ -91,36 +86,36 @@ class IssueInfoView: UIView {
         
         contentView.addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview().inset(insetFromSuperView)
+            make.top.leading.trailing.equalToSuperview().inset(20)
         }
         
         contentView.addSubview(labelsLabel)
         labelsLabel.snp.makeConstraints { make in
-            make.top.equalTo(titleLabel.snp.bottom).offset(offsetFromOtherView)
-            make.leading.equalToSuperview().inset(insetFromSuperView)
+            make.top.equalTo(titleLabel.snp.bottom).offset(20)
+            make.leading.equalToSuperview().inset(20)
         }
         
         contentView.addSubview(labelsView)
         labelsView.snp.makeConstraints { make in
-            make.top.equalTo(labelsLabel.snp.bottom).offset(offsetFromFriendView)
-            make.leading.trailing.equalToSuperview().inset(insetFromSuperView)
+            make.top.equalTo(labelsLabel.snp.bottom).offset(10)
+            make.leading.trailing.equalToSuperview().inset(20)
         }
         
         contentView.addSubview(assigneesLabel)
         assigneesLabel.snp.makeConstraints { make in
-            make.top.equalTo(labelsView.snp.bottom).offset(offsetFromOtherView)
-            make.leading.equalToSuperview().inset(insetFromSuperView)
+            make.top.equalTo(labelsView.snp.bottom).offset(20)
+            make.leading.equalToSuperview().inset(20)
         }
         
         contentView.addSubview(assigneesView)
         assigneesView.snp.makeConstraints { make in
-            make.top.equalTo(assigneesLabel.snp.bottom).offset(offsetFromFriendView)
-            make.leading.trailing.equalToSuperview().inset(insetFromSuperView)
+            make.top.equalTo(assigneesLabel.snp.bottom).offset(10)
+            make.leading.trailing.equalToSuperview().inset(20)
         }
         
         contentView.addSubview(separatorView)
         separatorView.snp.makeConstraints { make in
-            make.top.equalTo(assigneesView.snp.bottom).offset(offsetFromOtherView)
+            make.top.equalTo(assigneesView.snp.bottom).offset(20)
             make.horizontalEdges.equalToSuperview()
             make.height.equalTo(3)
         }
@@ -129,19 +124,19 @@ class IssueInfoView: UIView {
         bodyContainerView.snp.makeConstraints { make in
             make.top.equalTo(separatorView.snp.bottom)
             make.leading.trailing.equalToSuperview()
-            make.bottom.lessThanOrEqualToSuperview().inset(insetFromSuperView * 2)
+            make.bottom.lessThanOrEqualToSuperview().inset(20 * 2)
             make.height.greaterThanOrEqualTo(400)
         }
         
         bodyContainerView.addSubview(markdownView)
         markdownView.snp.makeConstraints { make in
-            make.horizontalEdges.bottom.equalToSuperview().inset(insetFromBodyContainerView)
+            make.horizontalEdges.bottom.equalToSuperview().inset(10)
             make.top.equalToSuperview()
         }
         
         bodyContainerView.addSubview(loadingTextView)
         loadingTextView.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(insetFromSuperView * 2)
+            make.edges.equalToSuperview().inset(20 * 2)
         }
     }
     

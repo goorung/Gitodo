@@ -16,10 +16,6 @@ class RepositoryInfoView: UIView {
     private var viewModel: RepositoryInfoViewModel?
     private let disposeBag = DisposeBag()
     
-    private let insetFromSuperView: CGFloat = 20.0
-    private let offsetFromOtherView: CGFloat = 15.0
-    private let offsetFromFriendView: CGFloat = 10.0
-    
     // MARK: - UI Components
     
     private lazy var previewLabel: UILabel = {
@@ -89,12 +85,12 @@ class RepositoryInfoView: UIView {
     private func setupLayout() {
         addSubview(previewLabel)
         previewLabel.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview().inset(insetFromSuperView)
+            make.top.leading.trailing.equalToSuperview().inset(20)
         }
         
         addSubview(previewView)
         previewView.snp.makeConstraints { make in
-            make.top.equalTo(previewLabel.snp.bottom).offset(offsetFromFriendView)
+            make.top.equalTo(previewLabel.snp.bottom).offset(10)
             make.centerX.equalToSuperview()
             make.width.equalTo(60)
             make.height.equalTo(80)
@@ -102,46 +98,46 @@ class RepositoryInfoView: UIView {
         
         addSubview(separator)
         separator.snp.makeConstraints { make in
-            make.top.equalTo(previewView.snp.bottom).offset(offsetFromOtherView)
-            make.leading.trailing.equalToSuperview().inset(insetFromSuperView)
+            make.top.equalTo(previewView.snp.bottom).offset(15)
+            make.leading.trailing.equalToSuperview().inset(20)
             make.height.equalTo(1)
         }
         
         addSubview(nicknamelabel)
         nicknamelabel.snp.makeConstraints { make in
-            make.top.equalTo(separator.snp.bottom).offset(offsetFromOtherView)
-            make.leading.equalToSuperview().inset(insetFromSuperView)
+            make.top.equalTo(separator.snp.bottom).offset(15)
+            make.leading.equalToSuperview().inset(20)
         }
         
         addSubview(nicknameTextField)
         nicknameTextField.snp.makeConstraints { make in
-            make.top.equalTo(nicknamelabel.snp.bottom).offset(offsetFromFriendView)
-            make.leading.trailing.equalToSuperview().inset(insetFromSuperView)
+            make.top.equalTo(nicknamelabel.snp.bottom).offset(10)
+            make.leading.trailing.equalToSuperview().inset(20)
         }
         
         addSubview(symbolLabel)
         symbolLabel.snp.makeConstraints { make in
-            make.top.equalTo(nicknameTextField.snp.bottom).offset(offsetFromOtherView)
-            make.leading.equalToSuperview().inset(insetFromSuperView)
+            make.top.equalTo(nicknameTextField.snp.bottom).offset(15)
+            make.leading.equalToSuperview().inset(20)
         }
         
         addSubview(symbolTextField)
         symbolTextField.snp.makeConstraints { make in
-            make.top.equalTo(symbolLabel.snp.bottom).offset(offsetFromFriendView)
-            make.leading.trailing.equalToSuperview().inset(insetFromSuperView)
+            make.top.equalTo(symbolLabel.snp.bottom).offset(10)
+            make.leading.trailing.equalToSuperview().inset(20)
         }
         
         addSubview(colorLabel)
         colorLabel.snp.makeConstraints { make in
-            make.top.equalTo(symbolTextField.snp.bottom).offset(offsetFromOtherView)
-            make.leading.equalToSuperview().inset(insetFromSuperView)
+            make.top.equalTo(symbolTextField.snp.bottom).offset(15)
+            make.leading.equalToSuperview().inset(20)
         }
         
         addSubview(colorView)
         colorView.snp.makeConstraints { make in
-            make.top.equalTo(colorLabel.snp.bottom).offset(offsetFromFriendView)
-            make.leading.trailing.equalToSuperview().inset(insetFromSuperView)
-            make.bottom.equalToSuperview().inset(insetFromSuperView)
+            make.top.equalTo(colorLabel.snp.bottom).offset(10)
+            make.leading.trailing.equalToSuperview().inset(20)
+            make.bottom.equalToSuperview().inset(20)
         }
     }
     
