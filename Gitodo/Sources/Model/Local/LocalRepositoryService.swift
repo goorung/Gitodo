@@ -73,13 +73,11 @@ final class LocalRepositoryService: LocalRepositoryServiceProtocol {
         
     }
     
-    /// 원격 저장소에서 삭제된 레포지토리가 public인 경우 삭제되었음을 표시하고 public이 아닌 경우 로컬 저장소에서 삭제.
+    /// 원격 저장소에서 삭제된 레포지토리가 public인 경우 삭제되었음을 표시.
     private func handleDeletedRepositories(_ deletedRepos: LazyFilterSequence<Results<RepositoryEntity>>, realm: Realm) {
         for repo in deletedRepos {
-            if repo.isPublic {
+            if !repo.isDeleted {
                 repo.isDeleted = true
-            }  else {
-                realm.delete(repo)
             }
         }
     }
