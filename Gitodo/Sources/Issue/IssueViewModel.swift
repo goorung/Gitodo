@@ -22,12 +22,14 @@ final class IssueViewModel {
     
     struct Output {
         var issues: Driver<[Issue]>
+        var isLoading: Driver<Bool>
     }
     
     private let setRepoSubject = PublishSubject<MyRepo>()
     private let fetchIssueSubject = PublishSubject<Void>()
     
     private let issues = BehaviorRelay<[Issue]>(value: [])
+    private let isLoading = BehaviorRelay<Bool>(value: false)
     
     private var currentRepo: MyRepo?
     
@@ -39,7 +41,8 @@ final class IssueViewModel {
             fetchIssue: fetchIssueSubject.asObserver()
         )
         output = Output(
-            issues: issues.asDriver()
+            issues: issues.asDriver(),
+            isLoading: isLoading.asDriver()
         )
         
         setRepoSubject.subscribe(onNext: { [weak self] repo in
@@ -53,6 +56,7 @@ final class IssueViewModel {
     }
     
     private func fetchIssue() {
+        isLoading.accept(true)
         guard let repo = currentRepo else { return }
         Task {
             do {
@@ -62,6 +66,7 @@ final class IssueViewModel {
                 print("[IssueViewModel] fetchIssue failed : \(error.localizedDescription)")
                 issues.accept([])
             }
+            isLoading.accept(false)
         }
     }
     

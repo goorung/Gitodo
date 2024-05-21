@@ -80,7 +80,10 @@ class RepositorySettingsViewController: BaseViewController<RepositorySettingsVie
     @objc private func handleAccessTokenExpire() {
         UserDefaultsManager.isLogin = false
         guard let window = view.window else { return }
-        window.rootViewController = LoginViewController()
+        DispatchQueue.main.async {
+            window.rootViewController = LoginViewController()
+            Toaster.shared.makeToast("토큰이 만료됐습니다.\n다시 로그인해주세요.")
+        }
     }
     
     // MARK: - Bind

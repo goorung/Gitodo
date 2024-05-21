@@ -39,6 +39,14 @@ class IssueView: UIView {
         return label
     }()
     
+    private lazy var loadingView = {
+        let view = UIView()
+        view.backgroundColor = .systemBackground
+        return view
+    }()
+    
+    private lazy var loadingIndicator = UIActivityIndicatorView()
+    
     // MARK: - Initializer
     
     override init(frame: CGRect) {
@@ -67,6 +75,18 @@ class IssueView: UIView {
         
         addSubview(emptyLabel)
         emptyLabel.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.centerY.equalToSuperview().offset(-45)
+        }
+        
+        addSubview(loadingView)
+        loadingView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        
+        loadingView.addSubview(loadingIndicator)
+        loadingIndicator.snp.makeConstraints { make in
+            make.width.height.equalTo(50)
             make.centerX.equalToSuperview()
             make.centerY.equalToSuperview().offset(-45)
         }
@@ -118,6 +138,19 @@ class IssueView: UIView {
             ) { _, issue, cell in
                 cell.configure(with: issue)
             }.disposed(by: disposeBag)
+        
+        viewModel.output.isLoading
+            .drive(onNext: { [weak self] isLoading in
+                if isLoading {
+                    self?.loadingView.isHidden = false
+                    self?.loadingIndicator.startAnimating()
+                } else {
+                    DispatchQueue.main.async {
+                        self?.loadingIndicator.stopAnimating()
+                        self?.loadingView.isHidden = true
+                    }
+                }
+            }).disposed(by: disposeBag)
     }
     
 }
