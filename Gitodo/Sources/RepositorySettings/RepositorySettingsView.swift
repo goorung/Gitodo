@@ -151,6 +151,7 @@ class RepositorySettingsView: UIView {
                       let cell = repoTableView.cellForRow(at: indexPath) as? RepositoryCell,
                       let repo = cell.selectCell()
                 else { return }
+                generateHaptic()
                 viewModel?.input.togglePublic.onNext(repo)
             }).disposed(by: disposeBag)
         
@@ -160,6 +161,7 @@ class RepositorySettingsView: UIView {
                       let cell = deletedRepoTableView.cellForRow(at: indexPath) as? RepositoryCell,
                       let repo = cell.selectCell()
                 else { return }
+                generateHaptic()
                 viewModel?.input.togglePublic.onNext(repo)
             }).disposed(by: disposeBag)
         
@@ -273,6 +275,7 @@ extension RepositorySettingsView: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let collectionView = collectionView as? RepoCollectionView else { return }
         let repo = collectionView.repos[indexPath.row]
+        generateHaptic()
         delegate?.presentRepositoryInfoViewController(repository: repo)
     }
     
