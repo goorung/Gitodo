@@ -15,7 +15,7 @@ final class RepositorySettingsViewModel {
     let output: Output
     
     struct Input {
-        let viewDidLoad: AnyObserver<Void>
+        let fetchRepo: AnyObserver<Void>
         let togglePublic: AnyObserver<MyRepo>
         let updateRepoInfo: AnyObserver<MyRepo>
         let removeRepo: AnyObserver<MyRepo>
@@ -24,15 +24,17 @@ final class RepositorySettingsViewModel {
     struct Output {
         var repos: Driver<[MyRepo]>
         var publicRepos: Driver<[MyRepo]>
+        var isLoading: Driver<Bool>
     }
     
-    private let viewDidLoadSubject = PublishSubject<Void>()
+    private let fetchRepoSubject = PublishSubject<Void>()
     private let togglePublicSubject = PublishSubject<MyRepo>()
     private let updateRepoInfoSubject = PublishSubject<MyRepo>()
     private let removeRepoSubject = PublishSubject<MyRepo>()
     
     private let repos = PublishRelay<[MyRepo]>()
     private let publicRepos = PublishRelay<[MyRepo]>()
+    private let isLoading = PublishRelay<Bool>()
     
     private let disposeBag = DisposeBag()
     
@@ -42,21 +44,22 @@ final class RepositorySettingsViewModel {
         self.localRepositoryService = localRepositoryService
 
         input = Input(
-            viewDidLoad: viewDidLoadSubject.asObserver(),
+            fetchRepo: fetchRepoSubject.asObserver(),
             togglePublic: togglePublicSubject.asObserver(),
             updateRepoInfo: updateRepoInfoSubject.asObserver(),
             removeRepo: removeRepoSubject.asObserver()
         )
         output = Output(
             repos: repos.asDriver(onErrorJustReturn: []),
-            publicRepos: publicRepos.asDriver(onErrorJustReturn: [])
+            publicRepos: publicRepos.asDriver(onErrorJustReturn: []),
+            isLoading: isLoading.asDriver(onErrorJustReturn: false)
         )
         
         bindInputs() 
     }
     
     private func bindInputs() {
-        viewDidLoadSubject.subscribe(onNext: { [weak self] in
+        fetchRepoSubject.subscribe(onNext: { [weak self] in
             self?.fetchRepos()
         }).disposed(by: disposeBag)
         
@@ -74,6 +77,7 @@ final class RepositorySettingsViewModel {
     }
     
     private func fetchRepos() {
+        isLoading.accept(true)
         Task {
             do {
                 let fetchedRepos = try await APIManager.shared.fetchRepositories().map {
@@ -84,6 +88,7 @@ final class RepositorySettingsViewModel {
             } catch {
                 logError(in: "fetchRepos", error)
             }
+            isLoading.accept(false)
         }
     }
     

@@ -129,7 +129,7 @@ class BaseViewController<View: UIView>: UIViewController {
     }
 
     func setRightButton(symbolName: String) {
-        let configuration = UIImage.SymbolConfiguration(pointSize: 25.0, weight: .medium)
+        let configuration = UIImage.SymbolConfiguration(weight: .medium)
         rightButton.setImage(UIImage(systemName: symbolName, withConfiguration: configuration), for: .normal)
         
         setupRightButtonLayout()
