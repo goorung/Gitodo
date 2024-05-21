@@ -9,7 +9,7 @@ import WidgetKit
 import SwiftUI
 
 @main
-struct SmallWidgetBundle: WidgetBundle {
+struct RepoListWidgetBundle: WidgetBundle {
     var body: some Widget {
         RepoListWidget()
     }

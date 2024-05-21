@@ -52,7 +52,7 @@ struct RepoTodoWidgetEntryView : View {
 }
 
 struct RepoTodoWidget: Widget {
-    let kind: String = "MediumWidget"
+    let kind: String = "RepoTodoWidget"
 
     var body: some WidgetConfiguration {
         AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: Provider()) { entry in
