@@ -13,13 +13,13 @@ class RepositoryCell: UITableViewCell {
     
     static let reuseIdentifier = "RepositoryCell"
     private var repo: MyRepo?
-    private let insetFromSuperView: CGFloat = 20.0
     
     // MARK: - UI Components
     
     private lazy var nameLabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 15.0, weight: .medium)
+        label.lineBreakMode = .byTruncatingTail
         return label
     }()
     
@@ -57,13 +57,14 @@ class RepositoryCell: UITableViewCell {
     private func setupLayout() {
         contentView.addSubview(nameLabel)
         nameLabel.snp.makeConstraints { make in
-            make.leading.equalToSuperview().inset(insetFromSuperView)
+            make.leading.equalToSuperview().inset(20)
+            make.trailing.equalToSuperview().inset(45)
             make.centerY.equalToSuperview()
         }
         
         contentView.addSubview(selectedButton)
         selectedButton.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(insetFromSuperView)
+            make.trailing.equalToSuperview().inset(20)
             make.centerY.equalToSuperview()
             make.width.height.equalTo(15)
         }
@@ -77,6 +78,7 @@ class RepositoryCell: UITableViewCell {
     
     func selectCell() -> MyRepo? {
         selectedButton.isHidden.toggle()
+        
         return repo
     }
     
