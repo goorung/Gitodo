@@ -10,6 +10,7 @@ import UIKit
 class RepoCollectionView: UICollectionView {
     
     let localRepositoryService = LocalRepositoryService()
+    let isEditMode: Bool
     
     var repos: [MyRepo] = [] {
         didSet {
@@ -23,7 +24,9 @@ class RepoCollectionView: UICollectionView {
         }
     }
     
-    init() {
+    init(isEditMode: Bool) {
+        self.isEditMode = isEditMode
+        
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         layout.itemSize = CGSize(width: 60, height: 80)
@@ -58,7 +61,13 @@ extension RepoCollectionView: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RepositoryInfoCell.reuseIdentifier, for: indexPath) as? RepositoryInfoCell else { return UICollectionViewCell() }
         let repo = repos[indexPath.row]
-        cell.configure(name: repo.nickname, color: UIColor(hex: repo.hexColor), symbol: repo.symbol)
+        cell.configure(repository: repo)
+        
+        if isEditMode {
+            cell.setEditMode()
+            return cell
+        }
+        
         if let selectedRepoId,
            selectedRepoId != repo.id {
             cell.contentView.alpha = 0.5
@@ -72,18 +81,20 @@ extension RepoCollectionView: UICollectionViewDataSource {
 
 extension RepoCollectionView: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, canMoveItemAt indexPath: IndexPath) -> Bool {
-        true
+        return isEditMode
     }
 }
 
 extension RepoCollectionView: UICollectionViewDragDelegate {
     func collectionView(_ collectionView: UICollectionView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
-        [UIDragItem(itemProvider: NSItemProvider())]
+        guard isEditMode else { return [] }
+        return [UIDragItem(itemProvider: NSItemProvider())]
     }
 }
 
 extension RepoCollectionView: UICollectionViewDropDelegate {
     func collectionView(_ collectionView: UICollectionView, performDropWith coordinator: UICollectionViewDropCoordinator) {
+        guard isEditMode else { return }
         var destinationIndexPath: IndexPath
         if let indexPath = coordinator.destinationIndexPath {
             destinationIndexPath = indexPath
@@ -132,10 +143,14 @@ extension RepoCollectionView: UICollectionViewDropDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, dropSessionDidUpdate session: UIDropSession, withDestinationIndexPath destinationIndexPath: IndexPath?) -> UICollectionViewDropProposal {
-        guard hasActiveDrag else {
+        guard isEditMode, hasActiveDrag else {
             return UICollectionViewDropProposal(operation: .forbidden)
         }
         return UICollectionViewDropProposal(operation: .move, intent: .insertAtDestinationIndexPath)
     }
+    
+}
+
+extension RepoCollectionView: UIGestureRecognizerDelegate {
     
 }

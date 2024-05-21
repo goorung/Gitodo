@@ -17,20 +17,26 @@ final class MainViewModel {
     struct Input {
         let viewWillAppear: AnyObserver<Void>
         let selectRepoIndex: AnyObserver<Int>
+        let updateRepoInfo: AnyObserver<MyRepo>
+        let hideRepo: AnyObserver<MyRepo>
         let resetAllRepository: AnyObserver<Void>
     }
     
     struct Output {
         var selectedRepo: Driver<MyRepo?>
         var repos: Driver<[MyRepo]>
+        var hideDisabled: Driver<Void>
     }
     
     private var selectedRepo = BehaviorRelay<MyRepo?>(value: nil)
     private let repos = BehaviorRelay<[MyRepo]>(value: [])
+    private let hideDisabled = PublishRelay<Void>()
     
     private let viewWillAppearSubject = PublishSubject<Void>()
     private let selectRepoIndexSubject = PublishSubject<Int>()
     private let resetAllRepositorySubject = PublishSubject<Void>()
+    private let updateRepoInfoSubject = PublishSubject<MyRepo>()
+    private let hideRepoSubject = PublishSubject<MyRepo>()
     private let disposeBag = DisposeBag()
     
     private let localRepositoryService: LocalRepositoryServiceProtocol
@@ -41,11 +47,14 @@ final class MainViewModel {
         input = Input(
             viewWillAppear: viewWillAppearSubject.asObserver(),
             selectRepoIndex: selectRepoIndexSubject.asObserver(),
+            updateRepoInfo: updateRepoInfoSubject.asObserver(),
+            hideRepo: hideRepoSubject.asObserver(),
             resetAllRepository: resetAllRepositorySubject.asObserver()
         )
         output = Output(
             selectedRepo: selectedRepo.asDriver(onErrorJustReturn: nil),
-            repos: repos.asDriver(onErrorJustReturn: [])
+            repos: repos.asDriver(onErrorJustReturn: []),
+            hideDisabled: hideDisabled.asDriver(onErrorJustReturn: ())
         )
         
         viewWillAppearSubject.subscribe(onNext: { [weak self] in
@@ -64,6 +73,15 @@ final class MainViewModel {
                 print("[MainViewModel] reset all repository failed : \(error.localizedDescription)")
             }
         }).disposed(by: disposeBag)
+        
+        updateRepoInfoSubject.subscribe(onNext: { [weak self] repo in
+            self?.updateRepoInfo(repo)
+        }).disposed(by: disposeBag)
+        
+        hideRepoSubject.subscribe(onNext: { [weak self] repo in
+            self?.hideRepo(repo)
+        }).disposed(by: disposeBag)
+        
     }
     
     private func fetchRepos() {
@@ -82,6 +100,34 @@ final class MainViewModel {
             print("[MainViewModel] fetchRepos failed : \(error.localizedDescription)")
         }
         
+    }
+    
+    private func updateRepoInfo(_ repo: MyRepo) {
+        do {
+            try localRepositoryService.updateInfo(of: repo)
+            fetchRepos()
+        } catch {
+            logError(in: "updateRepoInfo", error)
+        }
+    }
+    
+    private func hideRepo(_ repo: MyRepo) {
+        if repos.value.count == 1 {
+            hideDisabled.accept(())
+            return
+        }
+        
+        do {
+            try localRepositoryService.togglePublicStatus(of: repo)
+            fetchRepos()
+        } catch {
+            logError(in: "hideRepo", error)
+        }
+    
+    }
+    
+    private func logError(in functionName: String, _ error: Error) {
+        print("[MainViewModel] \(functionName) failed : \(error.localizedDescription)")
     }
     
 }

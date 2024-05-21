@@ -11,6 +11,7 @@ import SnapKit
 
 class RepositoryInfoCell: UICollectionViewCell {
     static let reuseIdentifier = "RepositoryInfoCell"
+    private(set) var repository: MyRepo?
     
     private lazy var repositoryView = RepositoryView()
     
@@ -37,9 +38,14 @@ class RepositoryInfoCell: UICollectionViewCell {
         }
     }
     
-    func configure(name: String?, color: UIColor, symbol: String?) {
-        repositoryView.setName(name)
-        repositoryView.setColor(color)
-        repositoryView.setSymbol(symbol)
+    func configure(repository: MyRepo) {
+        self.repository = repository
+        repositoryView.setName(repository.nickname)
+        repositoryView.setColor(UIColor(hex: repository.hexColor))
+        repositoryView.setSymbol(repository.symbol)
+    }
+    
+    func setEditMode() {
+        repositoryView.setEditMode()
     }
 }

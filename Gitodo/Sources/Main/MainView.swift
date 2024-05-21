@@ -12,7 +12,12 @@ import RxSwift
 import RxGesture
 import SnapKit
 
+protocol MainViewDelegate: AnyObject {
+    func showMenu(from cell: RepositoryInfoCell)
+}
+
 class MainView: UIView {
+    weak var delegate: MainViewDelegate?
     
     private var viewModel: MainViewModel?
     private let todoViewModel = TodoViewModel(localTodoService: LocalTodoService())
@@ -20,7 +25,7 @@ class MainView: UIView {
     private let disposeBag = DisposeBag()
     
     private lazy var repoCollectionView = {
-        let collectionView = RepoCollectionView()
+        let collectionView = RepoCollectionView(isEditMode: false)
         collectionView.delegate = self
         return collectionView
     }()
@@ -69,6 +74,7 @@ class MainView: UIView {
         super.init(frame: frame)
         
         setupLayout()
+        setRepoLongPressGesture()
     }
     
     required init?(coder: NSCoder) {
@@ -159,6 +165,21 @@ class MainView: UIView {
         ]
         segmentedControl.setTitleTextAttributes(selectedAttributes, for: .selected)
     }
+    
+    private func setRepoLongPressGesture() {
+        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
+        repoCollectionView.addGestureRecognizer(longPressGesture)
+    }
+    
+    @objc func handleLongPress(_ gestureRecognizer: UILongPressGestureRecognizer) {
+            if gestureRecognizer.state == .began {
+                let point = gestureRecognizer.location(in: repoCollectionView)
+                if let indexPath = repoCollectionView.indexPathForItem(at: point) {
+                    guard let cell = repoCollectionView.cellForItem(at: indexPath) as? RepositoryInfoCell else { return }
+                    delegate?.showMenu(from: cell)
+                }
+            }
+        }
     
 }
 

@@ -28,3 +28,22 @@ enum MenuType: CaseIterable {
         }
     }
 }
+
+enum RepoMenuType: CaseIterable {
+    case edit
+    case hide
+    
+    var title: String {
+        switch self {
+        case .edit: "편집"
+        case .hide: "숨김"
+        }
+    }
+    
+    var symbol: String {
+        switch self {
+        case .edit: "pencil"
+        case .hide: "eye.slash"
+        }
+    }
+}

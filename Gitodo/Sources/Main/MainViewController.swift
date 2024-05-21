@@ -7,15 +7,21 @@
 
 import UIKit
 
+import RxSwift
+import SwiftyToaster
+
 class MainViewController: BaseViewController<MainView>, BaseViewControllerProtocol {
 
     private let viewModel: MainViewModel
+    private let disposeBag = DisposeBag()
     
     // MARK: - Initializer
     
     init(viewModel: MainViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
+        
+        contentView.delegate = self
     }
     
     required init?(coder: NSCoder) {
@@ -31,6 +37,7 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
         hideKeyboardWhenTappedAround()
         setupNotificationCenterObserver()
         
+        bind()
         contentView.bind(with: viewModel)
         contentView.setIssueDelegate(self)
         
@@ -113,10 +120,19 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
         }
     }
     
+    // MARK: - Bind
+
+        private func bind() {
+            viewModel.output.hideDisabled
+                .drive(onNext: {
+                    Toaster.shared.setToastType(.round)
+                    Toaster.shared.makeToast("한 개 이상의 레포지토리가 있어야 합니다.")
+                }).disposed(by: disposeBag)
+        }
+    
 }
 
-extension MainViewController: MenuDelegate {
-    
+extension MainViewController: MenuDelegate, RepoMenuDelegate {
     func pushViewController(_ menu: MenuType) {
         switch menu {
         case .repositorySettings:
@@ -132,7 +148,7 @@ extension MainViewController: MenuDelegate {
     private func presentAlertViewController() {
         let alertController = UIAlertController(
             title: "",
-            message: "모든 설정 및 할 일이 삭제됩니다.",
+            message: "모든 설정 및 할 일이 삭제됩니다.", 
             preferredStyle: .alert
         )
         
@@ -142,7 +158,6 @@ extension MainViewController: MenuDelegate {
             // 액세스 토큰 삭제 및 설정 초기화
             LoginManager.shared.deleteAccessToken()
             UserDefaultsManager.isLogin = false
-            UserDefaultsManager.isFirst = true
             // 화면 이동
             let loginViewController = LoginViewController()
             self?.view.window?.rootViewController = UINavigationController(rootViewController: loginViewController)
@@ -152,6 +167,21 @@ extension MainViewController: MenuDelegate {
         alertController.addAction(deleteAction)
         alertController.addAction(cancelAction)
         present(alertController, animated: true)
+    }
+    
+    func pushViewController(_ repoMenu: RepoMenuType, _ repo: MyRepo) {
+        switch repoMenu {
+        case .edit:
+            presentRepoInfoViewController(repo)
+        case .hide:
+            viewModel.input.hideRepo.onNext(repo)
+        }
+    }
+    
+    private func presentRepoInfoViewController(_ repo: MyRepo) {
+        let viewController = RepositoryInfoViewController(viewModel: RepositoryInfoViewModel(repository: repo))
+        viewController.delegate = self
+        present(viewController, animated: true)
     }
     
 }
@@ -170,6 +200,32 @@ extension MainViewController: IssueDelegate {
         let issueInfoViewController = IssueInfoViewController()
         issueInfoViewController.issue = issue
         present(issueInfoViewController, animated: true)
+    }
+    
+}
+
+extension MainViewController: MainViewDelegate {
+    func showMenu(from cell: RepositoryInfoCell) {
+        guard let repo = cell.repository else { return }
+        let menuViewController = RepoMenuViewController(repo: repo)
+        menuViewController.delegate = self
+        menuViewController.modalPresentationStyle = .popover
+        
+        if let popoverController = menuViewController.popoverPresentationController {
+            popoverController.sourceView = cell
+            popoverController.sourceRect = CGRect(x: cell.bounds.midX, y: cell.bounds.maxY + 5, width: 0, height: 0)
+            popoverController.permittedArrowDirections = .up
+            popoverController.delegate = self
+        }
+        
+        present(menuViewController, animated: true)
+    }
+    
+}
+
+extension MainViewController: RepositoryInfoViewControllerDelegate {
+    func doneButtonTapped(repository: MyRepo) {
+        viewModel.input.updateRepoInfo.onNext(repository)
     }
     
 }
