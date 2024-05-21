@@ -24,6 +24,8 @@ class MainView: UIView {
     private let issueViewModel = IssueViewModel()
     private let disposeBag = DisposeBag()
     
+    // MARK: - UI Components
+    
     private lazy var repoCollectionView = {
         let collectionView = RepoCollectionView(isEditMode: false)
         collectionView.delegate = self
@@ -52,8 +54,6 @@ class MainView: UIView {
         control.setTitleTextAttributes(normalAttributes, for: .normal)
         control.setTitleTextAttributes(selectedAttributes, for: .selected)
         
-        control.addTarget(self, action: #selector(segmentedControlChanged), for: .valueChanged)
-        
         return control
     }()
     
@@ -70,16 +70,21 @@ class MainView: UIView {
         return view
     }()
     
+    // MARK: - Initializer
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
         setupLayout()
         setRepoLongPressGesture()
+        bind()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    // MARK: - Setup Methods
     
     private func setupLayout() {
         addSubview(repoCollectionView)
@@ -116,13 +121,37 @@ class MainView: UIView {
         }
     }
     
-    @objc private func segmentedControlChanged(_ segment: UISegmentedControl) {
-        todoView.isHidden = segment.selectedSegmentIndex != 0
-        issueView.isHidden = !todoView.isHidden
+    private func setRepoLongPressGesture() {
+        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
+        repoCollectionView.addGestureRecognizer(longPressGesture)
+    }
+    
+    @objc func handleLongPress(_ gestureRecognizer: UILongPressGestureRecognizer) {
+        if gestureRecognizer.state == .began {
+            let point = gestureRecognizer.location(in: repoCollectionView)
+            if let indexPath = repoCollectionView.indexPathForItem(at: point) {
+                guard let cell = repoCollectionView.cellForItem(at: indexPath) as? RepositoryInfoCell else { return }
+                delegate?.showMenu(from: cell)
+            }
+        }
     }
     
     func setIssueDelegate(_ viewController: IssueDelegate) {
         issueView.issueDelegate = viewController
+    }
+    
+    // MARK: - Bind
+    
+    private func bind() {
+        segmentedControl.rx.selectedSegmentIndex
+            .subscribe(onNext: { [weak self] index in
+                self?.todoView.isHidden = index != 0
+                self?.issueView.isHidden = index != 1
+                
+                if index == 1 {
+                    self?.issueViewModel.input.fetchIssue.onNext(())
+                }
+            }).disposed(by: disposeBag)
     }
     
     func bind(with viewModel: MainViewModel) {
@@ -154,7 +183,7 @@ class MainView: UIView {
                 todoView.setAddButtonTintColor(color)
                 
                 todoViewModel.input.fetchTodo.onNext(repo)
-                issueViewModel.input.fetchIssue.onNext(repo)
+                issueViewModel.input.setRepo.onNext(repo)
             }.disposed(by: disposeBag)
     }
     
@@ -165,21 +194,6 @@ class MainView: UIView {
         ]
         segmentedControl.setTitleTextAttributes(selectedAttributes, for: .selected)
     }
-    
-    private func setRepoLongPressGesture() {
-        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
-        repoCollectionView.addGestureRecognizer(longPressGesture)
-    }
-    
-    @objc func handleLongPress(_ gestureRecognizer: UILongPressGestureRecognizer) {
-            if gestureRecognizer.state == .began {
-                let point = gestureRecognizer.location(in: repoCollectionView)
-                if let indexPath = repoCollectionView.indexPathForItem(at: point) {
-                    guard let cell = repoCollectionView.cellForItem(at: indexPath) as? RepositoryInfoCell else { return }
-                    delegate?.showMenu(from: cell)
-                }
-            }
-        }
     
 }
 
