@@ -128,6 +128,7 @@ class MainView: UIView {
     
     @objc func handleLongPress(_ gestureRecognizer: UILongPressGestureRecognizer) {
         if gestureRecognizer.state == .began {
+            generateHaptic()
             let point = gestureRecognizer.location(in: repoCollectionView)
             if let indexPath = repoCollectionView.indexPathForItem(at: point) {
                 guard let cell = repoCollectionView.cellForItem(at: indexPath) as? RepositoryInfoCell else { return }
@@ -198,7 +199,10 @@ class MainView: UIView {
 }
 
 extension MainView: UICollectionViewDelegate {
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        generateHaptic()
         viewModel?.input.selectRepoIndex.onNext(indexPath.row)
     }
+    
 }

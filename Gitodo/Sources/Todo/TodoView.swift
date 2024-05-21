@@ -104,7 +104,8 @@ class TodoView: UIView {
             cell.configure(with: viewModel.viewModel(at: indexPath))
             cell.checkbox.rx.tapGesture()
                 .when(.recognized)
-                .subscribe(onNext: { _ in
+                .subscribe(onNext: { [weak self] _ in
+                    self?.generateHaptic()
                     viewModel.input.toggleTodo.onNext(itemIdentifier.id)
                 })
                 .disposed(by: cell.disposeBag)
@@ -160,10 +161,11 @@ class TodoView: UIView {
             .drive(onNext: { [weak self] indexPath in
                 guard let indexPath else { return }
                 self?.todoTableView.scrollToRow(at: indexPath, at: .none, animated: true)
-                guard let cell = self?.todoTableView.cellForRow(at: indexPath) as? TodoCell else { 
+                guard let cell = self?.todoTableView.cellForRow(at: indexPath) as? TodoCell else {
                     self?.viewModel?.firstResponderIndexPath = indexPath
                     return
                 }
+                self?.generateHaptic()
                 cell.todoBecomeFirstResponder()
             }).disposed(by: disposeBag)
     }
