@@ -8,6 +8,7 @@ let project = Project(
             destinations: [.iPhone],
             product: .app,
             bundleId: "com.goorung.Gitodo",
+            deploymentTargets: .iOS("15.0"),
             infoPlist: .extendingDefault(with: [
                 "ITSAppUsesNonExemptEncryption": .boolean(false),
                 "CFBundleDisplayName": .string("Gitodo"),
