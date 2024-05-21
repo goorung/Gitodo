@@ -175,9 +175,7 @@ class BaseViewController<View: UIView>: UIViewController {
     
     func setProfileImageViewImage(with url: URL?) {
         guard let url = url else { return }
-        profileImageView.kf.setImage(with: url) { [weak self] _ in
-            self?.profileImageView.makeCircle()
-        }
+        profileImageView.kf.setImage(with: url)
     }
     
     func setProfileImageViewAction(_ action: Selector) {
@@ -194,6 +192,7 @@ class BaseViewController<View: UIView>: UIViewController {
         } else {
             profileImageView.hideSkeleton()
             profileImageView.isSkeletonable = false
+            profileImageView.makeCircle() // cornerRadius 설정
         }
     }
 
