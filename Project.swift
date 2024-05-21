@@ -69,13 +69,13 @@ let project = Project(
     targets: [
         // Shared Framework target
         .target(
-            name: "\(appName)Shared",
+            name: "GitodoShared",
             destinations: [.iPhone],
             product: .framework,
             bundleId: "\(bundleId).Shared",
             deploymentTargets: .iOS(deploymentTarget),
             infoPlist: .default,
-            sources: ["\(appName)Shared/Sources/**"],
+            sources: ["GitodoShared/Sources/**"],
             resources: [],
             dependencies: [.external(name: "RealmSwift", condition: .none)]
         ),
@@ -89,6 +89,7 @@ let project = Project(
             infoPlist: appInfoPlist,
             sources: ["\(appName)/Sources/**"],
             resources: ["\(appName)/Resources/**"],
+            entitlements: "\(appName).entitlements",
             dependencies: appDependencies,
             settings: .settings(
                 configurations: [
@@ -106,7 +107,8 @@ let project = Project(
             deploymentTargets: .iOS(deploymentTarget),
             infoPlist: widgetInfoPlist,
             sources: ["Widgets/RepoListWidget/Sources**"],
-            resources: ["Widgets/RepoListWidget/Resources/**"]
+            resources: ["Widgets/RepoListWidget/Resources/**"],
+            entitlements: "\(appName).entitlements"
         ),
         // Medium Intent Widget target
         .target(
@@ -117,7 +119,8 @@ let project = Project(
             deploymentTargets: .iOS(deploymentTarget),
             infoPlist: widgetInfoPlist,
             sources: ["Widgets/RepoTodoWidget/Sources**"],
-            resources: ["Widgets/RepoTodoWidget/Resources/**"]
+            resources: ["Widgets/RepoTodoWidget/Resources/**"],
+            entitlements: "\(appName).entitlements"
         ),
         //        .target(
         //            name: "GitodoTests",
