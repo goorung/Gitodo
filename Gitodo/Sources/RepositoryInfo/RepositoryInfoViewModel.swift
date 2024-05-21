@@ -7,6 +7,8 @@
 
 import Foundation
 
+import GitodoShared
+
 final class RepositoryInfoViewModel {
     private(set) var repository: MyRepo
     

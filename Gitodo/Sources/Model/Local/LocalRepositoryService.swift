@@ -9,6 +9,8 @@ import Foundation
 
 import RealmSwift
 
+import GitodoShared
+
 protocol LocalRepositoryServiceProtocol {
     func fetchAll() throws -> [MyRepo]
     func fetchPublic() throws -> [MyRepo]

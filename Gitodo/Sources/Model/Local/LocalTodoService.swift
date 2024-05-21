@@ -7,6 +7,8 @@
 
 import Foundation
 
+import GitodoShared
+
 import RealmSwift
 
 protocol LocalTodoServiceProtocol {

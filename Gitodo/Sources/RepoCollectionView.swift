@@ -7,6 +7,8 @@
 
 import UIKit
 
+import GitodoShared
+
 class RepoCollectionView: UICollectionView {
     
     let localRepositoryService = LocalRepositoryService()

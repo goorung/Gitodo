@@ -52,17 +52,34 @@ private let appDependencies: [TargetDependency] = [
     .external(name: "RxCocoa", condition: .none),
     .external(name: "RxSwift", condition: .none),
     .external(name: "RxGesture", condition: .none),
-    .external(name: "RealmSwift", condition: .none),
     .external(name: "SwiftyToaster", condition: .none),
     .external(name: "MarkdownView", condition: .none),
     .external(name: "SkeletonView", condition: .none),
+    .target(name: "GitodoShared", condition: .none),
     .target(name: "GitodoRepoListWidget", condition: .none),
     .target(name: "GitodoRepoTodoWidget", condition: .none),
+]
+
+private let widgetDependencies: [TargetDependency] = [
+    .target(name: "GitodoShared", condition: .none),
 ]
 
 let project = Project(
     name: "Gitodo",
     targets: [
+        // Shared Framework target
+        .target(
+            name: "\(appName)Shared",
+            destinations: [.iPhone],
+            product: .framework,
+            bundleId: "\(bundleId).Shared",
+            deploymentTargets: .iOS(deploymentTarget),
+            infoPlist: .default,
+            sources: ["\(appName)Shared/Sources/**"],
+            resources: [],
+            dependencies: [.external(name: "RealmSwift", condition: .none)]
+        ),
+        // App target
         .target(
             name: appName,
             destinations: [.iPhone],
@@ -80,6 +97,7 @@ let project = Project(
                 ]
             )
         ),
+        // Small Static Widget target
         .target(
             name: "GitodoRepoListWidget",
             destinations: [.iPhone],
@@ -90,6 +108,7 @@ let project = Project(
             sources: ["Widgets/RepoListWidget/Sources**"],
             resources: ["Widgets/RepoListWidget/Resources/**"]
         ),
+        // Medium Intent Widget target
         .target(
             name: "GitodoRepoTodoWidget",
             destinations: [.iPhone],

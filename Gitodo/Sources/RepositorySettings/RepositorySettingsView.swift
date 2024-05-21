@@ -7,6 +7,8 @@
 
 import UIKit
 
+import GitodoShared
+
 import RxCocoa
 import RxSwift
 import SnapKit

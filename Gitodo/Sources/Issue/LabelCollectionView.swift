@@ -7,6 +7,8 @@
 
 import UIKit
 
+import GitodoShared
+
 class LabelCollectionView: UICollectionView {
     
     private var labels: [Label]? {
