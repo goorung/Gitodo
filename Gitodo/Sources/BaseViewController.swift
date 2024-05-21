@@ -189,6 +189,7 @@ class BaseViewController<View: UIView>: UIViewController {
     func setProfileImageViewLoading(_ isLoading: Bool) {
         if isLoading {
             profileImageView.isSkeletonable = true
+            profileImageView.skeletonCornerRadius = Float(profileImageView.frame.width / 2)
             profileImageView.showAnimatedGradientSkeleton()
         } else {
             profileImageView.hideSkeleton()
