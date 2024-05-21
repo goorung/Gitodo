@@ -64,7 +64,7 @@ class MainView: UIView {
     }()
     
     private lazy var issueView = {
-        let view = IssueTableView()
+        let view = IssueView()
         view.bind(with: issueViewModel)
         view.isHidden = true
         return view
