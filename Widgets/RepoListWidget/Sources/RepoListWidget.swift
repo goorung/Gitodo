@@ -77,7 +77,7 @@ struct RepoView: View {
             ZStack {
                 Circle()
                     .fill(Color.init(hex: repo.hexColor))
-                    .opacity(0.5)
+                    .opacity(0.3)
                     .overlay {
                         Text(repo.symbol ?? "")
                             .font(.title2)
@@ -102,10 +102,10 @@ struct RepoView: View {
 
 struct CircularProgressBar: View {
     var progress: Double // 0.0 to 1.0
-    var lineWidth: CGFloat = 5.0
+    var lineWidth: CGFloat = 7.0
     var size: CGFloat = 50.0
     var progressColor: Color
-    var trackColor: Color = Color.init(uiColor: .systemGray3)
+    var trackColor: Color = Color.init(uiColor: .systemGray5)
     
     var body: some View {
         ZStack {
