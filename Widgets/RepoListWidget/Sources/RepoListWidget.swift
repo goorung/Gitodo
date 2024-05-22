@@ -93,6 +93,9 @@ struct RepoView: View {
             Text(repo.nickname)
                 .font(.system(size: 8.0, weight: .bold))
                 .foregroundStyle(.primary)
+                .frame(width: 50)
+                .lineLimit(1)
+                .truncationMode(.tail)
         }
     }
 }
