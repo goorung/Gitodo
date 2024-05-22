@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct MyRepo: Hashable {
+public struct MyRepo: Identifiable {
     public let id: Int // github에서 가져온 id
     public let name: String
     public var fullName: String
