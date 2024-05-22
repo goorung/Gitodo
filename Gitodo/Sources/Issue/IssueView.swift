@@ -32,9 +32,8 @@ class IssueView: UIView {
         return tableView
     }()
     
-    private lazy var emptyLabel = {
+    private lazy var messageLabel = {
         let label = UILabel()
-        label.text = "생성된 이슈가 없습니다 🫥"
         label.textAlignment = .center
         label.font = .systemFont(ofSize: 15, weight: .semibold)
         label.textColor = .tertiaryLabel
@@ -75,8 +74,8 @@ class IssueView: UIView {
             make.edges.equalToSuperview()
         }
         
-        addSubview(emptyLabel)
-        emptyLabel.snp.makeConstraints { make in
+        addSubview(messageLabel)
+        messageLabel.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
             make.centerY.equalToSuperview().offset(-45)
         }
@@ -130,7 +129,12 @@ class IssueView: UIView {
         viewModel.output.issues
             .map { $0.count }
             .drive(onNext: { [weak self] count in
-                self?.emptyLabel.isHidden = count != 0
+                guard let self = self else { return }
+                if count == 0 {
+                    showMessageLabel(with: "생성된 이슈가 없습니다 🫥")
+                } else {
+                    messageLabel.isHidden = true
+                }
             }).disposed(by: disposeBag)
         
         viewModel.output.issues
@@ -143,16 +147,30 @@ class IssueView: UIView {
         
         viewModel.output.isLoading
             .drive(onNext: { [weak self] isLoading in
+                guard let self = self else { return }
                 if isLoading {
-                    self?.loadingView.isHidden = false
-                    self?.loadingIndicator.startAnimating()
+                    loadingView.isHidden = false
+                    loadingIndicator.startAnimating()
                 } else {
                     DispatchQueue.main.async {
-                        self?.loadingIndicator.stopAnimating()
-                        self?.loadingView.isHidden = true
+                        self.loadingIndicator.stopAnimating()
+                        self.loadingView.isHidden = true
                     }
                 }
             }).disposed(by: disposeBag)
+        
+        viewModel.output.isDeleted
+            .drive(onNext: { [weak self] isDeleted in
+                guard let self = self else { return }
+                if isDeleted {
+                    showMessageLabel(with: "원격에서 삭제된 레포지토리입니다 👻")
+                }
+            }).disposed(by: disposeBag)
+    }
+    
+    private func showMessageLabel(with text: String?) {
+        messageLabel.text = text
+        messageLabel.isHidden = false
     }
     
 }
