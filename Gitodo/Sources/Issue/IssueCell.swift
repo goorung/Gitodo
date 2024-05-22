@@ -7,6 +7,8 @@
 
 import UIKit
 
+import GitodoShared
+
 import SnapKit
 
 class IssueCell: UITableViewCell {

@@ -8,6 +8,8 @@
 import SafariServices
 import UIKit
 
+import GitodoShared
+
 import MarkdownView
 import SkeletonView
 import SnapKit

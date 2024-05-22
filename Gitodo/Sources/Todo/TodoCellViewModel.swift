@@ -7,6 +7,8 @@
 
 import Foundation
 
+import GitodoShared
+
 protocol TodoCellViewModelDelegate: AnyObject {
     func todoCellViewModel(_ viewModel: TodoCellViewModel, didUpdateItem: TodoItem)
     func todoCellViewModelDidReturnTodo(_ viewModel: TodoCellViewModel)

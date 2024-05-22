@@ -9,20 +9,20 @@ import Foundation
 
 import RealmSwift
 
-class RepositoryEntity: Object {
-    @Persisted(primaryKey: true) var id: Int
-    @Persisted var name: String
-    @Persisted var fullName: String
-    @Persisted var ownerName: String
-    @Persisted var nickname: String
-    @Persisted var symbol: String?
-    @Persisted var hexColor: Int
-    @Persisted var todos: List<TodoEntity> = List<TodoEntity>()
-    @Persisted var isPublic: Bool = false
-    @Persisted var isDeleted: Bool = false
-    @Persisted var order: Int = 0
+public class RepositoryEntity: Object {
+    @Persisted(primaryKey: true) public var id: Int
+    @Persisted public var name: String
+    @Persisted public var fullName: String
+    @Persisted public var ownerName: String
+    @Persisted public var nickname: String
+    @Persisted public var symbol: String?
+    @Persisted public var hexColor: Int
+    @Persisted public var todos: List<TodoEntity> = List<TodoEntity>()
+    @Persisted public var isPublic: Bool = false
+    @Persisted public var isDeleted: Bool = false
+    @Persisted public var order: Int = 0
     
-    convenience init(_ repository: MyRepo) {
+    public convenience init(_ repository: MyRepo) {
         self.init()
         id = repository.id
         name = repository.name
@@ -40,7 +40,7 @@ class RepositoryEntity: Object {
     }
 }
 
-extension RepositoryEntity {
+public extension RepositoryEntity {
     func toDomain() -> MyRepo {
         return MyRepo(
             id: id,

@@ -52,17 +52,34 @@ private let appDependencies: [TargetDependency] = [
     .external(name: "RxCocoa", condition: .none),
     .external(name: "RxSwift", condition: .none),
     .external(name: "RxGesture", condition: .none),
-    .external(name: "RealmSwift", condition: .none),
     .external(name: "SwiftyToaster", condition: .none),
     .external(name: "MarkdownView", condition: .none),
     .external(name: "SkeletonView", condition: .none),
+    .target(name: "GitodoShared", condition: .none),
     .target(name: "GitodoRepoListWidget", condition: .none),
     .target(name: "GitodoRepoTodoWidget", condition: .none),
+]
+
+private let widgetDependencies: [TargetDependency] = [
+    .target(name: "GitodoShared", condition: .none),
 ]
 
 let project = Project(
     name: "Gitodo",
     targets: [
+        // Shared Framework target
+        .target(
+            name: "GitodoShared",
+            destinations: [.iPhone],
+            product: .framework,
+            bundleId: "\(bundleId).Shared",
+            deploymentTargets: .iOS(deploymentTarget),
+            infoPlist: .default,
+            sources: ["GitodoShared/Sources/**"],
+            resources: [],
+            dependencies: [.external(name: "RealmSwift", condition: .none)]
+        ),
+        // App target
         .target(
             name: appName,
             destinations: [.iPhone],
@@ -72,6 +89,7 @@ let project = Project(
             infoPlist: appInfoPlist,
             sources: ["\(appName)/Sources/**"],
             resources: ["\(appName)/Resources/**"],
+            entitlements: "\(appName).entitlements",
             dependencies: appDependencies,
             settings: .settings(
                 configurations: [
@@ -80,6 +98,7 @@ let project = Project(
                 ]
             )
         ),
+        // Small Static Widget target
         .target(
             name: "GitodoRepoListWidget",
             destinations: [.iPhone],
@@ -88,8 +107,11 @@ let project = Project(
             deploymentTargets: .iOS(deploymentTarget),
             infoPlist: widgetInfoPlist,
             sources: ["Widgets/RepoListWidget/Sources**"],
-            resources: ["Widgets/RepoListWidget/Resources/**"]
+            resources: ["Widgets/RepoListWidget/Resources/**"],
+            entitlements: "\(appName).entitlements",
+            dependencies: widgetDependencies
         ),
+        // Medium Intent Widget target
         .target(
             name: "GitodoRepoTodoWidget",
             destinations: [.iPhone],
@@ -98,7 +120,9 @@ let project = Project(
             deploymentTargets: .iOS(deploymentTarget),
             infoPlist: widgetInfoPlist,
             sources: ["Widgets/RepoTodoWidget/Sources**"],
-            resources: ["Widgets/RepoTodoWidget/Resources/**"]
+            resources: ["Widgets/RepoTodoWidget/Resources/**"],
+            entitlements: "\(appName).entitlements",
+            dependencies: widgetDependencies
         ),
         //        .target(
         //            name: "GitodoTests",

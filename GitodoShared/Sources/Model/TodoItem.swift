@@ -7,14 +7,14 @@
 
 import Foundation
 
-struct TodoItem {
-    var id: UUID = .init()
-    var todo: String
-    var isComplete: Bool
-    var order: Int = 0
+public struct TodoItem {
+    public var id: UUID = .init()
+    public var todo: String
+    public var isComplete: Bool
+    public var order: Int = 0
 }
 
-extension TodoItem {
+public extension TodoItem {
     static func placeholderItem() -> Self {
         .init(todo: "", isComplete: false)
     }

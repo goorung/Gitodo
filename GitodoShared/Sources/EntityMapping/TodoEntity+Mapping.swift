@@ -9,15 +9,15 @@ import Foundation
 
 import RealmSwift
 
-class TodoEntity: Object {
-    @Persisted(primaryKey: true) var id: UUID
-    @Persisted var todo: String
-    @Persisted var isComplete: Bool
-    @Persisted var order: Int
+public class TodoEntity: Object {
+    @Persisted(primaryKey: true) public var id: UUID
+    @Persisted public var todo: String
+    @Persisted public var isComplete: Bool
+    @Persisted public var order: Int
     
-    @Persisted(originProperty: "todos") var repository: LinkingObjects<RepositoryEntity>
+    @Persisted(originProperty: "todos") public var repository: LinkingObjects<RepositoryEntity>
     
-    convenience init(_ todoItem: TodoItem) {
+    public convenience init(_ todoItem: TodoItem) {
         self.init()
         id = todoItem.id
         todo = todoItem.todo
@@ -26,7 +26,7 @@ class TodoEntity: Object {
     }
 }
 
-extension TodoEntity {
+public extension TodoEntity {
     func toDomain() -> TodoItem {
         return TodoItem(
             id: id,

@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum RealmError: Error {
+public enum RealmError: Error {
     case initializationError(Error)
     case noDataError
     case syncError(Error)
@@ -15,7 +15,7 @@ enum RealmError: Error {
     case updateError(Error)
     case deleteError(Error)
     
-    var localizedDescription: String {
+    public var localizedDescription: String {
         switch self {
         case .initializationError(let error):
             return "Initialization failed: \(error.localizedDescription)"
