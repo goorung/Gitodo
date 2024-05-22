@@ -19,7 +19,6 @@ public struct MyRepo: Identifiable {
     public var isPublic: Bool = false // 메인 뷰에서 공개적으로 보여질지 여부
     public var isDeleted: Bool = false // 원격에서 삭제되었는지 여부
     
-    
     public static func == (lhs: MyRepo, rhs: MyRepo) -> Bool {
         return lhs.id == rhs.id
     }
