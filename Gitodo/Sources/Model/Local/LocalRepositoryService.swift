@@ -7,9 +7,9 @@
 
 import Foundation
 
-import RealmSwift
-
 import GitodoShared
+
+import RealmSwift
 
 protocol LocalRepositoryServiceProtocol {
     func fetchAll() throws -> [MyRepo]
