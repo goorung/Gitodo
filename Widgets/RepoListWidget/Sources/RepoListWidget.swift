@@ -26,7 +26,7 @@ struct Provider: TimelineProvider {
     func getTimeline(in context: Context, completion: @escaping (Timeline<RepoListEntry>) -> Void) {
         let repos = (try? service.fetchTopPublicRepos()) ?? []
         let entry = RepoListEntry(date: Date(), repos: repos)
-        let timeline = Timeline(entries: [entry], policy: .atEnd)
+        let timeline = Timeline(entries: [entry], policy: .never)
         completion(timeline)
     }
 }
