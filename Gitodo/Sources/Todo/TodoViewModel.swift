@@ -7,6 +7,8 @@
 
 import Foundation
 
+import GitodoShared
+
 import RxCocoa
 import RxRelay
 import RxSwift

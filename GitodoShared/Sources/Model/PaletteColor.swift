@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum PaletteColor: CaseIterable {
+public enum PaletteColor: CaseIterable {
     case red1
     case yellow1
     case green1
@@ -27,7 +27,7 @@ enum PaletteColor: CaseIterable {
     case purple3
     case pink3
     
-    var hex: UInt {
+    public var hex: UInt {
         switch self {
         case .red1: 0xFFB5B5
         case .yellow1: 0xFFE4B6
@@ -50,7 +50,7 @@ enum PaletteColor: CaseIterable {
         }
     }
     
-    static func findIndex(_ hex: UInt) -> Int? {
+    public static func findIndex(_ hex: UInt) -> Int? {
         return PaletteColor.allCases.firstIndex(where: { $0.hex == hex })
     }
 }

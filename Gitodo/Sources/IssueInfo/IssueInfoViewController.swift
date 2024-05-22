@@ -7,6 +7,8 @@
 
 import UIKit
 
+import GitodoShared
+
 class IssueInfoViewController: BaseViewController<IssueInfoView>, BaseViewControllerProtocol {
     
     var issue: Issue? {

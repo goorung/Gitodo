@@ -7,6 +7,8 @@
 
 import Foundation
 
+import GitodoShared
+
 final class APIManager {
     
     static let shared = APIManager() // Singleton instance

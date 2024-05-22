@@ -7,6 +7,8 @@
 
 import UIKit
 
+import GitodoShared
+
 protocol PaletteColorDelegate: AnyObject {
     func selectColor(_ color: PaletteColor)
 }

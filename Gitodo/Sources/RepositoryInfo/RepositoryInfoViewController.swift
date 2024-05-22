@@ -7,6 +7,8 @@
 
 import UIKit
 
+import GitodoShared
+
 protocol RepositoryInfoViewControllerDelegate: AnyObject {
     func doneButtonTapped(repository: MyRepo)
 }

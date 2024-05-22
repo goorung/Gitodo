@@ -7,6 +7,8 @@
 
 import UIKit
 
+import GitodoShared
+
 import SnapKit
 
 protocol RepoMenuDelegate: AnyObject {

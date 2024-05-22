@@ -7,6 +7,8 @@
 
 import Foundation
 
+import GitodoShared
+
 import RealmSwift
 
 protocol LocalRepositoryServiceProtocol {
@@ -25,7 +27,11 @@ final class LocalRepositoryService: LocalRepositoryServiceProtocol {
     /// Initialize Realm instance.
     private func initializeRealm() throws -> Realm {
         do {
-            return try Realm()
+            let appGroupID = "group.com.goorung.Gitodo"
+            let container = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)
+            let realmURL = container?.appendingPathComponent("db.realm")
+            let config = Realm.Configuration(fileURL: realmURL)
+            return try Realm(configuration: config)
         } catch {
             throw RealmError.initializationError(error)
         }
