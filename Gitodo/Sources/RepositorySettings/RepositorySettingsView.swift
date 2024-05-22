@@ -146,9 +146,10 @@ class RepositorySettingsView: UIView {
             .subscribe(onNext: { [weak self] indexPath in
                 guard let self = self,
                       let cell = repoTableView.cellForRow(at: indexPath) as? RepositoryCell,
-                      let repo = cell.selectCell()
+                      let repo = cell.getRepo()
                 else { return }
                 generateHaptic()
+                cell.select()
                 viewModel?.input.togglePublic.onNext(repo)
             }).disposed(by: disposeBag)
         
@@ -156,9 +157,10 @@ class RepositorySettingsView: UIView {
             .subscribe(onNext: { [weak self] indexPath in
                 guard let self = self,
                       let cell = deletedRepoTableView.cellForRow(at: indexPath) as? RepositoryCell,
-                      let repo = cell.selectCell()
+                      let repo = cell.getRepo()
                 else { return }
                 generateHaptic()
+                cell.select()
                 viewModel?.input.togglePublic.onNext(repo)
             }).disposed(by: disposeBag)
         
@@ -166,10 +168,10 @@ class RepositorySettingsView: UIView {
             .subscribe(onNext: { [weak self] indexPath in
                 guard let self = self,
                       let cell = deletedRepoTableView.cellForRow(at: indexPath) as? RepositoryCell,
-                      let id = cell.selectCell()
+                      let repo = cell.getRepo()
                 else { return }
                 delegate?.presentAlertViewController(completion: { [weak self] in
-                    self?.viewModel?.input.removeRepo.onNext(id)
+                    self?.viewModel?.input.removeRepo.onNext(repo)
                 })
             }).disposed(by: disposeBag)
     }
