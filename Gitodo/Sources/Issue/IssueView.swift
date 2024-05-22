@@ -160,11 +160,9 @@ class IssueView: UIView {
             }).disposed(by: disposeBag)
         
         viewModel.output.isDeleted
-            .drive(onNext: { [weak self] isDeleted in
-                guard let self = self else { return }
-                if isDeleted {
-                    showMessageLabel(with: "원격에서 삭제된 레포지토리입니다 👻")
-                }
+            .filter { $0 == true }
+            .drive(onNext: { [weak self] _ in
+                self?.showMessageLabel(with: "원격에서 삭제된 레포지토리입니다 👻")
             }).disposed(by: disposeBag)
     }
     
