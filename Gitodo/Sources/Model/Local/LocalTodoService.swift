@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import WidgetKit
 
 import GitodoShared
 
@@ -43,6 +44,7 @@ final class LocalTodoService: LocalTodoServiceProtocol {
             throw RealmError.noDataError
         }
         
+        WidgetCenter.shared.reloadAllTimelines()
         return repository.todos
             .sorted(byKeyPath: "order", ascending: true)
             .map { $0.toDomain() }

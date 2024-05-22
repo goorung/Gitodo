@@ -8,59 +8,37 @@
 import WidgetKit
 import SwiftUI
 
-struct Provider: TimelineProvider {
-    func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), emoji: "😀")
-    }
+import GitodoShared
 
-    func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
-        let entry = SimpleEntry(date: Date(), emoji: "😀")
+struct Provider: TimelineProvider {
+    let service = RepoListWidgetService()
+    
+    func placeholder(in context: Context) -> RepoListEntry {
+        RepoListEntry(date: Date(), repos: [])
+    }
+    
+    func getSnapshot(in context: Context, completion: @escaping (RepoListEntry) -> Void) {
+        let repos = (try? service.fetchTopPublicRepos()) ?? []
+        let entry = RepoListEntry(date: Date(), repos: repos)
         completion(entry)
     }
-
-    func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-        var entries: [SimpleEntry] = []
-
-        // Generate a timeline consisting of five entries an hour apart, starting from the current date.
-        let currentDate = Date()
-        for hourOffset in 0 ..< 5 {
-            let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
-            let entry = SimpleEntry(date: entryDate, emoji: "😀")
-            entries.append(entry)
-        }
-
-        let timeline = Timeline(entries: entries, policy: .atEnd)
+    
+    func getTimeline(in context: Context, completion: @escaping (Timeline<RepoListEntry>) -> Void) {
+        let repos = (try? service.fetchTopPublicRepos()) ?? []
+        let entry = RepoListEntry(date: Date(), repos: repos)
+        let timeline = Timeline(entries: [entry], policy: .never)
         completion(timeline)
-    }
-}
-
-struct SimpleEntry: TimelineEntry {
-    let date: Date
-    let emoji: String
-}
-
-struct RepoListWidgetEntryView : View {
-    var entry: Provider.Entry
-
-    var body: some View {
-        VStack {
-            Text("Time:")
-            Text(entry.date, style: .time)
-
-            Text("Emoji:")
-            Text(entry.emoji)
-        }
     }
 }
 
 struct RepoListWidget: Widget {
     let kind: String = "RepoListWidget"
-
+    
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: Provider()) { entry in
             if #available(iOS 17.0, *) {
                 RepoListWidgetEntryView(entry: entry)
-                    .containerBackground(.fill.tertiary, for: .widget)
+                    .containerBackground(.background, for: .widget)
             } else {
                 RepoListWidgetEntryView(entry: entry)
                     .padding()
@@ -74,6 +52,5 @@ struct RepoListWidget: Widget {
 #Preview(as: .systemSmall) {
     RepoListWidget()
 } timeline: {
-    SimpleEntry(date: .now, emoji: "😀")
-    SimpleEntry(date: .now, emoji: "🤩")
+    RepoListEntry(date: .now, repos: [])
 }
