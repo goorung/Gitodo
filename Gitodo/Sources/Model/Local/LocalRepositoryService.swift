@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import WidgetKit
 
 import GitodoShared
 
@@ -41,6 +42,7 @@ final class LocalRepositoryService: LocalRepositoryServiceProtocol {
     func fetchAll() throws -> [MyRepo] {
         let realm = try initializeRealm()
         
+        WidgetCenter.shared.reloadAllTimelines()
         return realm.objects(RepositoryEntity.self).map { $0.toDomain() }
     }
     
