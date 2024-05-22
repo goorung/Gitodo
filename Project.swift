@@ -108,7 +108,8 @@ let project = Project(
             infoPlist: widgetInfoPlist,
             sources: ["Widgets/RepoListWidget/Sources**"],
             resources: ["Widgets/RepoListWidget/Resources/**"],
-            entitlements: "\(appName).entitlements"
+            entitlements: "\(appName).entitlements",
+            dependencies: widgetDependencies
         ),
         // Medium Intent Widget target
         .target(
@@ -120,7 +121,8 @@ let project = Project(
             infoPlist: widgetInfoPlist,
             sources: ["Widgets/RepoTodoWidget/Sources**"],
             resources: ["Widgets/RepoTodoWidget/Resources/**"],
-            entitlements: "\(appName).entitlements"
+            entitlements: "\(appName).entitlements",
+            dependencies: widgetDependencies
         ),
         //        .target(
         //            name: "GitodoTests",
