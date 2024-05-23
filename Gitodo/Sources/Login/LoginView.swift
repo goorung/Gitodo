@@ -34,6 +34,8 @@ class LoginView: UIView {
             "Github 계정으로 로그인",
             attributes: .init([.font: UIFont.boldSystemFont(ofSize: 15.0)])
         )
+        button.clipsToBounds = true
+        button.layer.cornerRadius = 30
         button.addTarget(self, action: #selector(handleLoginButtonTap), for: .touchUpInside)
         return button
     }()
@@ -55,7 +57,7 @@ class LoginView: UIView {
     private func setupLayout() {
         addSubview(logoImageView)
         logoImageView.snp.makeConstraints { make in
-            make.width.height.equalTo(120)
+            make.width.height.equalTo(150)
             make.centerX.equalToSuperview()
             make.bottom.equalTo(self.snp.centerY).offset(-80)
         }
@@ -64,7 +66,7 @@ class LoginView: UIView {
         loginButton.snp.makeConstraints { make in
             make.top.equalTo(logoImageView.snp.bottom).offset(80)
             make.leading.trailing.equalToSuperview().inset(30)
-            make.height.equalTo(55)
+            make.height.equalTo(60)
         }
     }
     
