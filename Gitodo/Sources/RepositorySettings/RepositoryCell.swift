@@ -78,10 +78,12 @@ class RepositoryCell: UITableViewCell {
         selectedButton.isHidden = !repo.isPublic
     }
     
-    func selectCell() -> MyRepo? {
-        selectedButton.isHidden.toggle()
-        
+    func getRepo() -> MyRepo? {
         return repo
+    }
+    
+    func select() {
+        selectedButton.isHidden.toggle()
     }
     
 }
