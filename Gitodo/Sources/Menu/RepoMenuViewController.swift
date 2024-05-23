@@ -22,7 +22,6 @@ class RepoMenuViewController: UIViewController {
     
     let buttonWidth = 65
     let buttonHeight = 37
-    let buttonFontSize = 13
     let separatorWidth = 1
     
     // MARK: - UI Components
@@ -39,7 +38,7 @@ class RepoMenuViewController: UIViewController {
         let button = UIButton()
         button.backgroundColor = .systemBackground
         button.setTitle(RepoMenuType.allCases[0].title, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: CGFloat(buttonFontSize))
+        button.titleLabel?.font = .callout
         button.setTitleColor(.label, for: .normal)
         button.addTarget(self, action: #selector(editButtonTapped), for: .touchUpInside)
         return button
@@ -49,7 +48,7 @@ class RepoMenuViewController: UIViewController {
         let button = UIButton()
         button.backgroundColor = .systemBackground
         button.setTitle(RepoMenuType.allCases[1].title, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: CGFloat(buttonFontSize))
+        button.titleLabel?.font = .callout
         button.setTitleColor(.label, for: .normal)
         button.addTarget(self, action: #selector(hideButtonTapped), for: .touchUpInside)
         return button

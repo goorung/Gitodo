@@ -252,7 +252,7 @@ extension RepositorySettingsView {
         let label = UILabel()
         label.text = text
         label.textColor = .darkGray
-        label.font = .systemFont(ofSize: 13)
+        label.font = .callout
         return label
     }
     

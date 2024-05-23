@@ -46,11 +46,11 @@ class MainView: UIView {
         
         let normalAttributes = [
             NSAttributedString.Key.foregroundColor: UIColor.systemGray,
-            NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15, weight: .semibold)
+            NSAttributedString.Key.font: UIFont.bodySB
         ]
         let selectedAttributes = [
             NSAttributedString.Key.foregroundColor: UIColor(hex: PaletteColor.blue2.hex),
-            NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15, weight: .semibold)
+            NSAttributedString.Key.font: UIFont.bodySB
         ]
         
         control.setTitleTextAttributes(normalAttributes, for: .normal)
@@ -193,7 +193,7 @@ class MainView: UIView {
     private func setSegmentedControlTintColor(_ color: UIColor) {
         let selectedAttributes = [
             NSAttributedString.Key.foregroundColor: color,
-            NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15, weight: .semibold)
+            NSAttributedString.Key.font: UIFont.bodySB
         ]
         segmentedControl.setTitleTextAttributes(selectedAttributes, for: .selected)
     }

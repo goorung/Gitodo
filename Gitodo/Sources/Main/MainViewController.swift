@@ -57,7 +57,7 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
     // MARK: - Setup Navigation Bar
     
     func setupNavigationBar() {
-        setTitle("Gitodo",at: .left, font: .systemFont(ofSize: 20, weight: .bold))
+        setTitle("Gitodo",at: .left, font: .title)
         setProfileImageView()
         setProfileImageViewAction(#selector(handleProfileImageViewTap))
         setProfileImageViewLoading(true)

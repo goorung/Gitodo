@@ -79,7 +79,7 @@ class BaseViewController<View: UIView>: UIViewController {
 
     }
 
-    func setTitle(_ title: String, at position: TitlePosition = .center, font: UIFont = .systemFont(ofSize: 18, weight: .bold)) {
+    func setTitle(_ title: String, at position: TitlePosition = .center, font: UIFont = .title2) {
         titleLabel.text = title
         titleLabel.font = font
         
@@ -111,7 +111,7 @@ class BaseViewController<View: UIView>: UIViewController {
     func setLeftButton(title: String) {
         leftButton.setTitle(title, for: .normal)
         leftButton.setTitleColor(.label, for: .normal)
-        leftButton.titleLabel?.font = .systemFont(ofSize: 16.0, weight: .semibold)
+        leftButton.titleLabel?.font = .title3
         
         setupLeftButtonLayout()
     }
@@ -138,7 +138,7 @@ class BaseViewController<View: UIView>: UIViewController {
     func setRightButton(title: String?) {
         rightButton.setTitle(title, for: .normal)
         rightButton.setTitleColor(.label, for: .normal)
-        rightButton.titleLabel?.font = .systemFont(ofSize: 16.0, weight: .semibold)
+        rightButton.titleLabel?.font = .title3
         
         setupRightButtonLayout()
     }

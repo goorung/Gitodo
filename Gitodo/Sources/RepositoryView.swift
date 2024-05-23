@@ -18,14 +18,14 @@ class RepositoryView: UIView {
         label.text = "편집"
         label.textColor = .label
         label.textAlignment = .center
-        label.font = .systemFont(ofSize: 12, weight: .semibold)
+        label.font = .caption
         label.isHidden = true
         return label
     }()
     
     private lazy var nameLabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 11, weight: .semibold)
+        label.font = .footnote
         label.textAlignment = .center
         return label
     }()

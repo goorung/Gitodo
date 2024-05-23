@@ -26,7 +26,7 @@ class IssueCell: UITableViewCell {
     
     private lazy var titleLabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15.0, weight: .semibold)
+        label.font = .bodySB
         label.textColor = .label
         label.numberOfLines = 0
         return label

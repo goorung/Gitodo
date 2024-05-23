@@ -20,7 +20,7 @@ class RepositoryCell: UITableViewCell {
     
     private lazy var nameLabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15.0, weight: .medium)
+        label.font = .bodySB
         label.lineBreakMode = .byTruncatingTail
         return label
     }()

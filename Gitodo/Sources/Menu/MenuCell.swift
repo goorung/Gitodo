@@ -23,7 +23,7 @@ class MenuCell: UITableViewCell {
     
     private lazy var titleLabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 13.0)
+        label.font = .callout
         label.textColor = .label
         return label
     }()
