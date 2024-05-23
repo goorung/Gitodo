@@ -46,7 +46,7 @@ class RepositoryView: UIView {
         addSubview(editLabel)
         editLabel.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.centerY.equalTo(circleView.snp.centerY).multipliedBy(1.5)
+            make.centerY.equalTo(circleView.snp.centerY)
         }
         
         addSubview(nameLabel)
