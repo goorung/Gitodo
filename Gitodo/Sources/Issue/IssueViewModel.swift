@@ -18,20 +18,22 @@ final class IssueViewModel {
     let output: Output
     
     struct Input {
-        let setRepo: AnyObserver<MyRepo>
+        let setCurrentRepo: AnyObserver<MyRepo>
         let fetchIssue: AnyObserver<Void>
     }
     
     struct Output {
         var issues: Driver<[Issue]>
         var isLoading: Driver<Bool>
+        var isDeleted: Driver<Bool>
     }
     
-    private let setRepoSubject = PublishSubject<MyRepo>()
+    private let setCurrentRepoSubject = PublishSubject<MyRepo>()
     private let fetchIssueSubject = PublishSubject<Void>()
     
     private let issues = BehaviorRelay<[Issue]>(value: [])
     private let isLoading = BehaviorRelay<Bool>(value: false)
+    private let isDeleted = BehaviorRelay<Bool>(value: false)
     
     private var currentRepo: MyRepo?
     
@@ -39,15 +41,16 @@ final class IssueViewModel {
     
     init() {
         input = Input(
-            setRepo: setRepoSubject.asObserver(),
+            setCurrentRepo: setCurrentRepoSubject.asObserver(),
             fetchIssue: fetchIssueSubject.asObserver()
         )
         output = Output(
             issues: issues.asDriver(),
-            isLoading: isLoading.asDriver()
+            isLoading: isLoading.asDriver(),
+            isDeleted: isDeleted.asDriver()
         )
         
-        setRepoSubject.subscribe(onNext: { [weak self] repo in
+        setCurrentRepoSubject.subscribe(onNext: { [weak self] repo in
             self?.currentRepo = repo
             self?.fetchIssue()
         }).disposed(by: disposeBag)
@@ -58,8 +61,21 @@ final class IssueViewModel {
     }
     
     private func fetchIssue() {
-        isLoading.accept(true)
         guard let repo = currentRepo else { return }
+        if repo.isDeleted {
+            handleDeletedRepo()
+        } else {
+            handleActiveRepo(repo: repo)
+        }
+    }
+    
+    private func handleDeletedRepo() {
+        issues.accept([])
+        isDeleted.accept(true)
+    }
+    
+    private func handleActiveRepo(repo: MyRepo) {
+        isLoading.accept(true)
         Task {
             do {
                 let fetchedIssue = try await APIManager.shared.fetchIssues(for: repo)

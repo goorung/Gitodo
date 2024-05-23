@@ -186,7 +186,7 @@ class MainView: UIView {
                 todoView.setAddButtonTintColor(color)
                 
                 todoViewModel.input.fetchTodo.onNext(repo)
-                issueViewModel.input.setRepo.onNext(repo)
+                issueViewModel.input.setCurrentRepo.onNext(repo)
             }.disposed(by: disposeBag)
     }
     
