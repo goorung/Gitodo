@@ -34,6 +34,7 @@ class MenuCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
         setupLayout()
+        backgroundColor = .clear
         selectionStyle = .none
     }
     

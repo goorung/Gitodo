@@ -37,9 +37,10 @@ class PaletteColorView: UICollectionView {
     // MARK: - Setup Methods
     
     private func setupProperty() {
-        self.delegate = self
-        self.dataSource = self
-        self.register(PaletteColorCell.self, forCellWithReuseIdentifier: PaletteColorCell.reuseIdentifier)
+        delegate = self
+        dataSource = self
+        register(PaletteColorCell.self, forCellWithReuseIdentifier: PaletteColorCell.reuseIdentifier)
+        backgroundColor = .background
     }
     
     func setInitialColor(_ hex: UInt) {

@@ -61,6 +61,7 @@ class LabelCollectionView: UICollectionView {
         delegate = self
         dataSource = self
         register(LabelCell.self, forCellWithReuseIdentifier: LabelCell.reuseIdentifier)
+        backgroundColor = .clear
         isUserInteractionEnabled = false
     }
     

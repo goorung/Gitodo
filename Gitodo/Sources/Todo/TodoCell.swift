@@ -35,6 +35,7 @@ class TodoCell: UITableViewCell {
     
     private lazy var todoTextView = {
         let textView = UITextView()
+        textView.backgroundColor = .clear
         textView.font = .systemFont(ofSize: 15)
         textView.textColor = .label
         textView.autocorrectionType = .no
@@ -48,6 +49,7 @@ class TodoCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
+        backgroundColor = .clear
         setupLayout()
     }
     

@@ -27,6 +27,7 @@ class IssueView: UIView {
     
     private lazy var issueTableView = {
         let tableView = UITableView()
+        tableView.backgroundColor = .background
         tableView.rowHeight = UITableView.automaticDimension
         tableView.register(IssueCell.self, forCellReuseIdentifier: IssueCell.reuseIdentifier)
         return tableView
@@ -43,7 +44,7 @@ class IssueView: UIView {
     
     private lazy var loadingView = {
         let view = UIView()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .background
         return view
     }()
     
@@ -54,6 +55,7 @@ class IssueView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
+        backgroundColor = .background
         setupLayout()
         setupNotificationCenterObserver()
         bind()

@@ -260,7 +260,7 @@ extension RepositorySettingsView {
         tableView.separatorStyle = .none
         tableView.clipsToBounds = true
         tableView.layer.cornerRadius = 10
-        tableView.backgroundColor = .systemBackground
+        tableView.backgroundColor = .background
         tableView.isScrollEnabled = false
         return tableView
     }
