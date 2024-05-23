@@ -8,7 +8,6 @@
 import UIKit
 
 import SnapKit
-import SwiftyToaster
 
 protocol LoginDelegate: AnyObject {
     func loginWithGithub()
@@ -54,24 +53,23 @@ class LoginView: UIView {
     // MARK: - Setup Methods
     
     private func setupLayout() {
-        addSubview(loginButton)
-        loginButton.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(30)
-            make.centerY.equalTo(self.snp.centerY).offset(30)
-            make.height.equalTo(55)
-        }
-        
         addSubview(logoImageView)
         logoImageView.snp.makeConstraints { make in
             make.width.height.equalTo(120)
-            make.bottom.equalTo(loginButton.snp.top).offset(-60)
             make.centerX.equalToSuperview()
+            make.bottom.equalTo(self.snp.centerY).offset(-80)
+        }
+        
+        addSubview(loginButton)
+        loginButton.snp.makeConstraints { make in
+            make.top.equalTo(logoImageView.snp.bottom).offset(80)
+            make.leading.trailing.equalToSuperview().inset(30)
+            make.height.equalTo(55)
         }
     }
     
     @objc private func handleLoginButtonTap() {
-        Toaster.shared.makeToast("test")
-//        delegate?.loginWithGithub()
+        delegate?.loginWithGithub()
     }
     
 }
