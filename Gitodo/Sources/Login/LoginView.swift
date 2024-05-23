@@ -59,7 +59,7 @@ class LoginView: UIView {
         logoImageView.snp.makeConstraints { make in
             make.width.height.equalTo(150)
             make.centerX.equalToSuperview()
-            make.bottom.equalTo(self.snp.centerY).offset(-80)
+            make.bottom.equalTo(self.snp.centerY).offset(-40)
         }
         
         addSubview(loginButton)
