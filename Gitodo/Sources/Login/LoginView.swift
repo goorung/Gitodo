@@ -32,7 +32,10 @@ class LoginView: UIView {
         button.tintColor = .label
         button.configuration?.attributedTitle = .init(
             "Github 계정으로 로그인",
-            attributes: .init([.font: UIFont.boldSystemFont(ofSize: 15.0)])
+            attributes: .init([
+                .font: UIFont.boldSystemFont(ofSize: 15.0),
+                .foregroundColor: UIColor.background
+            ])
         )
         button.clipsToBounds = true
         button.layer.cornerRadius = 30
