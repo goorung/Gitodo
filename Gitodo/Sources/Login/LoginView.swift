@@ -32,12 +32,24 @@ class LoginView: UIView {
         button.tintColor = .label
         button.configuration?.attributedTitle = .init(
             "Github 계정으로 로그인",
-            attributes: .init([.font: UIFont.boldSystemFont(ofSize: 15.0)])
+            attributes: .init([
+                .font: UIFont.boldSystemFont(ofSize: 15.0),
+                .foregroundColor: UIColor.background
+            ])
         )
         button.clipsToBounds = true
         button.layer.cornerRadius = 30
         button.addTarget(self, action: #selector(handleLoginButtonTap), for: .touchUpInside)
         return button
+    }()
+    
+    private lazy var loadingImages: [UIImage] = {
+        return [
+            UIImage(named: "loading_1.png"),
+            UIImage(named: "loading_2.png"),
+            UIImage(named: "loading_3.png"),
+            UIImage(named: "loading_4.png")
+        ].compactMap { $0 }
     }()
     
     // MARK: - Initializer
@@ -72,6 +84,17 @@ class LoginView: UIView {
     
     @objc private func handleLoginButtonTap() {
         delegate?.loginWithGithub()
+    }
+    
+    func startLoading() {
+        logoImageView.animationImages = loadingImages
+        logoImageView.animationDuration = 1.5
+        logoImageView.startAnimating()
+    }
+    
+    func endLoading() {
+        logoImageView.stopAnimating()
+        logoImageView.image = UIImage(named: "logo.png")
     }
     
 }
