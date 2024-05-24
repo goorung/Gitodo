@@ -17,12 +17,7 @@ enum TodoSection: CaseIterable {
     case main
 }
 
-final class TodoViewModel {
-    
-    private let localTodoService: LocalTodoServiceProtocol
-    
-    let input: Input
-    let output: Output
+final class TodoViewModel: BaseViewModel {
     
     struct Input {
         let fetchTodo: AnyObserver<MyRepo>
@@ -36,16 +31,27 @@ final class TodoViewModel {
         var makeFirstResponder: Driver<IndexPath?>
     }
     
+    var disposeBag = DisposeBag()
+    
+    // MARK: - Properties
+    
+    let input: Input
+    let output: Output
+    
     private let fetchTodoSubject = PublishSubject<MyRepo>()
     private let appendTodoSubject = PublishSubject<Void>()
     private let toggleTodoSubject = PublishSubject<UUID>()
     private let deleteTodoSubject = PublishSubject<UUID>()
+    
     private var todos = BehaviorRelay<[TodoCellViewModel]>(value: [])
     private var makeFirstResponder = PublishRelay<IndexPath?>()
-    private let disposeBag = DisposeBag()
     
     var selectedRepo: MyRepo?
-    var firstResponderIndexPath: IndexPath? 
+    var firstResponderIndexPath: IndexPath?
+    
+    private let localTodoService: LocalTodoServiceProtocol
+    
+    // MARK: - Initializer
     
     init(localTodoService: LocalTodoServiceProtocol) {
         self.localTodoService = localTodoService
@@ -63,11 +69,7 @@ final class TodoViewModel {
         bindInputs()
     }
     
-    func viewModel(at indexPath: IndexPath) -> TodoCellViewModel {
-        todos.value[indexPath.row]
-    }
-    
-    private func bindInputs() {
+    func bindInputs() {
         fetchTodoSubject.subscribe(onNext: {[weak self] repo in
             self?.selectedRepo = repo
             self?.fetchTodos()
@@ -149,9 +151,15 @@ final class TodoViewModel {
     private func logError(in functionName: String, _ error: Error) {
         print("[TodoViewModel] \(functionName) failed : \(error.localizedDescription)")
     }
+    
+    func viewModel(at indexPath: IndexPath) -> TodoCellViewModel {
+        todos.value[indexPath.row]
+    }
+    
 }
 
 extension TodoViewModel: TodoCellViewModelDelegate {
+    
     func todoCellViewModelDidBeginEditing(_ viewModel: TodoCellViewModel) {
         firstResponderIndexPath = IndexPath(row: viewModel.order, section: 0)
     }
@@ -178,6 +186,6 @@ extension TodoViewModel: TodoCellViewModelDelegate {
         } catch {
             logError(in: "didUpdateItem", error)
         }
-        
     }
+    
 }

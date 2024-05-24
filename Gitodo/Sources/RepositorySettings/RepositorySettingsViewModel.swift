@@ -12,9 +12,7 @@ import GitodoShared
 import RxCocoa
 import RxSwift
 
-final class RepositorySettingsViewModel {
-    let input: Input
-    let output: Output
+final class RepositorySettingsViewModel: BaseViewModel {
     
     struct Input {
         let fetchRepo: AnyObserver<Void>
@@ -29,6 +27,13 @@ final class RepositorySettingsViewModel {
         var isLoading: Driver<Bool>
     }
     
+    var disposeBag = DisposeBag()
+    
+    // MARK: - Properties
+    
+    let input: Input
+    let output: Output
+    
     private let fetchRepoSubject = PublishSubject<Void>()
     private let togglePublicSubject = PublishSubject<MyRepo>()
     private let updateRepoInfoSubject = PublishSubject<MyRepo>()
@@ -38,9 +43,9 @@ final class RepositorySettingsViewModel {
     private let publicRepos = PublishRelay<[MyRepo]>()
     private let isLoading = PublishRelay<Bool>()
     
-    private let disposeBag = DisposeBag()
-    
     private let localRepositoryService: LocalRepositoryServiceProtocol
+    
+    // MARK: - Initializer
     
     init(localRepositoryService: LocalRepositoryServiceProtocol) {
         self.localRepositoryService = localRepositoryService
@@ -51,6 +56,7 @@ final class RepositorySettingsViewModel {
             updateRepoInfo: updateRepoInfoSubject.asObserver(),
             removeRepo: removeRepoSubject.asObserver()
         )
+        
         output = Output(
             repos: repos.asDriver(onErrorJustReturn: []),
             publicRepos: publicRepos.asDriver(onErrorJustReturn: []),
@@ -60,7 +66,7 @@ final class RepositorySettingsViewModel {
         bindInputs() 
     }
     
-    private func bindInputs() {
+    func bindInputs() {
         fetchRepoSubject.subscribe(onNext: { [weak self] in
             self?.fetchRepos()
         }).disposed(by: disposeBag)
@@ -131,4 +137,5 @@ final class RepositorySettingsViewModel {
     private func logError(in functionName: String, _ error: Error) {
         print("[RepositorySettingsViewModel] \(functionName) failed : \(error.localizedDescription)")
     }
+    
 }
