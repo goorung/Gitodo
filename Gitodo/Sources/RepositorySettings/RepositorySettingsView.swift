@@ -185,50 +185,36 @@ class RepositorySettingsView: UIView {
                 previewView.repos = repos
             }.disposed(by: disposeBag)
         
-        let repos = viewModel.output.repos
+        viewModel.output.repos
             .map { $0.filter { !$0.isDeleted } }
-        
-        repos
+            .do(onNext: { [weak self] repos in
+                guard let self = self else { return }
+                let height = CGFloat(repos.count) * heightForRow
+                repoTableViewHeightConstraint?.update(offset: height)
+                repoTableView.layoutIfNeeded() // 즉시 레이아웃 업데이트
+            })
             .drive(repoTableView.rx.items(
                 cellIdentifier: RepositoryCell.reuseIdentifier,
                 cellType: RepositoryCell.self)
             ) { _, repo, cell in
                 cell.configure(with: repo)
             }.disposed(by: disposeBag)
-
-        repos
-            .map { CGFloat($0.count) * self.heightForRow }
-            .drive(onNext: { [weak self] height in
-                guard let self = self else { return }
-                repoTableViewHeightConstraint?.update(offset: height)
-                repoTableView.layoutIfNeeded() // 즉시 레이아웃 업데이트
-            }).disposed(by: disposeBag)
         
-        let deletedRepos = viewModel.output.repos
+        viewModel.output.repos
             .map { $0.filter { $0.isDeleted } }
-        
-        deletedRepos
+            .do(onNext: { [weak self] repos in
+                guard let self = self else { return }
+                deletedRepoLabel.isHidden = repos.isEmpty
+                let height = CGFloat(repos.count) * heightForRow
+                deletedRepoTableViewHeightConstraint?.update(offset: height)
+                deletedRepoTableView.layoutIfNeeded() // 즉시 레이아웃 업데이트
+            })
             .drive(deletedRepoTableView.rx.items(
                 cellIdentifier: RepositoryCell.reuseIdentifier,
                 cellType: RepositoryCell.self)
             ) { _, repo, cell in
                 cell.configure(with: repo)
             }.disposed(by: disposeBag)
-        
-        deletedRepos
-            .map { CGFloat($0.count) * self.heightForRow }
-            .drive(onNext: { [weak self] height in
-                guard let self = self else { return }
-                deletedRepoTableView.isHidden = height == 0
-                deletedRepoTableViewHeightConstraint?.update(offset: height)
-                deletedRepoTableView.layoutIfNeeded() // 즉시 레이아웃 업데이트
-            }).disposed(by: disposeBag)
-        
-        deletedRepos
-            .map { $0.count }
-            .drive(onNext: { [weak self] count in
-                self?.deletedRepoLabel.isHidden = count == 0
-            }).disposed(by: disposeBag)
         
         viewModel.output.isLoading
             .drive(onNext: { [weak self] isLoading in
