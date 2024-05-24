@@ -19,7 +19,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(windowScene: windowScene)
         
         Toaster.shared.setToastType(.round)
-        UserDefaultsManager.isLogin = false
         
         if UserDefaultsManager.isLogin {
             let mainViewModel = MainViewModel(localRepositoryService: LocalRepositoryService())
