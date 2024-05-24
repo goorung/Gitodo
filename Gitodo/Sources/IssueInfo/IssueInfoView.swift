@@ -7,6 +7,7 @@
 
 import SafariServices
 import UIKit
+import WebKit
 
 import GitodoShared
 
@@ -124,20 +125,21 @@ class IssueInfoView: UIView {
         
         contentView.addSubview(bodyContainerView)
         bodyContainerView.snp.makeConstraints { make in
-            make.top.equalTo(separatorView.snp.bottom)
+            make.top.equalTo(separatorView.snp.bottom).offset(20)
             make.leading.trailing.equalToSuperview()
-            make.bottom.lessThanOrEqualToSuperview().inset(20 * 2)
+            make.bottom.equalToSuperview().inset(20)
         }
         
         bodyContainerView.addSubview(markdownView)
         markdownView.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(10)
-            make.height.greaterThanOrEqualTo(400)
+            make.height.equalTo(400)
         }
         
         bodyContainerView.addSubview(loadingTextView)
         loadingTextView.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(20 * 2)
+            make.verticalEdges.equalToSuperview().inset(20)
+            make.horizontalEdges.equalToSuperview().inset(40)
         }
     }
     
@@ -147,6 +149,7 @@ class IssueInfoView: UIView {
         markdownView.onRendered = { [weak self] _ in
             self?.loadingTextView.hideSkeleton()
             self?.loadingTextView.isHidden = true
+            self?.updateMarkdownViewHeight()
         }
         
         markdownView.onTouchLink = { request in
@@ -159,6 +162,18 @@ class IssueInfoView: UIView {
             return false
         }
     }
+    
+    private func updateMarkdownViewHeight() {
+           if let webView = markdownView.subviews.compactMap({ $0 as? WKWebView }).first {
+               webView.evaluateJavaScript("document.documentElement.scrollHeight") { [weak self] result, error in
+                   if let height = result as? CGFloat {
+                       self?.markdownView.snp.updateConstraints { make in
+                           make.height.equalTo(height)
+                       }
+                   }
+               }
+           }
+       }
     
     func configure(with issue: Issue?) {
         guard let issue = issue else { return }
