@@ -41,12 +41,11 @@ struct RepoTodoWidgetEntryView : View {
     var entry: Provider.Entry
 
     var body: some View {
-        VStack {
-            Text("Time:")
-            Text(entry.date, style: .time)
-
-            Text("Favorite Emoji:")
-            Text(entry.configuration.favoriteEmoji)
+        HStack(spacing: 23) {
+            SelectedRepoView()
+                .frame(width: 68)
+            TodoListView()
+                .frame(maxWidth: .infinity)
         }
     }
 }
@@ -57,7 +56,7 @@ struct RepoTodoWidget: Widget {
     var body: some WidgetConfiguration {
         AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: Provider()) { entry in
             RepoTodoWidgetEntryView(entry: entry)
-                .containerBackground(.fill.tertiary, for: .widget)
+                .containerBackground(.background, for: .widget)
         }
         .supportedFamilies([.systemMedium]) // Medium 크기만 지원
     }
