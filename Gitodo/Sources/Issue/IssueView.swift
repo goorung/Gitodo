@@ -129,23 +129,29 @@ class IssueView: UIView {
         self.viewModel = viewModel
         
         viewModel.output.issues
-            .map { $0.count }
-            .drive(onNext: { [weak self] count in
-                guard let self = self else { return }
-                if count == 0 {
-                    showMessageLabel(with: "생성된 이슈가 없습니다 🫥")
-                } else {
-                    messageLabel.isHidden = true
-                }
-            }).disposed(by: disposeBag)
-        
-        viewModel.output.issues
             .drive(issueTableView.rx.items(
                 cellIdentifier: IssueCell.reuseIdentifier,
                 cellType: IssueCell.self)
             ) { _, issue, cell in
                 cell.configure(with: issue)
             }.disposed(by: disposeBag)
+        
+        viewModel.output.issueState
+            .drive(onNext: { [weak self] state in
+                guard let self = self else { return }
+                switch state {
+                case .hasIssues:
+                    messageLabel.isHidden = true
+                case .noIssues:
+                    showMessageLabel(with: "생성된 이슈가 없습니다 🫥")
+                case .repoDeleted:
+                    showMessageLabel(with: "원격 저장소에서 삭제된 레포지토리입니다 👻")
+                case .noInternetConnection:
+                    showMessageLabel(with: "네트워크 연결이 필요합니다 🌐")
+                case .error:
+                    showMessageLabel(with: "문제가 발생했습니다.\n잠시 후 다시 시도해주세요!")
+                }
+            }).disposed(by: disposeBag)
         
         viewModel.output.isLoading
             .drive(onNext: { [weak self] isLoading in
@@ -159,12 +165,6 @@ class IssueView: UIView {
                         self.loadingView.isHidden = true
                     }
                 }
-            }).disposed(by: disposeBag)
-        
-        viewModel.output.isDeleted
-            .filter { $0 == true }
-            .drive(onNext: { [weak self] _ in
-                self?.showMessageLabel(with: "원격에서 삭제된 레포지토리입니다 👻")
             }).disposed(by: disposeBag)
     }
     

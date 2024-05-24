@@ -17,6 +17,14 @@ final class IssueViewModel {
     let input: Input
     let output: Output
     
+    enum IssueState {
+        case hasIssues
+        case noIssues
+        case repoDeleted
+        case noInternetConnection
+        case error
+    }
+    
     struct Input {
         let setCurrentRepo: AnyObserver<MyRepo>
         let fetchIssue: AnyObserver<Void>
@@ -24,16 +32,16 @@ final class IssueViewModel {
     
     struct Output {
         var issues: Driver<[Issue]>
+        var issueState: Driver<IssueState>
         var isLoading: Driver<Bool>
-        var isDeleted: Driver<Bool>
     }
     
     private let setCurrentRepoSubject = PublishSubject<MyRepo>()
     private let fetchIssueSubject = PublishSubject<Void>()
     
     private let issues = BehaviorRelay<[Issue]>(value: [])
+    private let issueState = BehaviorRelay<IssueState>(value: .hasIssues)
     private let isLoading = BehaviorRelay<Bool>(value: false)
-    private let isDeleted = BehaviorRelay<Bool>(value: false)
     
     private var currentRepo: MyRepo?
     
@@ -46,8 +54,8 @@ final class IssueViewModel {
         )
         output = Output(
             issues: issues.asDriver(),
-            isLoading: isLoading.asDriver(),
-            isDeleted: isDeleted.asDriver()
+            issueState: issueState.asDriver(),
+            isLoading: isLoading.asDriver()
         )
         
         setCurrentRepoSubject.subscribe(onNext: { [weak self] repo in
@@ -63,29 +71,39 @@ final class IssueViewModel {
     private func fetchIssue() {
         guard let repo = currentRepo else { return }
         if repo.isDeleted {
-            handleDeletedRepo()
+            updateIssues(state: .repoDeleted)
         } else {
             handleActiveRepo(repo: repo)
         }
-    }
-    
-    private func handleDeletedRepo() {
-        issues.accept([])
-        isDeleted.accept(true)
     }
     
     private func handleActiveRepo(repo: MyRepo) {
         isLoading.accept(true)
         Task {
             do {
-                let fetchedIssue = try await APIManager.shared.fetchIssues(for: repo)
-                issues.accept(fetchedIssue.filter { $0.pullRequest == nil })
-            } catch {
+                let allIssues = try await APIManager.shared.fetchIssues(for: repo)
+                let issuesWithoutPR = allIssues.filter { $0.pullRequest == nil }
+                if issuesWithoutPR.isEmpty {
+                    updateIssues(with: issuesWithoutPR, state: .noIssues)
+                } else {
+                    updateIssues(with: issuesWithoutPR, state: .hasIssues)
+                }
+                
+            } catch let error as URLError {
                 print("[IssueViewModel] fetchIssue failed : \(error.localizedDescription)")
-                issues.accept([])
+                if error.code == .notConnectedToInternet {
+                    updateIssues(state: .noInternetConnection)
+                } else {
+                    updateIssues(state: .error)
+                }
             }
             isLoading.accept(false)
         }
+    }
+    
+    private func updateIssues(with issues: [Issue] = [], state: IssueState) {
+        self.issues.accept(issues)
+        self.issueState.accept(state)
     }
     
     func issue(at indexPath: IndexPath) -> Issue {

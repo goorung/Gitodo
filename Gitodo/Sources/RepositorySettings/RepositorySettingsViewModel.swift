@@ -82,14 +82,14 @@ final class RepositorySettingsViewModel {
         isLoading.accept(true)
         Task {
             do {
-                let fetchedRepos = try await APIManager.shared.fetchRepositories().map {
+                let allRepos = try await APIManager.shared.fetchRepositories().map {
                     MyRepo.initItem(repository: $0)
                 }
-                try localRepositoryService.sync(with: fetchedRepos)
-                try updateRepos()
+                try localRepositoryService.sync(with: allRepos)
             } catch {
                 logError(in: "fetchRepos", error)
             }
+            try updateRepos()
             isLoading.accept(false)
         }
     }
