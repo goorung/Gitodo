@@ -25,7 +25,7 @@ class IssueInfoView: UIView {
     private lazy var titleLabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        label.font = .boldSystemFont(ofSize: 20.0)
+        label.font = .title2
         label.textColor = .label
         return label
     }()
@@ -169,7 +169,7 @@ class IssueInfoView: UIView {
     
     func loadMarkdown(markdown: String?) {
         let css = """
-        body { font-size: 16px; }
+        body { font-size: 15px; }
         code {
             font-family: monospace;
             font-size: 85%;
@@ -178,36 +178,36 @@ class IssueInfoView: UIView {
             font-weight: 600;
         }
         h1, h2, h3, h4, h5, h6 {
-            margin-top: 24px;
-            margin-bottom: 16px;
+            margin-top: 12px;
+            margin-bottom: 8px;
             font-weight: 600;
         }
         h1 {
-            font-size: 2em;
+            font-size: 1.9em;
             border-bottom: 1px solid var(--divider-color-light);
             padding-bottom: 0.3em;
             line-height: 1.125em;
         }
         h2 {
-            font-size: 1.5em;
+            font-size: 1.425em;
             border-bottom: 1px solid var(--divider-color-light);
             padding-bottom: 0.3em;
             line-height: 1.125em;
         }
         h3 {
-            font-size: 1.25em;
+            font-size: 1.1875em;
             line-height: 1.125em;
         }
         h4 {
-            font-size: 1em;
+            font-size: 0.95em;
             line-height: 1.125em;
         }
         h5 {
-            font-size: 0.875em;
+            font-size: 0.83125em;
             line-height: 1.125em;
         }
         h6 {
-            font-size: 0.85em;
+            font-size: 0.8075em;
             line-height: 1.125em;
         }
         p {
@@ -268,7 +268,7 @@ extension IssueInfoView {
         let label = UILabel()
         label.text = text
         label.textColor = .systemGray
-        label.font = .systemFont(ofSize: 13, weight: .semibold)
+        label.font = .calloutSB
         return label
     }
     

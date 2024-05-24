@@ -197,7 +197,7 @@ extension RepositoryInfoView {
         let label = UILabel()
         label.text = text
         label.textColor = .label
-        label.font = .boldSystemFont(ofSize: 15)
+        label.font = .bodyB
         return label
     }
     
@@ -205,7 +205,7 @@ extension RepositoryInfoView {
         let textField = UITextField()
         textField.backgroundColor = .background
         textField.borderStyle = .roundedRect
-        textField.font = .systemFont(ofSize: 13)
+        textField.font = .callout
         return textField
     }
     

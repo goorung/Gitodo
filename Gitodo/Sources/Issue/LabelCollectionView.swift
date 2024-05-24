@@ -77,7 +77,7 @@ extension LabelCollectionView: UICollectionViewDelegateFlowLayout {
         guard let labels = labels else { return .zero }
         
         let label = UILabel()
-        label.font = .systemFont(ofSize: 12.0, weight: .semibold)
+        label.font = .caption
         label.text = labels[indexPath.row].name
         label.sizeToFit()
         let size = label.frame.size

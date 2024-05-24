@@ -35,7 +35,7 @@ class TodoView: UIView {
         button.setImage(UIImage(systemName: "plus.circle.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), for: .normal)
         button.setImage(UIImage(systemName: "plus.circle.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), for: .highlighted)
         button.setTitle(" 할 일 추가", for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
+        button.titleLabel?.font = .title3
         button.tintColor = .init(hex: PaletteColor.blue1.hex)
         button.setTitleColor(.init(hex: PaletteColor.blue1.hex), for: .normal)
         button.addTarget(self, action: #selector(todoAddButtonTapped), for: .touchUpInside)
@@ -56,7 +56,7 @@ class TodoView: UIView {
         label.attributedText = attributedString
         
         label.textAlignment = .center
-        label.font = .systemFont(ofSize: 15, weight: .semibold)
+        label.font = .bodySB
         label.textColor = .tertiaryLabel
         label.numberOfLines = 2
         return label

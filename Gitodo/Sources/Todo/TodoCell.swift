@@ -36,7 +36,7 @@ class TodoCell: UITableViewCell {
     private lazy var todoTextView = {
         let textView = UITextView()
         textView.backgroundColor = .clear
-        textView.font = .systemFont(ofSize: 15)
+        textView.font = .body
         textView.textColor = .label
         textView.autocorrectionType = .no
         textView.autocapitalizationType = .none

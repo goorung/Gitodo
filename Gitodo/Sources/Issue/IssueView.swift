@@ -36,7 +36,7 @@ class IssueView: UIView {
     private lazy var messageLabel = {
         let label = UILabel()
         label.textAlignment = .center
-        label.font = .systemFont(ofSize: 15, weight: .semibold)
+        label.font = .bodySB
         label.textColor = .tertiaryLabel
         return label
     }()
