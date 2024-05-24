@@ -203,6 +203,7 @@ extension RepositoryInfoView {
     
     private func createTextField() -> UITextField {
         let textField = UITextField()
+        textField.backgroundColor = .background
         textField.borderStyle = .roundedRect
         textField.font = .systemFont(ofSize: 13)
         return textField

@@ -32,6 +32,7 @@ class PaletteColorCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
+        backgroundColor = .clear
         setupLayout()
     }
     

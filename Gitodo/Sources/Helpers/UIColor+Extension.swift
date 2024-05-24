@@ -28,4 +28,6 @@ extension UIColor {
         }
     }
     
+    static let background = color(light: .white, dark: UIColor(hex: 0x242424))
+    
 }

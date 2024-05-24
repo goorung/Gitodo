@@ -52,7 +52,7 @@ class BaseViewController<View: UIView>: UIViewController {
         super.viewDidLoad()
         navigationController?.setNavigationBarHidden(true, animated: false)
         
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .background
 
         setupLayout()
     }
