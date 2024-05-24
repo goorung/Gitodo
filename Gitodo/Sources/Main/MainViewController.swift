@@ -12,7 +12,7 @@ import GitodoShared
 import RxSwift
 import SwiftyToaster
 
-class MainViewController: BaseViewController<MainView>, BaseViewControllerProtocol {
+final class MainViewController: BaseViewController<MainView>, BaseViewControllerProtocol {
 
     private let viewModel: MainViewModel
     private let disposeBag = DisposeBag()
@@ -127,18 +127,19 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
     
     // MARK: - Bind
 
-        private func bind() {
-            viewModel.output.hideDisabled
-                .drive(onNext: {
-                    Toaster.shared.setToastType(.round)
-                    Toaster.shared.makeToast("한 개 이상의 레포지토리가 있어야 합니다.")
-                }).disposed(by: disposeBag)
-        }
+    private func bind() {
+        viewModel.output.hideDisabled
+            .drive(onNext: {
+                Toaster.shared.setToastType(.round)
+                Toaster.shared.makeToast("한 개 이상의 레포지토리가 있어야 합니다.")
+            }).disposed(by: disposeBag)
+    }
     
 }
 
 extension MainViewController: MenuDelegate, RepoMenuDelegate {
-    func pushViewController(_ menu: MenuType) {
+    
+    func pushViewController(_ menu: MainMenuType) {
         switch menu {
         case .repositorySettings:
             let repositorySettingsViewController = RepositorySettingsViewController()
@@ -212,6 +213,7 @@ extension MainViewController: IssueDelegate {
 }
 
 extension MainViewController: MainViewDelegate {
+    
     func showMenu(from cell: RepositoryInfoCell) {
         guard let repo = cell.repository else { return }
         let menuViewController = RepoMenuViewController(repo: repo)
@@ -231,6 +233,7 @@ extension MainViewController: MainViewDelegate {
 }
 
 extension MainViewController: RepositoryInfoViewControllerDelegate {
+    
     func doneButtonTapped(repository: MyRepo) {
         viewModel.input.updateRepoInfo.onNext(repository)
     }

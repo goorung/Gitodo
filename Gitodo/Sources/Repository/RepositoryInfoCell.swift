@@ -11,11 +11,17 @@ import GitodoShared
 
 import SnapKit
 
-class RepositoryInfoCell: UICollectionViewCell {
+final class RepositoryInfoCell: UICollectionViewCell {
+    
     static let reuseIdentifier = "RepositoryInfoCell"
+    
     private(set) var repository: MyRepo?
     
+    // MARK: - UI Components
+    
     private lazy var repositoryView = RepositoryView()
+    
+    // MARK: - Initializer
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -32,6 +38,8 @@ class RepositoryInfoCell: UICollectionViewCell {
         
         repositoryView.reset()
     }
+    
+    // MARK: - Setup Methods
     
     private func setupLayout() {
         contentView.addSubview(repositoryView)
@@ -50,4 +58,5 @@ class RepositoryInfoCell: UICollectionViewCell {
     func setEditMode() {
         repositoryView.setEditMode()
     }
+    
 }

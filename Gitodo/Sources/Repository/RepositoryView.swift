@@ -9,7 +9,9 @@ import UIKit
 
 import SnapKit
 
-class RepositoryView: UIView {
+final class RepositoryView: UIView {
+    
+    // MARK - UI Components
     
     private lazy var circleView = SymbolCircleView()
     
@@ -35,6 +37,8 @@ class RepositoryView: UIView {
         
         setupLayout()
     }
+    
+    // MARK: - Setup Methods
     
     private func setupLayout() {
         addSubview(circleView)

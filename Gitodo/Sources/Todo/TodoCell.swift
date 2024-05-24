@@ -14,13 +14,17 @@ protocol TodoCellDelegate: AnyObject {
     func updateHeightOfRow(_ cell: TodoCell, _ textView: UITextView)
 }
 
-class TodoCell: UITableViewCell {
-    weak var delegate: TodoCellDelegate?
+final class TodoCell: UITableViewCell {
+    
     static let reuseIdentifier = "TodoCell"
+    
+    weak var delegate: TodoCellDelegate?
     var viewModel: TodoCellViewModel?
     var disposeBag = DisposeBag()
     
     var previousHeight: CGFloat = 0
+    
+    // MARK: - UI Components
     
     lazy var checkbox = {
         let imageView = UIImageView(image: UIImage(systemName: "circle"))
@@ -46,6 +50,8 @@ class TodoCell: UITableViewCell {
         return textView
     }()
     
+    // MARK: - Initializer
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
@@ -66,6 +72,8 @@ class TodoCell: UITableViewCell {
         todoTextView.text = nil
         todoTextView.textColor = .label
     }
+    
+    // MARK: - Setup Methods
     
     private func setupLayout() {
         contentView.addSubview(checkbox)
@@ -112,9 +120,11 @@ class TodoCell: UITableViewCell {
         todoTextView.textColor = isComplete ? .secondaryLabel : .label
         todoTextView.isEditable = !isComplete
     }
+    
 }
 
 extension TodoCell: UITextViewDelegate {
+    
     func textViewDidBeginEditing(_ textView: UITextView) {
         viewModel?.beginEditing()
     }
@@ -140,4 +150,5 @@ extension TodoCell: UITextViewDelegate {
         }
         return true
     }
+    
 }

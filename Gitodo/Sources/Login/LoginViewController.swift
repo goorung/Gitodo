@@ -7,7 +7,9 @@
 
 import UIKit
 
-class LoginViewController: BaseViewController<LoginView> {
+final class LoginViewController: BaseViewController<LoginView> {
+    
+    // MARK: - Life Cycle
     
     override func viewDidLoad() {
         super.viewDidLoad()

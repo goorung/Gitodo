@@ -15,7 +15,7 @@ import MarkdownView
 import SkeletonView
 import SnapKit
 
-class IssueInfoView: UIView {
+final class IssueInfoView: UIView {
     
     // MARK: - UI Components
     

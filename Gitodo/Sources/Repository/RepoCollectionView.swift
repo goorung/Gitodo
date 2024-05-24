@@ -9,7 +9,7 @@ import UIKit
 
 import GitodoShared
 
-class RepoCollectionView: UICollectionView {
+final class RepoCollectionView: UICollectionView, UIGestureRecognizerDelegate {
     
     let localRepositoryService = LocalRepositoryService()
     let isEditMode: Bool
@@ -25,6 +25,8 @@ class RepoCollectionView: UICollectionView {
             reloadData()
         }
     }
+    
+    // MARK: - Initializer
     
     init(isEditMode: Bool) {
         self.isEditMode = isEditMode
@@ -56,6 +58,7 @@ class RepoCollectionView: UICollectionView {
 }
 
 extension RepoCollectionView: UICollectionViewDataSource {
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         repos.count
     }
@@ -82,19 +85,24 @@ extension RepoCollectionView: UICollectionViewDataSource {
 }
 
 extension RepoCollectionView: UICollectionViewDelegate {
+    
     func collectionView(_ collectionView: UICollectionView, canMoveItemAt indexPath: IndexPath) -> Bool {
         return isEditMode
     }
+    
 }
 
 extension RepoCollectionView: UICollectionViewDragDelegate {
+    
     func collectionView(_ collectionView: UICollectionView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
         guard isEditMode else { return [] }
         return [UIDragItem(itemProvider: NSItemProvider())]
     }
+    
 }
 
 extension RepoCollectionView: UICollectionViewDropDelegate {
+    
     func collectionView(_ collectionView: UICollectionView, performDropWith coordinator: UICollectionViewDropCoordinator) {
         guard isEditMode else { return }
         var destinationIndexPath: IndexPath
@@ -150,9 +158,5 @@ extension RepoCollectionView: UICollectionViewDropDelegate {
         }
         return UICollectionViewDropProposal(operation: .move, intent: .insertAtDestinationIndexPath)
     }
-    
-}
-
-extension RepoCollectionView: UIGestureRecognizerDelegate {
     
 }

@@ -13,7 +13,7 @@ protocol LoginDelegate: AnyObject {
     func loginWithGithub()
 }
 
-class LoginView: UIView {
+final class LoginView: UIView {
     
     weak var delegate: LoginDelegate?
     

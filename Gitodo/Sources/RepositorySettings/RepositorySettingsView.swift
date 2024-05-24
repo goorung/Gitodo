@@ -18,7 +18,7 @@ protocol RepositorySettingsDelegate: AnyObject {
     func presentRepositoryInfoViewController(repository: MyRepo)
 }
 
-class RepositorySettingsView: UIView {
+final class RepositorySettingsView: UIView {
     
     private var viewModel: RepositorySettingsViewModel?
     private let disposeBag = DisposeBag()
@@ -178,6 +178,8 @@ class RepositorySettingsView: UIView {
             make.center.equalToSuperview()
         }
     }
+    
+    // MARK: - Bind
     
     private func bind() {
         repoTableView.rx.itemSelected

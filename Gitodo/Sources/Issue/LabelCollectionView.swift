@@ -9,7 +9,7 @@ import UIKit
 
 import GitodoShared
 
-class LabelCollectionView: UICollectionView {
+final class LabelCollectionView: UICollectionView {
     
     private var labels: [Label]? {
         didSet {
