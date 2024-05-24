@@ -40,6 +40,15 @@ class LoginView: UIView {
         return button
     }()
     
+    private lazy var loadingImages: [UIImage] = {
+        return [
+            UIImage(named: "loading_1.png"),
+            UIImage(named: "loading_2.png"),
+            UIImage(named: "loading_3.png"),
+            UIImage(named: "loading_4.png")
+        ].compactMap { $0 }
+    }()
+    
     // MARK: - Initializer
     
     override init(frame: CGRect) {
@@ -72,6 +81,17 @@ class LoginView: UIView {
     
     @objc private func handleLoginButtonTap() {
         delegate?.loginWithGithub()
+    }
+    
+    func startLoading() {
+        logoImageView.animationImages = loadingImages
+        logoImageView.animationDuration = 1.5
+        logoImageView.startAnimating()
+    }
+    
+    func endLoading() {
+        logoImageView.stopAnimating()
+        logoImageView.image = UIImage(named: "logo.png")
     }
     
 }

@@ -7,7 +7,7 @@
 
 import UIKit
 
-import RealmSwift
+import SwiftyToaster
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -18,6 +18,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
         
+        Toaster.shared.setToastType(.round)
+        UserDefaultsManager.isLogin = false
+        
         if UserDefaultsManager.isLogin {
             let mainViewModel = MainViewModel(localRepositoryService: LocalRepositoryService())
             let mainViewController = MainViewController(viewModel: mainViewModel)
@@ -25,6 +28,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         } else {
             window?.rootViewController = LoginViewController()
         }
+        
         window?.makeKeyAndVisible()
     }
     
@@ -34,10 +38,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
               let queryItems = components.queryItems,
               let code = queryItems.first(where: { $0.name == "code" })?.value
         else {
-            print("로그인 실패") // 나중에 토스트 메시지로 변경 예정 !
+            Toaster.shared.makeToast("로그인에 실패했습니다.\n다시 시도해주세요.")
             return
         }
         
+        NotificationCenter.default.post(name: .LoginDidStart, object: nil)
         Task {
             do {
                 try await LoginManager.shared.fetchAccessToken(with: code)
@@ -50,7 +55,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 }
             } catch {
                 print("Access Token 요청 실패: \(error.localizedDescription)")
+                Toaster.shared.makeToast("로그인에 실패했습니다.\n다시 시도해주세요.")
             }
+            NotificationCenter.default.post(name: .LoginDidEnd, object: nil)
         }
     }
 
