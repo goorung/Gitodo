@@ -50,7 +50,7 @@ final class RepositorySettingsView: UIView {
     
     private lazy var emptyView = {
         let view = UIView()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .background
         view.clipsToBounds = true
         view.layer.cornerRadius = 10
         return view
@@ -68,7 +68,7 @@ final class RepositorySettingsView: UIView {
         attributedString.addAttribute(NSAttributedString.Key.paragraphStyle, value: paragraphStyle, range: NSMakeRange(0, attributedString.length))
         label.attributedText = attributedString
         label.textAlignment = .center
-        label.font = .systemFont(ofSize: 15, weight: .semibold)
+        label.font = .bodySB
         label.textColor = .tertiaryLabel
         label.numberOfLines = 2
         return label
