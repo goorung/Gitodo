@@ -36,7 +36,7 @@ class RepoMenuViewController: UIViewController {
     
     private lazy var editButton = {
         let button = UIButton()
-        button.backgroundColor = .systemBackground
+        button.backgroundColor = .background
         button.setTitle(RepoMenuType.allCases[0].title, for: .normal)
         button.titleLabel?.font = .callout
         button.setTitleColor(.label, for: .normal)
@@ -46,7 +46,7 @@ class RepoMenuViewController: UIViewController {
     
     private lazy var hideButton = {
         let button = UIButton()
-        button.backgroundColor = .systemBackground
+        button.backgroundColor = .background
         button.setTitle(RepoMenuType.allCases[1].title, for: .normal)
         button.titleLabel?.font = .callout
         button.setTitleColor(.label, for: .normal)
@@ -68,7 +68,7 @@ class RepoMenuViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .background
         setupLayout()
     }
     

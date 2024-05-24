@@ -20,6 +20,7 @@ class TodoView: UIView {
     
     private lazy var todoTableView = {
         let view = UITableView()
+        view.backgroundColor = .background
         view.separatorStyle = .none
         view.rowHeight = UITableView.automaticDimension
         view.register(TodoCell.self, forCellReuseIdentifier: TodoCell.reuseIdentifier)
@@ -64,6 +65,7 @@ class TodoView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
+        backgroundColor = .background
         setupLayout()
         configureDataSource()
         setupKeyboardObservers()

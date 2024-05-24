@@ -61,9 +61,10 @@ class AssigneeCollectionView: UICollectionView {
     // MARK: - Setup Methods
     
     private func setupProperty() {
-        self.delegate = self
-        self.dataSource = self
-        self.register(AssigneeCell.self, forCellWithReuseIdentifier: AssigneeCell.reuseIdentifier)
+        delegate = self
+        dataSource = self
+        register(AssigneeCell.self, forCellWithReuseIdentifier: AssigneeCell.reuseIdentifier)
+        backgroundColor = .clear
         isUserInteractionEnabled = false
     }
     

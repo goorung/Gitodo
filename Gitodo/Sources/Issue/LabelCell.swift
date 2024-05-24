@@ -20,7 +20,7 @@ class LabelCell: UICollectionViewCell {
     private lazy var nameLabel = {
         let label = UILabel()
         label.font = .caption
-        label.textColor = .label
+        label.textColor = .black
         return label
     }()
     

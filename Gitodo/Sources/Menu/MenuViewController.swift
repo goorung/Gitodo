@@ -21,6 +21,7 @@ class MenuViewController: UIViewController {
     
     private lazy var menuTableView = {
         let tableView = UITableView()
+        tableView.backgroundColor = .background
         tableView.register(MenuCell.self, forCellReuseIdentifier: MenuCell.reuseIdentifier)
         tableView.delegate = self
         tableView.dataSource = self
