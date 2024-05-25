@@ -91,8 +91,8 @@ class MainView: UIView {
     private func setupLayout() {
         addSubview(repoCollectionView)
         repoCollectionView.snp.makeConstraints { make in
-            make.top.equalToSuperview().inset(10)
-            make.leading.trailing.equalToSuperview().inset(20)
+            make.top.equalToSuperview().inset(20)
+            make.leading.trailing.equalToSuperview()
             make.height.equalTo(80)
         }
         
