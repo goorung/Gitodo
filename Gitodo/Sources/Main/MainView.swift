@@ -139,8 +139,8 @@ class MainView: UIView {
         }
     }
     
-    func setIssueDelegate(_ viewController: IssueDelegate) {
-        issueView.issueDelegate = viewController
+    func setIssueDelegate(_ delegate: IssueDelegate) {
+        issueView.issueDelegate = delegate
     }
     
     // MARK: - Bind
