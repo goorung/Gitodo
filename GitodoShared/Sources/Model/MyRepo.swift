@@ -19,6 +19,19 @@ public struct MyRepo: Identifiable {
     public var isPublic: Bool = false // 메인 뷰에서 공개적으로 보여질지 여부
     public var isDeleted: Bool = false // 원격에서 삭제되었는지 여부
     
+    public init(id: Int, name: String, fullName: String, ownerName: String, nickname: String, symbol: String? = nil, hexColor: UInt, todos: [TodoItem] = [], isPublic: Bool = false , isDeleted: Bool = false) {
+        self.id = id
+        self.name = name
+        self.fullName = fullName
+        self.ownerName = ownerName
+        self.nickname = nickname
+        self.symbol = symbol
+        self.hexColor = hexColor
+        self.todos = todos
+        self.isPublic = isPublic
+        self.isDeleted = isDeleted
+    }
+    
     public static func == (lhs: MyRepo, rhs: MyRepo) -> Bool {
         return lhs.id == rhs.id
     }

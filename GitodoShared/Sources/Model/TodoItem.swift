@@ -12,6 +12,14 @@ public struct TodoItem {
     public var todo: String
     public var isComplete: Bool
     public var order: Int = 0
+    
+    public init(id: UUID = .init(), todo: String, isComplete: Bool, order: Int = 0) {
+        self.id = id
+        self.todo = todo
+        self.isComplete = isComplete
+        self.order = order
+    }
+    
 }
 
 public extension TodoItem {

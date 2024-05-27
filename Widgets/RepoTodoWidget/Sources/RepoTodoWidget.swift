@@ -8,33 +8,85 @@
 import WidgetKit
 import SwiftUI
 
-struct Provider: AppIntentTimelineProvider {
-    func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), configuration: ConfigurationAppIntent())
-    }
+import GitodoShared
 
-    func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> SimpleEntry {
-        SimpleEntry(date: Date(), configuration: configuration)
+struct Provider: TimelineProvider {
+    let repoTodoWidgetService: RepoTodoWidgetServiceProtocol = RepoTodoWidgetService()
+    
+    var currentRepository: MyRepo? {
+        let repoID = UserDefaultsManager.widgetSelectedRepo
+        if let repo = try? repoTodoWidgetService.fetchRepo(repoID) {
+            return repo
+        } else {
+            return nil
+        }
     }
     
-    func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SimpleEntry> {
-        var entries: [SimpleEntry] = []
-
-        // Generate a timeline consisting of five entries an hour apart, starting from the current date.
-        let currentDate = Date()
-        for hourOffset in 0 ..< 5 {
-            let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
-            let entry = SimpleEntry(date: entryDate, configuration: configuration)
-            entries.append(entry)
+    var tempRepo: MyRepo? {
+        guard let repos =  try? repoTodoWidgetService.fetchPublicRepos() else { return nil }
+        if var repo = repos.first {
+            repo.todos = repo.todos.sorted {
+                $0.order < $1.order
+            }
+            return repo
         }
-
-        return Timeline(entries: entries, policy: .atEnd)
+        return nil
+    }
+    
+    func getSnapshot(in context: Context, completion: @escaping (TodoWidgetEntry) -> Void) {
+        if context.isPreview {
+            return completion(TodoWidgetEntry.preview)
+        }
+        completion(TodoWidgetEntry(date: .now, repository: tempRepo ?? MyRepo(id: 0, name: "Gitodo", fullName: "Gitodo", ownerName: "JH713", nickname: "Gitodo", symbol: "🍀", hexColor: 0xCCECC2, todos: [])))
+    }
+    
+    func getTimeline(in context: Context, completion: @escaping (Timeline<TodoWidgetEntry>) -> Void) {
+        if context.isPreview {
+            return completion(Timeline(entries: [TodoWidgetEntry.preview], policy: .never))
+        }
+        completion(Timeline(entries: [TodoWidgetEntry(date: .now, repository: tempRepo ?? MyRepo(id: 0, name: "Gitodo", fullName: "Gitodo", ownerName: "JH713", nickname: "Gitodo", symbol: "🍀", hexColor: 0xCCECC2, todos: []))], policy: .never))
+    }
+    
+    func placeholder(in context: Context) -> TodoWidgetEntry {
+        TodoWidgetEntry.preview
     }
 }
 
-struct SimpleEntry: TimelineEntry {
+struct TodoWidgetEntry: TimelineEntry {
     let date: Date
-    let configuration: ConfigurationAppIntent
+    let repository: MyRepo
+    
+    var mainColor: PaletteColor {
+        PaletteColor.findColor(by: repository.hexColor) ?? .blue1
+    }
+    
+    var topFourTodos: [TodoItem] {
+        Array(repository.todos.sorted{ $0.order < $1.order }.prefix(4))
+    }
+    
+    static var preview: TodoWidgetEntry {
+        let demoTodos: [TodoItem] = [
+            .init(todo: "위젯", isComplete: false),
+            .init(todo: "배포", isComplete: false),
+            .init(todo: "설명 문구", isComplete: false),
+            .init(todo: "너무 길면 뒤에 점점점으로 할거임더길게", isComplete: true),
+        ]
+        let demoRepository = MyRepo(id: 0, name: "Gitodo", fullName: "Gitodo", ownerName: "JH713", nickname: "Gitodo", symbol: "🍀", hexColor: 0xCCECC2, todos: demoTodos)
+        
+        return TodoWidgetEntry(date: .now, repository: demoRepository)
+    }
+    
+    static var current: TodoWidgetEntry {
+//        let repo = 
+        let todos: [TodoItem] = [
+            .init(todo: "위젯", isComplete: false),
+            .init(todo: "배포", isComplete: false),
+            .init(todo: "설명 문구", isComplete: false),
+            .init(todo: "너무 길면 뒤에 점점점으로 할거임더길게", isComplete: true),
+        ]
+        let demoRepository = MyRepo(id: 0, name: "Gitodo", fullName: "Gitodo", ownerName: "JH713", nickname: "Gitodo", symbol: "🍀", hexColor: 0xCCECC2, todos: todos)
+        return TodoWidgetEntry(date: .now, repository: demoRepository)
+    }
 }
 
 struct RepoTodoWidgetEntryView : View {
@@ -42,10 +94,11 @@ struct RepoTodoWidgetEntryView : View {
 
     var body: some View {
         HStack(spacing: 23) {
-            SelectedRepoView()
+            SelectedRepoView(entry: entry)
                 .frame(width: 68)
-            TodoListView()
+            TodoListView(entry: entry)
                 .frame(maxWidth: .infinity)
+                .padding(.vertical, 13)
         }
     }
 }
@@ -54,7 +107,7 @@ struct RepoTodoWidget: Widget {
     let kind: String = "RepoTodoWidget"
 
     var body: some WidgetConfiguration {
-        AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: Provider()) { entry in
+        StaticConfiguration(kind: kind, provider: Provider()) { entry in
             RepoTodoWidgetEntryView(entry: entry)
                 .containerBackground(.background, for: .widget)
         }
@@ -62,23 +115,9 @@ struct RepoTodoWidget: Widget {
     }
 }
 
-extension ConfigurationAppIntent {
-    fileprivate static var smiley: ConfigurationAppIntent {
-        let intent = ConfigurationAppIntent()
-        intent.favoriteEmoji = "😀"
-        return intent
+struct RepoTodoWidget_Previews: PreviewProvider {
+    static var previews: some View {
+        RepoTodoWidgetEntryView(entry: TodoWidgetEntry.preview)
+            .previewContext(WidgetPreviewContext(family: .systemMedium))
     }
-    
-    fileprivate static var starEyes: ConfigurationAppIntent {
-        let intent = ConfigurationAppIntent()
-        intent.favoriteEmoji = "🤩"
-        return intent
-    }
-}
-
-#Preview(as: .systemMedium) {
-    RepoTodoWidget()
-} timeline: {
-    SimpleEntry(date: .now, configuration: .smiley)
-    SimpleEntry(date: .now, configuration: .starEyes)
 }

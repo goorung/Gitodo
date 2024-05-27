@@ -8,12 +8,12 @@
 import Foundation
 
 @propertyWrapper
-struct UserDefaultsData<Value: Codable> {
+public struct UserDefaultsData<Value: Codable> {
     let key: String
     let defaultValue: Value
     var container: UserDefaults = .standard
     
-    var wrappedValue: Value {
+    public var wrappedValue: Value {
         get {
             guard let data = container.object(forKey: key) as? Data else {
                 return defaultValue

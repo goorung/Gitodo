@@ -114,8 +114,10 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
     
     @objc private func handleAccessTokenExpire() {
         UserDefaultsManager.isLogin = false
-        guard let window = view.window else { return }
-        window.rootViewController = LoginViewController()
+        Task { @MainActor in
+            guard let window = view.window else { return }
+            window.rootViewController = LoginViewController()
+        }
     }
     
     private func pushRepositorySettingViewControllerIf() {

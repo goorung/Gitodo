@@ -8,7 +8,11 @@
 import WidgetKit
 import SwiftUI
 
+import GitodoShared
+
 struct SelectedRepoView: View {
+    let entry: TodoWidgetEntry
+    
     var body: some View {
         VStack(spacing: 13) {
             repositoryImage
@@ -21,20 +25,20 @@ struct SelectedRepoView: View {
         ZStack {
             Circle()
                 .frame(width: 65, height: 65)
-                .foregroundColor(Color(uiColor: UIColor(red: 204/255, green: 236/255, blue: 194/255, alpha: 1)))
-            Text("🍀")
+                .foregroundColor(Color.init(paletteColor: entry.mainColor))
+            Text(entry.repository.symbol ?? "")
                 .font(.system(size: 32))
         }
     }
     
     var repositoryInfo: some View {
         VStack(alignment: .leading) {
-            Text("3")
+            Text("\(entry.repository.todos.filter { !$0.isComplete }.count)")
                 .font(.system(size: 18))
                 .fontWeight(.bold)
                 .fontDesign(.rounded)
-                .foregroundColor(Color(uiColor: UIColor(red: 157/255, green: 195/255, blue: 147/255, alpha: 1)))
-            Text("Gitodo")
+                .foregroundColor(Color(entry.mainColor.colorLabelName))
+            Text(entry.repository.nickname)
                 .font(.system(size: 17))
                 .fontWeight(.bold)
                 .fontDesign(.rounded)
@@ -44,7 +48,7 @@ struct SelectedRepoView: View {
 
 struct SelectedRepoView_Previews: PreviewProvider {
     static var previews: some View {
-        SelectedRepoView()
+        SelectedRepoView(entry: TodoWidgetEntry.preview)
             .previewContext(WidgetPreviewContext(family: .systemMedium))
     }
 }

@@ -7,6 +7,8 @@
 
 import UIKit
 
+import GitodoShared
+
 import SwiftyToaster
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
