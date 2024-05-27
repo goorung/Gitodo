@@ -81,6 +81,7 @@ final class RepositorySettingsViewController: BaseViewController<RepositorySetti
     
     @objc private func handleAccessTokenExpire() {
         UserDefaultsManager.isLogin = false
+        UserDefaultsManager.isPublicRepoSet = false
         WidgetCenter.shared.reloadAllTimelines()
         
         guard let window = view.window else { return }

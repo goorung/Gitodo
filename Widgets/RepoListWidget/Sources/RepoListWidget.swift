@@ -45,6 +45,8 @@ struct RepoListWidget: Widget {
                     .background()
             }
         }
+        .configurationDisplayName("레포지토리 할 일 현황")
+        .description("각 레포지토리의 할 일 현황을 볼 수 있습니다.")
         .supportedFamilies([.systemSmall]) // Small 크기만 지원
     }
 }

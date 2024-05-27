@@ -115,6 +115,7 @@ final class MainViewController: BaseViewController<MainView>, BaseViewController
     
     @objc private func handleAccessTokenExpire() {
         UserDefaultsManager.isLogin = false
+        UserDefaultsManager.isPublicRepoSet = false
         WidgetCenter.shared.reloadAllTimelines()
         
         guard let window = view.window else { return }

@@ -114,8 +114,8 @@ struct RepoTodoWidget: Widget {
             RepoTodoWidgetEntryView(entry: entry)
                 .containerBackground(.background, for: .widget)
         }
-        .configurationDisplayName("레포지토리 투두")
-        .description("선택된 레포지토리의 투두를 볼 수 있습니다.")
+        .configurationDisplayName("레포지토리 할 일 목록")
+        .description("선택된 레포지토리의 할 일 목록을 볼 수 있습니다.")
         .supportedFamilies([.systemMedium])
     }
 }
