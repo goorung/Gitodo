@@ -145,7 +145,8 @@ extension MainViewController: MenuDelegate, RepoMenuDelegate {
             let repositorySettingsViewController = RepositorySettingsViewController()
             navigationController?.pushViewController(repositorySettingsViewController, animated: true)
         case .contact:
-            print("문의하기")
+            let contactViewController = ContactViewController()
+            navigationController?.pushViewController(contactViewController, animated: true)
         case .logout:
             presentAlertViewController()
         }
