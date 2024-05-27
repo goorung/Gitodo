@@ -24,6 +24,10 @@ private let appInfoPlist = InfoPlist.extendingDefault(with: [
             ])
         ])
     ]),
+    "UISupportedInterfaceOrientations":
+    [
+        "UIInterfaceOrientationPortrait",
+    ],
     "CFBundleURLTypes": [
         [
             "CFBundleTypeRole": "Editor",
