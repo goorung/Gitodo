@@ -6,15 +6,16 @@
 //
 
 import UIKit
+import WidgetKit
 
 import GitodoShared
 
 import RxSwift
 import SwiftyToaster
 
-class MainViewController: BaseViewController<MainView>, BaseViewControllerProtocol {
+final class MainViewController: BaseViewController<MainView>, BaseViewControllerProtocol {
 
-    private let viewModel: MainViewModel
+    let viewModel: MainViewModel
     private let disposeBag = DisposeBag()
     
     // MARK: - Initializer
@@ -114,8 +115,13 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
     
     @objc private func handleAccessTokenExpire() {
         UserDefaultsManager.isLogin = false
+        WidgetCenter.shared.reloadAllTimelines()
+        
         guard let window = view.window else { return }
-        window.rootViewController = LoginViewController()
+        DispatchQueue.main.async {
+            window.rootViewController = LoginViewController()
+            Toaster.shared.makeToast("토큰이 만료됐습니다.\n다시 로그인해주세요.")
+        }
     }
     
     private func pushRepositorySettingViewControllerIf() {
@@ -127,24 +133,26 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
     
     // MARK: - Bind
 
-        private func bind() {
-            viewModel.output.hideDisabled
-                .drive(onNext: {
-                    Toaster.shared.setToastType(.round)
-                    Toaster.shared.makeToast("한 개 이상의 레포지토리가 있어야 합니다.")
-                }).disposed(by: disposeBag)
-        }
+    private func bind() {
+        viewModel.output.hideDisabled
+            .drive(onNext: {
+                Toaster.shared.setToastType(.round)
+                Toaster.shared.makeToast("한 개 이상의 레포지토리가 있어야 합니다.")
+            }).disposed(by: disposeBag)
+    }
     
 }
 
 extension MainViewController: MenuDelegate, RepoMenuDelegate {
-    func pushViewController(_ menu: MenuType) {
+    
+    func pushViewController(_ menu: MainMenuType) {
         switch menu {
         case .repositorySettings:
             let repositorySettingsViewController = RepositorySettingsViewController()
             navigationController?.pushViewController(repositorySettingsViewController, animated: true)
         case .contact:
-            print("문의하기")
+            let contactViewController = ContactViewController()
+            navigationController?.pushViewController(contactViewController, animated: true)
         case .logout:
             presentAlertViewController()
         }
@@ -164,6 +172,8 @@ extension MainViewController: MenuDelegate, RepoMenuDelegate {
             LoginManager.shared.deleteAccessToken()
             UserDefaultsManager.isLogin = false
             UserDefaultsManager.isPublicRepoSet = false
+            //위젯 갱신
+            WidgetCenter.shared.reloadAllTimelines()
             // 화면 이동
             let loginViewController = LoginViewController()
             self?.view.window?.rootViewController = UINavigationController(rootViewController: loginViewController)
@@ -213,6 +223,7 @@ extension MainViewController: IssueDelegate {
 }
 
 extension MainViewController: MainViewDelegate {
+    
     func showMenu(from cell: RepositoryInfoCell) {
         guard let repo = cell.repository else { return }
         let menuViewController = RepoMenuViewController(repo: repo)
@@ -232,8 +243,20 @@ extension MainViewController: MainViewDelegate {
 }
 
 extension MainViewController: RepositoryInfoViewControllerDelegate {
+    
     func doneButtonTapped(repository: MyRepo) {
         viewModel.input.updateRepoInfo.onNext(repository)
     }
     
+}
+
+extension MainViewController: Reloadable {
+    func reloadView() {
+        viewModel.input.viewWillAppear.onNext(())
+    }
+    
+}
+
+protocol Reloadable {
+    func reloadView()
 }

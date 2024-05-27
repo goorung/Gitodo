@@ -9,7 +9,7 @@ import UIKit
 
 import SnapKit
 
-class MenuCell: UITableViewCell {
+final class MenuCell: UITableViewCell {
     
     static let reuseIdentifier = "MenuCell"
     
@@ -60,7 +60,7 @@ class MenuCell: UITableViewCell {
         }
     }
     
-    func configure(with menu: MenuType) {
+    func configure(with menu: MainMenuType) {
         symbolImageView.image = UIImage(systemName: menu.symbol)
         titleLabel.text = menu.title
     }

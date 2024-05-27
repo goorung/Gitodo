@@ -13,14 +13,13 @@ protocol PaletteColorDelegate: AnyObject {
     func selectColor(_ color: PaletteColor)
 }
 
-class PaletteColorView: UICollectionView {
+final class PaletteColorView: UICollectionView {
     
     weak var colorDelegate: PaletteColorDelegate?
     
     private let itemsPerRow: CGFloat = 6.0
     private let spacing: CGFloat = 5.0
     private var selectedIndex: Int?
-
     
     // MARK: - Initialize
     

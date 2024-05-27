@@ -11,7 +11,7 @@ import GitodoShared
 
 import SnapKit
 
-class AssigneeCollectionView: UICollectionView {
+final class AssigneeCollectionView: UICollectionView {
     
     private var assignees: [User]? {
         didSet {

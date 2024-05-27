@@ -13,10 +13,13 @@ import RxCocoa
 import RxSwift
 import SnapKit
 
-class TodoView: UIView {
+final class TodoView: UIView {
+    
     private var viewModel: TodoViewModel?
     private var todoDataSource: UITableViewDiffableDataSource<TodoSection, TodoIdentifierItem>?
     private let disposeBag = DisposeBag()
+    
+    // MARK: - UI Components
     
     private lazy var todoTableView = {
         let view = UITableView()
@@ -62,6 +65,8 @@ class TodoView: UIView {
         return label
     }()
     
+    // MARK: - Initializer
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -79,6 +84,8 @@ class TodoView: UIView {
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
     }
+    
+    // MARK: - Setup Methods
     
     private func setupLayout() {
         addSubview(todoTableView)
@@ -152,6 +159,8 @@ class TodoView: UIView {
         viewModel?.input.appendTodo.onNext(())
     }
     
+    // MARK: - Bind
+    
     func bind(with viewModel: TodoViewModel) {
         self.viewModel = viewModel
         
@@ -185,6 +194,7 @@ class TodoView: UIView {
         todoAddButton.setTitleColor(color, for: .normal)
         todoAddButton.tintColor = color
     }
+    
 }
 
 extension TodoView: UITableViewDelegate {
@@ -219,6 +229,7 @@ extension TodoView: UITableViewDelegate {
 }
 
 extension TodoView: TodoCellDelegate {
+    
     func updateHeightOfRow(_ cell: TodoCell, _ textView: UITextView) {
         guard let viewModel = cell.viewModel,
             var snapshot = todoDataSource?.snapshot() else { return }
@@ -235,4 +246,5 @@ extension TodoView: TodoCellDelegate {
             }
         }
     }
+    
 }

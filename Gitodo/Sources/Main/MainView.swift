@@ -18,9 +18,9 @@ protocol MainViewDelegate: AnyObject {
     func showMenu(from cell: RepositoryInfoCell)
 }
 
-class MainView: UIView {
-    weak var delegate: MainViewDelegate?
+final class MainView: UIView {
     
+    weak var delegate: MainViewDelegate?
     private var viewModel: MainViewModel?
     private let todoViewModel = TodoViewModel(localTodoService: LocalTodoService())
     private let issueViewModel = IssueViewModel()
@@ -91,8 +91,8 @@ class MainView: UIView {
     private func setupLayout() {
         addSubview(repoCollectionView)
         repoCollectionView.snp.makeConstraints { make in
-            make.top.equalToSuperview().inset(10)
-            make.leading.trailing.equalToSuperview().inset(20)
+            make.top.equalToSuperview().inset(20)
+            make.leading.trailing.equalToSuperview()
             make.height.equalTo(80)
         }
         
@@ -139,8 +139,8 @@ class MainView: UIView {
         }
     }
     
-    func setIssueDelegate(_ viewController: IssueDelegate) {
-        issueView.issueDelegate = viewController
+    func setIssueDelegate(_ delegate: IssueDelegate) {
+        issueView.issueDelegate = delegate
     }
     
     // MARK: - Bind

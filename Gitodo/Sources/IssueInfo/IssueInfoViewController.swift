@@ -9,7 +9,7 @@ import UIKit
 
 import GitodoShared
 
-class IssueInfoViewController: BaseViewController<IssueInfoView>, BaseViewControllerProtocol {
+final class IssueInfoViewController: BaseViewController<IssueInfoView>, BaseViewControllerProtocol {
     
     var issue: Issue? {
         didSet {
@@ -17,11 +17,15 @@ class IssueInfoViewController: BaseViewController<IssueInfoView>, BaseViewContro
         }
     }
     
+    // MARK: - Life Cycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         setupNavigationBar()
     }
+    
+    // MARK: - Setup Navigation Bar
     
     func setupNavigationBar() {
         setRightButton(title: "닫기")

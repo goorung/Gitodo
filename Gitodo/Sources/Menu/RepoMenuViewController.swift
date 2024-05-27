@@ -15,7 +15,7 @@ protocol RepoMenuDelegate: AnyObject {
     func pushViewController(_ repoMenu: RepoMenuType, _ repo: MyRepo)
 }
 
-class RepoMenuViewController: UIViewController {
+final class RepoMenuViewController: UIViewController {
     
     weak var delegate: RepoMenuDelegate?
     let repo: MyRepo
@@ -107,6 +107,7 @@ class RepoMenuViewController: UIViewController {
         dismiss(animated: true)
         delegate?.pushViewController(.edit, repo)
     }
+    
     @objc private func hideButtonTapped() {
         dismiss(animated: true)
         delegate?.pushViewController(.hide, repo)
