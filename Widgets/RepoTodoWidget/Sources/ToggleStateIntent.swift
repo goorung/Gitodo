@@ -21,13 +21,12 @@ struct ToggleStateIntent: AppIntent {
     }
     
     func perform() async throws -> some IntentResult {
-        let service = RepoTodoWidgetService()
         
         guard let uuid = UUID(uuidString: id) else {
             throw NSError(domain: "Invalid UUID", code: 1)
         }
         
-        try service.toggleCompleteStatus(of: uuid)
+        try RepoTodoManager.shared.toggleCompleteStatus(of: uuid)
         return .result()
     }
 }

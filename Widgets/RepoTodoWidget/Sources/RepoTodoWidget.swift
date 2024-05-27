@@ -10,68 +10,65 @@ import SwiftUI
 
 import GitodoShared
 
-struct Provider: TimelineProvider {
-    let repoTodoWidgetService: RepoTodoWidgetServiceProtocol = RepoTodoWidgetService()
-    
-    var currentRepository: MyRepo? {
-        let repoID = UserDefaultsManager.widgetSelectedRepo
-        if let repo = try? repoTodoWidgetService.fetchRepo(repoID) {
-            return repo
-        } else {
-            return nil
-        }
-    }
-    
-    var tempRepo: MyRepo? {
-        guard let repos =  try? repoTodoWidgetService.fetchPublicRepos() else { return nil }
-        if var repo = repos.first {
-            repo.todos = repo.todos.sorted {
-                $0.order < $1.order
-            }
-            return repo
-        }
-        return nil
-    }
-    
-    func getSnapshot(in context: Context, completion: @escaping (TodoWidgetEntry) -> Void) {
-        if context.isPreview {
-            return completion(TodoWidgetEntry.preview)
-        }
-        completion(TodoWidgetEntry(date: .now, repository: tempRepo ?? MyRepo(id: 0, name: "Gitodo", fullName: "Gitodo", ownerName: "JH713", nickname: "Gitodo", symbol: "🍀", hexColor: 0xCCECC2, todos: [])))
-    }
-    
-    func getTimeline(in context: Context, completion: @escaping (Timeline<TodoWidgetEntry>) -> Void) {
-        if context.isPreview {
-            return completion(Timeline(entries: [TodoWidgetEntry.preview], policy: .never))
-        }
-        completion(Timeline(entries: [TodoWidgetEntry(date: .now, repository: tempRepo ?? MyRepo(id: 0, name: "Gitodo", fullName: "Gitodo", ownerName: "JH713", nickname: "Gitodo", symbol: "🍀", hexColor: 0xCCECC2, todos: []))], policy: .never))
-    }
-    
+struct Provider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> TodoWidgetEntry {
         TodoWidgetEntry.preview
+    }
+    
+    func snapshot(for configuration: RepositoryIntent, in context: Context) async -> TodoWidgetEntry {
+        await todoWidgetEntry(from: configuration)
+    }
+    
+    func timeline(for configuration: RepositoryIntent, in context: Context) async -> Timeline<TodoWidgetEntry> {
+        let entries: [TodoWidgetEntry] = [
+            await todoWidgetEntry(from: configuration)
+        ]
+        return Timeline(entries: entries, policy: .never)
+    }
+    
+    private func todoWidgetEntry(from configuration: RepositoryIntent) async -> TodoWidgetEntry {
+        do {
+            let selectedRepoID = configuration.selectedRepository.id
+            
+            if let repository = try RepoTodoManager.shared.fetchRepo(selectedRepoID) {
+                return TodoWidgetEntry(date: .now, repository: repository)
+            } else {
+                return TodoWidgetEntry(date: .now, repository: nil)
+            }
+        } catch {
+            return TodoWidgetEntry(date: .now, repository: nil)
+        }
     }
 }
 
 struct TodoWidgetEntry: TimelineEntry {
     let date: Date
-    let repository: MyRepo
+    let repository: MyRepo?
     
     var mainColor: PaletteColor {
-        PaletteColor.findColor(by: repository.hexColor) ?? .blue1
+        if let repository {
+            PaletteColor.findColor(by: repository.hexColor) ?? .blue1
+        } else {
+            .blue1
+        }
     }
     
     var topFourTodos: [TodoItem] {
-        Array(repository.todos.sorted{ $0.order < $1.order }.prefix(4))
+        if let repository {
+            Array(repository.todos.sorted{ $0.order < $1.order }.prefix(4))
+        } else {
+            []
+        }
     }
     
     static var preview: TodoWidgetEntry {
         let demoTodos: [TodoItem] = [
-            .init(todo: "위젯", isComplete: false),
-            .init(todo: "배포", isComplete: false),
-            .init(todo: "설명 문구", isComplete: false),
-            .init(todo: "너무 길면 뒤에 점점점으로 할거임더길게", isComplete: true),
+            .init(todo: "preview", isComplete: false),
+            .init(todo: "preview", isComplete: false),
+            .init(todo: "preview", isComplete: false),
+            .init(todo: "previewpreviewpreview", isComplete: true),
         ]
-        let demoRepository = MyRepo(id: 0, name: "Gitodo", fullName: "Gitodo", ownerName: "JH713", nickname: "Gitodo", symbol: "🍀", hexColor: 0xCCECC2, todos: demoTodos)
+        let demoRepository = MyRepo(id: 3, name: "preview", fullName: "preview", ownerName: "preview", nickname: "preview", symbol: "🍀", hexColor: 0xCCECC2, todos: demoTodos)
         
         return TodoWidgetEntry(date: .now, repository: demoRepository)
     }
@@ -81,12 +78,19 @@ struct RepoTodoWidgetEntryView : View {
     var entry: Provider.Entry
 
     var body: some View {
-        HStack(spacing: 23) {
-            SelectedRepoView(entry: entry)
-                .frame(width: 68)
-            TodoListView(entry: entry)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 11)
+        if !UserDefaultsManager.isLogin || entry.repository == nil {
+            Text("레포지토리를 불러올 수 없습니다.")
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(Color(UIColor.tertiaryLabel))
+        } else {
+            HStack(spacing: 17) {
+                SelectedRepoView(entry: entry)
+                    .frame(width: 68)
+                    .padding(5)
+                TodoListView(entry: entry)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 13)
+            }
         }
     }
 }
@@ -95,11 +99,17 @@ struct RepoTodoWidget: Widget {
     let kind: String = "RepoTodoWidget"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: Provider()) { entry in
+        AppIntentConfiguration(
+            kind: kind,
+            intent: RepositoryIntent.self,
+            provider: Provider()
+        ) { entry in
             RepoTodoWidgetEntryView(entry: entry)
                 .containerBackground(.background, for: .widget)
         }
-        .supportedFamilies([.systemMedium]) // Medium 크기만 지원
+        .configurationDisplayName("Gitodo Widget")
+        .description("Displays todos of selected repository.")
+        .supportedFamilies([.systemMedium])
     }
 }
 

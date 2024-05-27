@@ -11,7 +11,7 @@ import Foundation
 public struct UserDefaultsData<Value: Codable> {
     let key: String
     let defaultValue: Value
-    var container: UserDefaults = .standard
+    var container: UserDefaults = UserDefaults(suiteName: "group.com.goorung.Gitodo") ?? .standard
     
     public var wrappedValue: Value {
         get {

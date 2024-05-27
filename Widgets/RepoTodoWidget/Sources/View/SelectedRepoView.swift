@@ -25,21 +25,21 @@ struct SelectedRepoView: View {
     var repositoryImage: some View {
         ZStack {
             Circle()
-                .frame(width: 65, height: 65)
+                .frame(width: 63, height: 63)
                 .foregroundColor(Color.init(paletteColor: entry.mainColor))
-            Text(entry.repository.symbol ?? "")
-                .font(.system(size: 32))
+            Text(entry.repository?.symbol ?? "")
+                .font(.system(size: 30))
         }
     }
     
     var repositoryInfo: some View {
         VStack(alignment: .leading) {
-            Text("\(entry.repository.todos.filter { !$0.isComplete }.count)")
+            Text("\(entry.repository?.todos.filter { !$0.isComplete }.count ?? 0)")
                 .font(.system(size: 18))
                 .fontWeight(.bold)
                 .fontDesign(.rounded)
                 .foregroundColor(Color(entry.mainColor.colorLabelName))
-            Text(entry.repository.nickname)
+            Text(entry.repository?.nickname ?? "")
                 .font(.system(size: 14))
                 .fontWeight(.bold)
                 .fontDesign(.rounded)

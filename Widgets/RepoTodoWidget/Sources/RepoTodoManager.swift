@@ -1,5 +1,5 @@
 //
-//  RepoTodoWidgetService.swift
+//  RepoTodoManager.swift
 //  GitodoRepoTodoWidget
 //
 //  Created by 이지현 on 5/25/24.
@@ -11,14 +11,10 @@ import GitodoShared
 
 import RealmSwift
 
-protocol RepoTodoWidgetServiceProtocol {
-    func fetchPublicRepos() throws -> [MyRepo]
-    func fetchRepo(_ id: Int?) throws -> MyRepo?
-    func toggleCompleteStatus(of todoID: UUID) throws
-//    func fetchAllTodos() throws -> [TodoItem]?
-}
-
-final class RepoTodoWidgetService: RepoTodoWidgetServiceProtocol {
+final class RepoTodoManager {
+    static let shared = RepoTodoManager()
+    
+    private init() {}
     
     /// Initialize Realm instance.
     private func initializeRealm() throws -> Realm {
