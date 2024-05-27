@@ -50,20 +50,6 @@ final class RepoTodoManager {
         return repositoryEntity.toDomain()
     }
     
-//    func fetchAllTodos() throws -> [TodoItem]? {
-//        let realm = try initializeRealm()
-//        
-//        let repositoryEntities = realm.objects(RepositoryEntity.self)
-//            .where { $0.isPublic }
-//            .sorted(byKeyPath: "order", ascending: true)
-//        
-//        let topPublicRepos = repositoryEntities.prefix(4)
-//        
-//        let todoEntities = realm.objects(TodoEntity.self) else {
-//            return nil
-//        }
-//    }
-    
     /// 투두 완료 상태 토글
     func toggleCompleteStatus(of todoID: UUID) throws {
         let realm = try initializeRealm()
