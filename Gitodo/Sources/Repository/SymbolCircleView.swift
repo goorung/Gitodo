@@ -9,7 +9,9 @@ import UIKit
 
 import SnapKit
 
-class SymbolCircleView: UIImageView {
+final class SymbolCircleView: UIImageView {
+    
+    // MARK: - UI Components
     
     private lazy var symbolLabel = {
         let label = UILabel()
@@ -20,6 +22,8 @@ class SymbolCircleView: UIImageView {
         label.minimumScaleFactor = 0.01
         return label
     }()
+    
+    // MARK: - Initializer
 
     init() {
         super.init(frame: .zero)
@@ -40,9 +44,7 @@ class SymbolCircleView: UIImageView {
         makeCircle()
     }
     
-    func makeCircle() {
-        layer.cornerRadius = frame.width / 2
-    }
+    // MARK: - Setup Methods
     
     private func setupLayout() {
         addSubview(symbolLabel)
@@ -50,6 +52,10 @@ class SymbolCircleView: UIImageView {
             make.center.equalToSuperview()
             make.width.height.equalToSuperview().multipliedBy(0.64)
         }
+    }
+    
+    func makeCircle() {
+        layer.cornerRadius = frame.width / 2
     }
     
     func setBackgroundColor(_ color: UIColor) {

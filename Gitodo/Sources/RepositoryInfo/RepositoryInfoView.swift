@@ -13,7 +13,7 @@ import SnapKit
 import RxCocoa
 import RxSwift
 
-class RepositoryInfoView: UIView {
+final class RepositoryInfoView: UIView {
     
     private var viewModel: RepositoryInfoViewModel?
     private let disposeBag = DisposeBag()

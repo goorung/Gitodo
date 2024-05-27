@@ -17,7 +17,7 @@ protocol IssueDelegate: AnyObject {
     func presentInfoViewController(issue: Issue)
 }
 
-class IssueView: UIView {
+final class IssueView: UIView {
     
     weak var issueDelegate: IssueDelegate?
     private var viewModel: IssueViewModel?

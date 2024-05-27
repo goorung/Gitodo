@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum MenuType: CaseIterable {
+enum MainMenuType: CaseIterable {
     case repositorySettings
     case contact
     case logout

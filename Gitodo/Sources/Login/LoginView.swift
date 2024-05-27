@@ -13,7 +13,7 @@ protocol LoginDelegate: AnyObject {
     func loginWithGithub()
 }
 
-class LoginView: UIView {
+final class LoginView: UIView {
     
     weak var delegate: LoginDelegate?
     
@@ -33,7 +33,7 @@ class LoginView: UIView {
         button.configuration?.attributedTitle = .init(
             "Github 계정으로 로그인",
             attributes: .init([
-                .font: UIFont.boldSystemFont(ofSize: 15.0),
+                .font: UIFont.body,
                 .foregroundColor: UIColor.background
             ])
         )

@@ -12,7 +12,7 @@ import GitodoShared
 import RxSwift
 import SwiftyToaster
 
-class RepositorySettingsViewController: BaseViewController<RepositorySettingsView>, BaseViewControllerProtocol, UIGestureRecognizerDelegate {
+final class RepositorySettingsViewController: BaseViewController<RepositorySettingsView>, BaseViewControllerProtocol, UIGestureRecognizerDelegate {
     
     private let viewModel = RepositorySettingsViewModel(localRepositoryService: LocalRepositoryService())
     private let disposeBag = DisposeBag()

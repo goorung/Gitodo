@@ -13,17 +13,7 @@ import RxCocoa
 import RxRelay
 import RxSwift
 
-final class IssueViewModel {
-    let input: Input
-    let output: Output
-    
-    enum IssueState {
-        case hasIssues
-        case noIssues
-        case repoDeleted
-        case noInternetConnection
-        case error
-    }
+final class IssueViewModel: BaseViewModel {
     
     struct Input {
         let setCurrentRepo: AnyObserver<MyRepo>
@@ -36,6 +26,21 @@ final class IssueViewModel {
         var isLoading: Driver<Bool>
     }
     
+    var disposeBag = DisposeBag()
+    
+    // MARK: - Properties
+    
+    enum IssueState {
+        case hasIssues
+        case noIssues
+        case repoDeleted
+        case noInternetConnection
+        case error
+    }
+    
+    let input: Input
+    let output: Output
+    
     private let setCurrentRepoSubject = PublishSubject<MyRepo>()
     private let fetchIssueSubject = PublishSubject<Void>()
     
@@ -45,19 +50,24 @@ final class IssueViewModel {
     
     private var currentRepo: MyRepo?
     
-    private let disposeBag = DisposeBag()
+    // MARK: - Initializer
     
     init() {
         input = Input(
             setCurrentRepo: setCurrentRepoSubject.asObserver(),
             fetchIssue: fetchIssueSubject.asObserver()
         )
+        
         output = Output(
             issues: issues.asDriver(),
             issueState: issueState.asDriver(),
             isLoading: isLoading.asDriver()
         )
         
+        bindInputs()
+    }
+    
+    func bindInputs() {
         setCurrentRepoSubject.subscribe(onNext: { [weak self] repo in
             self?.currentRepo = repo
             self?.fetchIssue()

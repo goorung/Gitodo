@@ -9,7 +9,7 @@ import UIKit
 
 import SnapKit
 
-class PaletteColorCell: UICollectionViewCell {
+final class PaletteColorCell: UICollectionViewCell {
     
     static let reuseIdentifier = "PaletteColorCell"
     
