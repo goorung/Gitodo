@@ -171,7 +171,7 @@ extension MainViewController: MenuDelegate, RepoMenuDelegate {
             // 액세스 토큰 삭제 및 설정 초기화
             LoginManager.shared.deleteAccessToken()
             UserDefaultsManager.isLogin = false
-            
+            UserDefaultsManager.isPublicRepoSet = false
             //위젯 갱신
             WidgetCenter.shared.reloadAllTimelines()
             // 화면 이동
