@@ -10,6 +10,7 @@ import UIKit
 import GitodoShared
 
 import SwiftyToaster
+import WidgetKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -34,6 +35,24 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
     
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        if let url = URLContexts.first?.url,
+           url.scheme == "todoWidget" {
+            if url.host == "selectRepo",
+               let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+               let queryItems = components.queryItems,
+               let idItem = queryItems.first(where: { $0.name == "id" }),
+               let idString = idItem.value,
+               let id = Int(idString),
+               let navigationController = window?.rootViewController as? UINavigationController {
+                navigationController.popToRootViewController(animated: true)
+                
+                if let mainViewController = navigationController.viewControllers.first as? MainViewController {
+                    mainViewController.viewModel.input.selectRepoID.onNext(id)
+                }
+            }
+            return
+        }
+        
         guard let context = URLContexts.first,
               let components = URLComponents(url: context.url, resolvingAgainstBaseURL: false),
               let queryItems = components.queryItems,
@@ -80,14 +99,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func sceneWillEnterForeground(_ scene: UIScene) {
-        // Called as the scene transitions from the background to the foreground.
-        // Use this method to undo the changes made on entering the background.
+        reloadCurrentViewController()
+    }
+    
+    private func reloadCurrentViewController() {
+        if let navigationController = window?.rootViewController as? UINavigationController,
+           let visibleViewController = navigationController.visibleViewController as? Reloadable {
+            visibleViewController.reloadView()
+        }
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {
-        // Called as the scene transitions from the foreground to the background.
-        // Use this method to save data, release shared resources, and store enough scene-specific state information
-        // to restore the scene back to its current state.
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
 

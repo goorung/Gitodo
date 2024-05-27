@@ -40,6 +40,7 @@ final class RepoTodoManager {
     }
     
     func fetchRepo(_ id: Int?) throws -> MyRepo? {
+        guard let id else { return nil }
         let realm = try initializeRealm()
         
         guard let repositoryEntity = realm.object(ofType: RepositoryEntity.self, forPrimaryKey: id) else {

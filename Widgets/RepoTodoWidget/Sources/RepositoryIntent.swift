@@ -48,5 +48,5 @@ struct RepositoryIntent: WidgetConfigurationIntent {
     static var description = IntentDescription("위젯에서 보여줄 레포지토리를 선택하세요.")
 
     @Parameter(title: "레포지토리")
-    var selectedRepository: SelectedRepo
+    var selectedRepository: SelectedRepo?
 }
