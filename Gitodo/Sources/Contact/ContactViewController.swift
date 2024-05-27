@@ -15,7 +15,6 @@ final class ContactViewController: BaseViewController<ContactView>, BaseViewCont
         super.viewDidLoad()
 
         setupNavigationBar()
-        setInteractivePopGestureRecognizer()
     }
     
     // MARK: - Setup Navigation Bar
@@ -23,6 +22,7 @@ final class ContactViewController: BaseViewController<ContactView>, BaseViewCont
     func setupNavigationBar() {
         setTitle("문의하기")
         setLeftBackButton()
+        setInteractivePopGestureRecognizer()
     }
     
     private func setInteractivePopGestureRecognizer() {
