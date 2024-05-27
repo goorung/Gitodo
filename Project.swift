@@ -24,6 +24,10 @@ private let appInfoPlist = InfoPlist.extendingDefault(with: [
             ])
         ])
     ]),
+    "UISupportedInterfaceOrientations":
+    [
+        "UIInterfaceOrientationPortrait",
+    ],
     "CFBundleURLTypes": [
         [
             "CFBundleTypeRole": "Editor",
@@ -76,7 +80,7 @@ let project = Project(
             deploymentTargets: .iOS(deploymentTarget),
             infoPlist: .default,
             sources: ["GitodoShared/Sources/**"],
-            resources: [],
+            resources: ["GitodoShared/Resources/**"],
             dependencies: [.external(name: "RealmSwift", condition: .none)]
         ),
         // App target
@@ -124,15 +128,5 @@ let project = Project(
             entitlements: "\(appName).entitlements",
             dependencies: widgetDependencies
         ),
-        //        .target(
-        //            name: "GitodoTests",
-        //            destinations: .iOS,
-        //            product: .unitTests,
-        //            bundleId: "io.tuist.GitodoTests",
-        //            infoPlist: .default,
-        //            sources: ["Gitodo/Tests/**"],
-        //            resources: [],
-        //            dependencies: [.target(name: "Gitodo")]
-        //        ),
     ]
 )
