@@ -110,6 +110,7 @@ final class LocalTodoService: LocalTodoServiceProtocol {
                 updateOrder(of: todos, after: destination - 1, offset: +1)
                 todoEntity.order = destination
                 todoEntity.isComplete.toggle()
+                todoEntity.updatedAt = .now
             }
         } catch {
             throw RealmError.updateError(error)
