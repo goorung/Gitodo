@@ -18,9 +18,9 @@ protocol MainViewDelegate: AnyObject {
     func showMenu(from cell: RepositoryInfoCell)
 }
 
-class MainView: UIView {
-    weak var delegate: MainViewDelegate?
+final class MainView: UIView {
     
+    weak var delegate: MainViewDelegate?
     private var viewModel: MainViewModel?
     private let todoViewModel = TodoViewModel(localTodoService: LocalTodoService())
     private let issueViewModel = IssueViewModel()

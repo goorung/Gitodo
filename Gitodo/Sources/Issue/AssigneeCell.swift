@@ -10,7 +10,7 @@ import UIKit
 import Kingfisher
 import SnapKit
 
-class AssigneeCell: UICollectionViewCell {
+final class AssigneeCell: UICollectionViewCell {
     
     static let reuseIdentifier = "AssigneeCell"
     

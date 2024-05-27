@@ -10,10 +10,10 @@ import UIKit
 import SnapKit
 
 protocol MenuDelegate: AnyObject {
-    func pushViewController(_ menu: MenuType)
+    func pushViewController(_ menu: MainMenuType)
 }
 
-class MenuViewController: UIViewController {
+final class MenuViewController: UIViewController {
     
     weak var delegate: MenuDelegate?
     
@@ -66,7 +66,7 @@ extension MenuViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         dismiss(animated: true, completion: { [weak self] in
-            self?.delegate?.pushViewController(MenuType.allCases[indexPath.row])
+            self?.delegate?.pushViewController(MainMenuType.allCases[indexPath.row])
         })
     }
     
@@ -75,14 +75,14 @@ extension MenuViewController: UITableViewDelegate {
 extension MenuViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return MenuType.allCases.count
+        return MainMenuType.allCases.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: MenuCell.reuseIdentifier) as? MenuCell else {
             fatalError("Unable to dequeue MenuCell")
         }
-        cell.configure(with: MenuType.allCases[indexPath.row])
+        cell.configure(with: MainMenuType.allCases[indexPath.row])
         return cell
     }
     

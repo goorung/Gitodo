@@ -11,7 +11,7 @@ import GitodoShared
 
 import SnapKit
 
-class IssueCell: UITableViewCell {
+final class IssueCell: UITableViewCell {
     
     static let reuseIdentifier = "IssueCell"
     

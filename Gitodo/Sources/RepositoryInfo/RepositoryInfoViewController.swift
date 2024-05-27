@@ -13,7 +13,7 @@ protocol RepositoryInfoViewControllerDelegate: AnyObject {
     func doneButtonTapped(repository: MyRepo)
 }
 
-class RepositoryInfoViewController: BaseViewController<RepositoryInfoView>, BaseViewControllerProtocol {
+final class RepositoryInfoViewController: BaseViewController<RepositoryInfoView>, BaseViewControllerProtocol {
     
     weak var delegate: RepositoryInfoViewControllerDelegate?
     private var viewModel: RepositoryInfoViewModel?

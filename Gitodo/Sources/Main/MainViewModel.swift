@@ -12,9 +12,7 @@ import GitodoShared
 import RxCocoa
 import RxSwift
 
-final class MainViewModel {
-    let input: Input
-    let output: Output
+final class MainViewModel: BaseViewModel {
     
     struct Input {
         let viewWillAppear: AnyObserver<Void>
@@ -30,18 +28,26 @@ final class MainViewModel {
         var hideDisabled: Driver<Void>
     }
     
-    private var selectedRepo = BehaviorRelay<MyRepo?>(value: nil)
-    private let repos = BehaviorRelay<[MyRepo]>(value: [])
-    private let hideDisabled = PublishRelay<Void>()
+    var disposeBag = DisposeBag()
+    
+    // MARK: - Properties
+    
+    let input: Input
+    let output: Output
     
     private let viewWillAppearSubject = PublishSubject<Void>()
     private let selectRepoIndexSubject = PublishSubject<Int>()
     private let resetAllRepositorySubject = PublishSubject<Void>()
     private let updateRepoInfoSubject = PublishSubject<MyRepo>()
     private let hideRepoSubject = PublishSubject<MyRepo>()
-    private let disposeBag = DisposeBag()
+    
+    private var selectedRepo = BehaviorRelay<MyRepo?>(value: nil)
+    private let repos = BehaviorRelay<[MyRepo]>(value: [])
+    private let hideDisabled = PublishRelay<Void>()
     
     private let localRepositoryService: LocalRepositoryServiceProtocol
+    
+    // MARK: - Initializer
     
     init(localRepositoryService: LocalRepositoryServiceProtocol) {
         self.localRepositoryService = localRepositoryService
@@ -53,12 +59,17 @@ final class MainViewModel {
             hideRepo: hideRepoSubject.asObserver(),
             resetAllRepository: resetAllRepositorySubject.asObserver()
         )
+        
         output = Output(
             selectedRepo: selectedRepo.asDriver(onErrorJustReturn: nil),
             repos: repos.asDriver(onErrorJustReturn: []),
             hideDisabled: hideDisabled.asDriver(onErrorJustReturn: ())
         )
         
+        bindInputs()
+    }
+    
+    func bindInputs() {
         viewWillAppearSubject.subscribe(onNext: { [weak self] in
             self?.fetchRepos()
         }).disposed(by: disposeBag)
@@ -68,9 +79,9 @@ final class MainViewModel {
             self?.selectedRepo.accept(repo)
         }).disposed(by: disposeBag)
         
-        resetAllRepositorySubject.subscribe(onNext: {
+        resetAllRepositorySubject.subscribe(onNext: { [weak self] in
             do {
-                try localRepositoryService.reset()
+                try self?.localRepositoryService.reset()
             } catch {
                 print("[MainViewModel] reset all repository failed : \(error.localizedDescription)")
             }
@@ -83,7 +94,6 @@ final class MainViewModel {
         hideRepoSubject.subscribe(onNext: { [weak self] repo in
             self?.hideRepo(repo)
         }).disposed(by: disposeBag)
-        
     }
     
     private func fetchRepos() {
