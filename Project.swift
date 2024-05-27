@@ -80,7 +80,7 @@ let project = Project(
             deploymentTargets: .iOS(deploymentTarget),
             infoPlist: .default,
             sources: ["GitodoShared/Sources/**"],
-            resources: [],
+            resources: ["GitodoShared/Resources/**"],
             dependencies: [.external(name: "RealmSwift", condition: .none)]
         ),
         // App target
