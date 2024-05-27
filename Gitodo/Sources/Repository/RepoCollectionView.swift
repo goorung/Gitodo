@@ -34,7 +34,8 @@ final class RepoCollectionView: UICollectionView, UIGestureRecognizerDelegate {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         layout.itemSize = CGSize(width: 60, height: 80)
-        layout.minimumLineSpacing = 13
+        layout.minimumLineSpacing = 15
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
         
         super.init(frame: .zero, collectionViewLayout: layout)
         

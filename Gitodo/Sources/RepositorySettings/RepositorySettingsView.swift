@@ -112,7 +112,8 @@ final class RepositorySettingsView: UIView {
     private func setupLayout() {
         addSubview(previewView)
         previewView.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview().inset(20)
+            make.top.equalToSuperview().inset(20)
+            make.leading.trailing.equalToSuperview()
             make.height.equalTo(80)
         }
         
