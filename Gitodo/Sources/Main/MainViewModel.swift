@@ -16,6 +16,7 @@ final class MainViewModel: BaseViewModel {
     
     struct Input {
         let viewWillAppear: AnyObserver<Void>
+        let selectRepoID: AnyObserver<Int>
         let selectRepoIndex: AnyObserver<Int>
         let updateRepoInfo: AnyObserver<MyRepo>
         let hideRepo: AnyObserver<MyRepo>
@@ -37,6 +38,7 @@ final class MainViewModel: BaseViewModel {
     
     private let viewWillAppearSubject = PublishSubject<Void>()
     private let selectRepoIndexSubject = PublishSubject<Int>()
+    private let selectRepoIDSubject = PublishSubject<Int>()
     private let resetAllRepositorySubject = PublishSubject<Void>()
     private let updateRepoInfoSubject = PublishSubject<MyRepo>()
     private let hideRepoSubject = PublishSubject<MyRepo>()
@@ -53,7 +55,8 @@ final class MainViewModel: BaseViewModel {
         self.localRepositoryService = localRepositoryService
         
         input = Input(
-            viewWillAppear: viewWillAppearSubject.asObserver(),
+            viewWillAppear: viewWillAppearSubject.asObserver(), 
+            selectRepoID: selectRepoIDSubject.asObserver(),
             selectRepoIndex: selectRepoIndexSubject.asObserver(),
             updateRepoInfo: updateRepoInfoSubject.asObserver(),
             hideRepo: hideRepoSubject.asObserver(),
@@ -72,6 +75,11 @@ final class MainViewModel: BaseViewModel {
     func bindInputs() {
         viewWillAppearSubject.subscribe(onNext: { [weak self] in
             self?.fetchRepos()
+        }).disposed(by: disposeBag)
+        
+        selectRepoIDSubject.subscribe(onNext: { [weak self] id in
+            let repo = self?.repos.value.first{ $0.id == id }
+            self?.selectedRepo.accept(repo)
         }).disposed(by: disposeBag)
         
         selectRepoIndexSubject.subscribe(onNext: { [weak self] index in

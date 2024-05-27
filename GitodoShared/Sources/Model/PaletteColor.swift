@@ -50,7 +50,23 @@ public enum PaletteColor: CaseIterable {
         }
     }
     
+    public var colorLabelName: String {
+        switch self {
+        case .red1, .red2, .red3: "redLabel"
+        case .yellow1, .yellow2, .yellow3: "yellowLabel"
+        case .green1, .green2, .green3: "greenLabel"
+        case .blue1, .blue2, .blue3: "blueLabel"
+        case .purple1, .purple2, .purple3: "purpleLabel"
+        case .pink1, .pink2, .pink3: "pinkLabel"
+        }
+    }
+    
     public static func findIndex(_ hex: UInt) -> Int? {
         return PaletteColor.allCases.firstIndex(where: { $0.hex == hex })
     }
+    
+    public static func findColor(by hex: UInt) -> PaletteColor? {
+        return PaletteColor.allCases.first(where: { $0.hex == hex })
+    }
+
 }

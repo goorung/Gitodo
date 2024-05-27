@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import WidgetKit
 
 import GitodoShared
 
@@ -14,7 +15,7 @@ import SwiftyToaster
 
 final class MainViewController: BaseViewController<MainView>, BaseViewControllerProtocol {
 
-    private let viewModel: MainViewModel
+    let viewModel: MainViewModel
     private let disposeBag = DisposeBag()
     
     // MARK: - Initializer
@@ -114,8 +115,13 @@ final class MainViewController: BaseViewController<MainView>, BaseViewController
     
     @objc private func handleAccessTokenExpire() {
         UserDefaultsManager.isLogin = false
+        WidgetCenter.shared.reloadAllTimelines()
+        
         guard let window = view.window else { return }
-        window.rootViewController = LoginViewController()
+        DispatchQueue.main.async {
+            window.rootViewController = LoginViewController()
+            Toaster.shared.makeToast("토큰이 만료됐습니다.\n다시 로그인해주세요.")
+        }
     }
     
     private func pushRepositorySettingViewControllerIf() {
@@ -165,6 +171,9 @@ extension MainViewController: MenuDelegate, RepoMenuDelegate {
             // 액세스 토큰 삭제 및 설정 초기화
             LoginManager.shared.deleteAccessToken()
             UserDefaultsManager.isLogin = false
+            
+            //위젯 갱신
+            WidgetCenter.shared.reloadAllTimelines()
             // 화면 이동
             let loginViewController = LoginViewController()
             self?.view.window?.rootViewController = UINavigationController(rootViewController: loginViewController)
@@ -239,4 +248,15 @@ extension MainViewController: RepositoryInfoViewControllerDelegate {
         viewModel.input.updateRepoInfo.onNext(repository)
     }
     
+}
+
+extension MainViewController: Reloadable {
+    func reloadView() {
+        viewModel.input.viewWillAppear.onNext(())
+    }
+    
+}
+
+protocol Reloadable {
+    func reloadView()
 }

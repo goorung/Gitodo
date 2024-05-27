@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import WidgetKit
 
 import GitodoShared
 
@@ -80,6 +81,8 @@ final class RepositorySettingsViewController: BaseViewController<RepositorySetti
     
     @objc private func handleAccessTokenExpire() {
         UserDefaultsManager.isLogin = false
+        WidgetCenter.shared.reloadAllTimelines()
+        
         guard let window = view.window else { return }
         DispatchQueue.main.async {
             window.rootViewController = LoginViewController()
