@@ -128,15 +128,5 @@ let project = Project(
             entitlements: "\(appName).entitlements",
             dependencies: widgetDependencies
         ),
-        //        .target(
-        //            name: "GitodoTests",
-        //            destinations: .iOS,
-        //            product: .unitTests,
-        //            bundleId: "io.tuist.GitodoTests",
-        //            infoPlist: .default,
-        //            sources: ["Gitodo/Tests/**"],
-        //            resources: [],
-        //            dependencies: [.target(name: "Gitodo")]
-        //        ),
     ]
 )
