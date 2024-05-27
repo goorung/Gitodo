@@ -115,7 +115,8 @@ class MainViewController: BaseViewController<MainView>, BaseViewControllerProtoc
     
     @objc private func handleAccessTokenExpire() {
         UserDefaultsManager.isLogin = false
-        Task { @MainActor in
+        WidgetCenter.shared.reloadAllTimelines()
+        DispatchQueue.main.async {
             guard let window = view.window else { return }
             window.rootViewController = LoginViewController()
         }

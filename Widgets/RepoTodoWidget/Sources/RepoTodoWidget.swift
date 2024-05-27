@@ -84,8 +84,8 @@ struct RepoTodoWidgetEntryView : View {
         if !entry.isLogin || entry.repository == nil {
             Link(destination: URL(string: "todoWidget://none")!) {
                 Text("레포지토리를 불러올 수 없습니다.")
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(Color(UIColor.tertiaryLabel))
+                    .foregroundStyle(.secondary)
+                    .font(.footnote)
             }
         } else {
             Link(destination: URL(string: "todoWidget://selectRepo?id=\(entry.repository?.id ?? 0)")!) {
