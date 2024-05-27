@@ -16,12 +16,26 @@ struct TodoListView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            ForEach(0..<entry.topFourTodos.count, id: \.self) { index in
-                let todo = entry.topFourTodos[index]
-                Button(intent: ToggleStateIntent(id: todo.id.uuidString)) {
-                    todoView(todo: todo)
+            if entry.topFourTodos.isEmpty {
+                Text("할 일이 비었어요.")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(Color(UIColor.tertiaryLabel))
+            } else {
+                ForEach(0..<4, id: \.self) { index in
+                    if index < entry.topFourTodos.count {
+                        let todo = entry.topFourTodos[index]
+                        Button(intent: ToggleStateIntent(id: todo.id.uuidString)) {
+                            todoView(todo: todo)
+                        }
+                        .buttonStyle(.plain)
+                    } else {
+                        Button(action: {}) {
+                            todoView(todo: TodoItem.placeholderItem())
+                        }
+                        .hidden()
+                        .buttonStyle(.plain)
+                    }
                 }
-                .buttonStyle(.plain)
             }
         }
         .containerBackground(for: .widget) {}

@@ -14,9 +14,10 @@ struct SelectedRepoView: View {
     let entry: TodoWidgetEntry
     
     var body: some View {
-        VStack(spacing: 13) {
+        VStack(alignment: .leading) {
             repositoryImage
             repositoryInfo
+                .padding(.horizontal, 5)
         }
         .containerBackground(for: .widget) {}
     }
@@ -39,7 +40,7 @@ struct SelectedRepoView: View {
                 .fontDesign(.rounded)
                 .foregroundColor(Color(entry.mainColor.colorLabelName))
             Text(entry.repository.nickname)
-                .font(.system(size: 17))
+                .font(.system(size: 14))
                 .fontWeight(.bold)
                 .fontDesign(.rounded)
         }

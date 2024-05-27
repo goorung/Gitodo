@@ -75,18 +75,6 @@ struct TodoWidgetEntry: TimelineEntry {
         
         return TodoWidgetEntry(date: .now, repository: demoRepository)
     }
-    
-    static var current: TodoWidgetEntry {
-//        let repo = 
-        let todos: [TodoItem] = [
-            .init(todo: "위젯", isComplete: false),
-            .init(todo: "배포", isComplete: false),
-            .init(todo: "설명 문구", isComplete: false),
-            .init(todo: "너무 길면 뒤에 점점점으로 할거임더길게", isComplete: true),
-        ]
-        let demoRepository = MyRepo(id: 0, name: "Gitodo", fullName: "Gitodo", ownerName: "JH713", nickname: "Gitodo", symbol: "🍀", hexColor: 0xCCECC2, todos: todos)
-        return TodoWidgetEntry(date: .now, repository: demoRepository)
-    }
 }
 
 struct RepoTodoWidgetEntryView : View {
@@ -98,7 +86,7 @@ struct RepoTodoWidgetEntryView : View {
                 .frame(width: 68)
             TodoListView(entry: entry)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 13)
+                .padding(.vertical, 11)
         }
     }
 }
