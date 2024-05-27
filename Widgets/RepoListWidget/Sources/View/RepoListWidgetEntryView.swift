@@ -18,7 +18,7 @@ struct RepoListWidgetEntryView: View {
     var body: some View {
         VStack {
             if entry.repos.isEmpty {
-                Text("No Repositories")
+                Text("레포지토리 없음")
                     .foregroundStyle(.secondary)
                     .font(.footnote)
             } else {
