@@ -8,7 +8,6 @@
 |Use|Dependency|Version|
 |-|-|-|
 |Architecture|[Tuist](https://tuist.io/)|4.7.0|
-|CI/CD|[Fastlane](https://fastlane.tools/)|2.220.0|
 |Database|[RealmSwift](https://github.com/realm/realm-swift)|10.49.2|
 |Reactive|[RxGesture](https://github.com/RxSwiftCommunity/RxGesture)|4.0.0|
 |Reactive|[RxSwift](https://github.com/ReactiveX/RxSwift)|6.0.0|
