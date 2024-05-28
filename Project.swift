@@ -1,6 +1,5 @@
 import ProjectDescription
 
-private let appName = "Gitodo"
 private let bundleId = "com.goorung.Gitodo"
 private let bundleShortVersionString = "1.0.0"
 private let bundleVersion = "1"
@@ -8,8 +7,8 @@ private let deploymentTarget = "17.0"
 
 private let appInfoPlist = InfoPlist.extendingDefault(with: [
     "ITSAppUsesNonExemptEncryption": .boolean(false),
-    "CFBundleDisplayName": .string(appName),
-    "CFBundleName": .string(appName),
+    "CFBundleDisplayName": .string("Gitodo!"),
+    "CFBundleName": .string("Gitodo"),
     "CFBundleShortVersionString": .string(bundleShortVersionString),
     "CFBundleVersion": .string(bundleVersion),
     "UILaunchStoryboardName": .string("LaunchScreen"),
@@ -39,7 +38,7 @@ private let appInfoPlist = InfoPlist.extendingDefault(with: [
 ])
 
 private let widgetInfoPlist = InfoPlist.extendingDefault(with: [
-    "CFBundleDisplayName": .string(appName),
+    "CFBundleDisplayName": .string("Gitodo!"),
     "CFBundleIdentifier": .string("$(PRODUCT_BUNDLE_IDENTIFIER)"),
     "CFBundleInfoDictionaryVersion": .string("6.0"),
     "CFBundlePackageType": .string("XPC!"),
@@ -69,7 +68,7 @@ private let widgetDependencies: [TargetDependency] = [
 ]
 
 let project = Project(
-    name: "Gitodo",
+    name: "Gitodo!",
     targets: [
         // Shared Framework target
         .target(
@@ -85,15 +84,15 @@ let project = Project(
         ),
         // App target
         .target(
-            name: appName,
+            name: "Gitodo",
             destinations: [.iPhone],
             product: .app,
             bundleId: bundleId,
             deploymentTargets: .iOS(deploymentTarget),
             infoPlist: appInfoPlist,
-            sources: ["\(appName)/Sources/**"],
-            resources: ["\(appName)/Resources/**"],
-            entitlements: "\(appName).entitlements",
+            sources: ["Gitodo/Sources/**"],
+            resources: ["Gitodo/Resources/**"],
+            entitlements: "Gitodo.entitlements",
             dependencies: appDependencies,
             settings: .settings(
                 configurations: [
@@ -107,12 +106,12 @@ let project = Project(
             name: "GitodoRepoListWidget",
             destinations: [.iPhone],
             product: .appExtension,
-            bundleId: "\(bundleId).RepoListWidget",
+            bundleId: "\(bundleId).RepoList",
             deploymentTargets: .iOS(deploymentTarget),
             infoPlist: widgetInfoPlist,
-            sources: ["Widgets/RepoListWidget/Sources**"],
-            resources: ["Widgets/RepoListWidget/Resources/**"],
-            entitlements: "\(appName).entitlements",
+            sources: ["Widgets/RepoList/Sources**"],
+            resources: ["Widgets/RepoList/Resources/**"],
+            entitlements: "Gitodo.entitlements",
             dependencies: widgetDependencies
         ),
         // Medium Intent Widget target
@@ -120,12 +119,12 @@ let project = Project(
             name: "GitodoRepoTodoWidget",
             destinations: [.iPhone],
             product: .appExtension,
-            bundleId: "\(bundleId).RepoTodoWidget",
+            bundleId: "\(bundleId).RepoTodo",
             deploymentTargets: .iOS(deploymentTarget),
             infoPlist: widgetInfoPlist,
-            sources: ["Widgets/RepoTodoWidget/Sources**"],
-            resources: ["Widgets/RepoTodoWidget/Resources/**"],
-            entitlements: "\(appName).entitlements",
+            sources: ["Widgets/RepoTodo/Sources**"],
+            resources: ["Widgets/RepoTodo/Resources/**"],
+            entitlements: "Gitodo.entitlements",
             dependencies: widgetDependencies
         ),
     ]
