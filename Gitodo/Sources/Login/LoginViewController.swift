@@ -5,6 +5,7 @@
 //  Created by jiyeon on 5/6/24.
 //
 
+import SafariServices
 import UIKit
 
 final class LoginViewController: BaseViewController<LoginView> {
@@ -53,7 +54,8 @@ extension LoginViewController: LoginDelegate {
     
     func loginWithGithub() {
         guard let url = LoginManager.shared.getLoginURL() else { return }
-        UIApplication.shared.open(url)
+        let safariViewController = SFSafariViewController(url: url)
+        present(safariViewController, animated: true, completion: nil)
     }
     
 }
