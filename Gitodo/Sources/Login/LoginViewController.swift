@@ -5,9 +5,12 @@
 //  Created by jiyeon on 5/6/24.
 //
 
+import SafariServices
 import UIKit
 
 final class LoginViewController: BaseViewController<LoginView> {
+    
+    private var safariViewController: SFSafariViewController?
     
     // MARK: - Life Cycle
     
@@ -40,6 +43,7 @@ final class LoginViewController: BaseViewController<LoginView> {
     }
     
     @objc private func handleLoginStart() {
+        safariViewController?.dismiss(animated: true)
         contentView.startLoading()
     }
     
@@ -53,7 +57,8 @@ extension LoginViewController: LoginDelegate {
     
     func loginWithGithub() {
         guard let url = LoginManager.shared.getLoginURL() else { return }
-        UIApplication.shared.open(url)
+        safariViewController = SFSafariViewController(url: url)
+        present(safariViewController!, animated: true, completion: nil)
     }
     
 }
