@@ -10,6 +10,8 @@ import UIKit
 
 final class LoginViewController: BaseViewController<LoginView> {
     
+    private var safariViewController: SFSafariViewController?
+    
     // MARK: - Life Cycle
     
     override func viewDidLoad() {
@@ -41,6 +43,7 @@ final class LoginViewController: BaseViewController<LoginView> {
     }
     
     @objc private func handleLoginStart() {
+        safariViewController?.dismiss(animated: true)
         contentView.startLoading()
     }
     
@@ -54,8 +57,8 @@ extension LoginViewController: LoginDelegate {
     
     func loginWithGithub() {
         guard let url = LoginManager.shared.getLoginURL() else { return }
-        let safariViewController = SFSafariViewController(url: url)
-        present(safariViewController, animated: true, completion: nil)
+        safariViewController = SFSafariViewController(url: url)
+        present(safariViewController!, animated: true, completion: nil)
     }
     
 }
