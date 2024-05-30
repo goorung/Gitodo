@@ -176,6 +176,7 @@ final class TodoView: UIView {
                 self?.todoTableView.scrollToRow(at: indexPath, at: .none, animated: true)
                 guard let cell = self?.todoTableView.cellForRow(at: indexPath) as? TodoCell else {
                     self?.viewModel?.firstResponderIndexPath = indexPath
+                    self?.viewModel?.lastResponderIndexPath = indexPath
                     return
                 }
                 self?.generateHaptic()
@@ -215,7 +216,7 @@ extension TodoView: UITableViewDelegate {
             
             var snapshot = self.todoDataSource?.snapshot()
             snapshot?.deleteItems([viewModel.identifier])
-            self.todoDataSource?.apply(snapshot!, animatingDifferences: true)
+            self.todoDataSource?.apply(snapshot!, animatingDifferences: false)
             
             completionHandler(true)
         }
