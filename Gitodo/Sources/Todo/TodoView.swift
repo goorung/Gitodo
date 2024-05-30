@@ -207,11 +207,16 @@ final class TodoView: UIView {
 
 extension TodoView: UITableViewDelegate {
     
+    func tableView(_ tableView: UITableView, willBeginEditingRowAt indexPath: IndexPath) {
+        self.endEditing(true)
+    }
+    
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let deleteAction = UIContextualAction(style: .normal, title: "Delete") { [weak self] action, view, completionHandler in
             guard let self = self,
                   let cell = tableView.cellForRow(at: indexPath) as? TodoCell,
                   let viewModel = cell.viewModel else { return }
+            print("yes")
             self.viewModel?.input.deleteTodo.onNext(viewModel.id)
             
             var snapshot = self.todoDataSource?.snapshot()
