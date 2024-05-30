@@ -216,7 +216,6 @@ extension TodoView: UITableViewDelegate {
             guard let self = self,
                   let cell = tableView.cellForRow(at: indexPath) as? TodoCell,
                   let viewModel = cell.viewModel else { return }
-            print("yes")
             self.viewModel?.input.deleteTodo.onNext(viewModel.id)
             
             var snapshot = self.todoDataSource?.snapshot()
