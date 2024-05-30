@@ -10,8 +10,6 @@ import UIKit
 
 final class LoginViewController: BaseViewController<LoginView> {
     
-    private var safariViewController: SFSafariViewController?
-    
     // MARK: - Life Cycle
     
     override func viewDidLoad() {
@@ -31,24 +29,28 @@ final class LoginViewController: BaseViewController<LoginView> {
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(handleLoginStart),
-            name: .LoginDidStart,
+            name: .AccessTokenFetchDidStart,
             object: nil
         )
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(handleLoginEnd),
-            name: .LoginDidEnd,
+            name: .AccessTokenFetchDidEnd,
             object: nil
         )
     }
     
     @objc private func handleLoginStart() {
-        safariViewController?.dismiss(animated: true)
         contentView.startLoading()
     }
     
     @objc private func handleLoginEnd() {
         contentView.endLoading()
+        DispatchQueue.main.async {
+            let mainViewModel = MainViewModel(localRepositoryService: LocalRepositoryService())
+            let mainViewController = MainViewController(viewModel: mainViewModel)
+            self.view.window?.rootViewController = UINavigationController(rootViewController: mainViewController)
+        }
     }
     
 }
@@ -56,9 +58,7 @@ final class LoginViewController: BaseViewController<LoginView> {
 extension LoginViewController: LoginDelegate {
     
     func loginWithGithub() {
-        guard let url = LoginManager.shared.getLoginURL() else { return }
-        safariViewController = SFSafariViewController(url: url)
-        present(safariViewController!, animated: true, completion: nil)
+        present(AuthViewController(), animated: true)
     }
     
 }
