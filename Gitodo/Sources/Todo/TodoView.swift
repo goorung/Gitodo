@@ -141,6 +141,7 @@ final class TodoView: UIView {
        
        if let firstResponderIndexPath = viewModel?.firstResponderIndexPath {
            todoTableView.scrollToRow(at: firstResponderIndexPath, at: .none, animated: true)
+           viewModel?.firstResponderIndexPath = nil
        }
    }
 
@@ -175,6 +176,7 @@ final class TodoView: UIView {
                 self?.todoTableView.scrollToRow(at: indexPath, at: .none, animated: true)
                 guard let cell = self?.todoTableView.cellForRow(at: indexPath) as? TodoCell else {
                     self?.viewModel?.firstResponderIndexPath = indexPath
+                    self?.viewModel?.lastResponderIndexPath = indexPath
                     return
                 }
                 self?.generateHaptic()

@@ -50,6 +50,7 @@ final class TodoViewModel: BaseViewModel {
     
     var selectedRepo: MyRepo?
     var firstResponderIndexPath: IndexPath?
+    var lastResponderIndexPath: IndexPath? 
     
     private let localTodoService: LocalTodoServiceProtocol
     
@@ -143,9 +144,9 @@ final class TodoViewModel: BaseViewModel {
         do {
             try localTodoService.toggleCompleteStatus(of: id)
             
-            if let firstResponderIndexPath,
-               todos.value[firstResponderIndexPath.row].todo.isEmpty {
-                resignFirstResponder.accept(firstResponderIndexPath)
+            if let lastResponderIndexPath,
+               todos.value[lastResponderIndexPath.row].todo.isEmpty {
+                resignFirstResponder.accept(lastResponderIndexPath)
                 return
             }
             fetchTodos()
@@ -177,6 +178,7 @@ extension TodoViewModel: TodoCellViewModelDelegate {
     
     func todoCellViewModelDidBeginEditing(_ viewModel: TodoCellViewModel) {
         firstResponderIndexPath = IndexPath(row: viewModel.order, section: 0)
+        lastResponderIndexPath = firstResponderIndexPath
     }
     
     func todoCellViewModelDidReturnTodo(_ viewModel: TodoCellViewModel) {
