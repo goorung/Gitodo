@@ -40,10 +40,16 @@ final class RepositorySettingsViewController: BaseViewController<RepositorySetti
     
     func setupNavigationBar() {
         setTitle("레포지토리 설정")
-        setLeftButton(symbolName: "chevron.left")
-        setLeftButtonAction(#selector(popViewControllerIf))
-        setRightButton(symbolName: "arrow.clockwise")
-        setRightButtonAction(#selector(fetchRepo))
+        if UserDefaultsManager.isPublicRepoSet {
+            setLeftButton(symbolName: "chevron.left")
+            setLeftButtonAction(#selector(popViewControllerIf))
+            setRightButton(symbolName: "arrow.clockwise")
+            setRightButtonAction(#selector(fetchRepo))
+        } else {
+            setRightButton(title: "완료")
+            setRightButtonAction(#selector(popViewControllerIf))
+        }
+        
     }
     
     @objc private func popViewControllerIf() {
