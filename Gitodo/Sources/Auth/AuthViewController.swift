@@ -45,17 +45,8 @@ extension AuthViewController: AuthViewDelegate {
                 print("Access Token 요청 실패: \(error.localizedDescription)")
                 Toaster.shared.makeToast("로그인에 실패했습니다.\n다시 시도해주세요.")
             }
-            clearCookies()
         }
         dismiss(animated: true)
-    }
-    
-    private func clearCookies() {
-        let websiteDataTypes = Set([WKWebsiteDataTypeCookies])
-        let dateFrom = Date(timeIntervalSince1970: 0)
-        WKWebsiteDataStore.default().removeData(ofTypes: websiteDataTypes, modifiedSince: dateFrom) {
-            print("WKWebView Cookies 삭제 완료")
-        }
     }
     
 }

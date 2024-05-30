@@ -39,6 +39,7 @@ final class AuthView: UIView {
         super.init(frame: frame)
         
         setupLayout()
+        clearCookies()
         setupWebView()
         loadWebView()
     }
@@ -63,6 +64,14 @@ final class AuthView: UIView {
         addSubview(progressView)
         progressView.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
+        }
+    }
+    
+    private func clearCookies() {
+        let websiteDataTypes = Set([WKWebsiteDataTypeCookies])
+        let dateFrom = Date(timeIntervalSince1970: 0)
+        WKWebsiteDataStore.default().removeData(ofTypes: websiteDataTypes, modifiedSince: dateFrom) {
+            print("WKWebView Cookies 삭제 완료")
         }
     }
     
