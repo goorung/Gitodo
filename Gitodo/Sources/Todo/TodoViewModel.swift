@@ -29,6 +29,7 @@ final class TodoViewModel: BaseViewModel {
     struct Output {
         var todos: Driver<[TodoCellViewModel]>
         var makeFirstResponder: Driver<IndexPath?>
+        var resignFirstResponder: Driver<IndexPath?>
     }
     
     var disposeBag = DisposeBag()
@@ -45,6 +46,7 @@ final class TodoViewModel: BaseViewModel {
     
     private var todos = BehaviorRelay<[TodoCellViewModel]>(value: [])
     private var makeFirstResponder = PublishRelay<IndexPath?>()
+    private var resignFirstResponder = PublishRelay<IndexPath?>()
     
     var selectedRepo: MyRepo?
     var firstResponderIndexPath: IndexPath?
@@ -62,8 +64,15 @@ final class TodoViewModel: BaseViewModel {
             deleteTodo: deleteTodoSubject.asObserver()
         )
         output = Output(
-            todos: todos.asDriver(onErrorJustReturn: []),
-            makeFirstResponder: makeFirstResponder.asDriver(onErrorJustReturn: nil)
+            todos: todos
+                .observe(on: MainScheduler.asyncInstance)
+                .asDriver(onErrorJustReturn: []),
+            makeFirstResponder: makeFirstResponder
+                .observe(on: MainScheduler.asyncInstance)
+                .asDriver(onErrorJustReturn: nil),
+            resignFirstResponder: resignFirstResponder
+                .observe(on: MainScheduler.asyncInstance)
+                .asDriver(onErrorJustReturn: nil)
         )
         
         bindInputs()
@@ -133,6 +142,13 @@ final class TodoViewModel: BaseViewModel {
     private func toggleTodo(with id: UUID) {
         do {
             try localTodoService.toggleCompleteStatus(of: id)
+            
+            if let firstResponderIndexPath,
+               todos.value[firstResponderIndexPath.row].todo.isEmpty,
+               firstResponderIndexPath.row == todos.value.count - 1 {
+                resignFirstResponder.accept(firstResponderIndexPath)
+                return
+            }
             fetchTodos()
         } catch {
             logError(in: "toggleTodo", error)
@@ -177,6 +193,8 @@ extension TodoViewModel: TodoCellViewModelDelegate {
         
         if todo == nil || todo?.isEmpty == true {
             deleteTodo(with: viewModel.id)
+        } else {
+            fetchTodos()
         }
     }
     

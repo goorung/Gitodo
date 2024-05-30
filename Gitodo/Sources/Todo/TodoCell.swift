@@ -103,6 +103,10 @@ final class TodoCell: UITableViewCell {
         todoTextView.becomeFirstResponder()
     }
     
+    func todoResignFirstResponder() {
+        todoTextView.resignFirstResponder()
+    }
+    
     @objc private func toggleCheckbox() {
         viewModel?.isComplete.toggle()
     }
