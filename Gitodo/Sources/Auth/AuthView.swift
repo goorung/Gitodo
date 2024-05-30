@@ -1,8 +1,8 @@
 //
-//  ContactView.swift
-//  GitodoShared
+//  AuthView.swift
+//  Gitodo
 //
-//  Created by jiyeon on 5/27/24.
+//  Created by jiyeon on 5/30/24.
 //
 
 import UIKit
@@ -12,8 +12,13 @@ import GitodoShared
 
 import SnapKit
 
-final class ContactView: UIView {
+protocol AuthViewDelegate: AnyObject {
+    func handleLogin(url: URL)
+}
 
+final class AuthView: UIView {
+
+    weak var delegate: AuthViewDelegate?
     private var progressObserver: NSKeyValueObservation?
     
     // MARK: - UI Components
@@ -69,13 +74,13 @@ final class ContactView: UIView {
     }
     
     private func loadWebView() {
-        guard let url = URL(string: "https://github.com/goorung/Gitodo/wiki/%EC%82%AC%EC%9A%A9%EC%9E%90-%EB%A7%A4%EB%89%B4%EC%96%BC-%7C-FAQ") else { return }
+        guard let url = LoginManager.shared.getLoginURL() else { return }
         webView.load(URLRequest(url: url))
     }
     
 }
 
-extension ContactView: WKNavigationDelegate {
+extension AuthView: WKNavigationDelegate {
     
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
         // 로딩 시작 시 프로그레스 바를 보여주고 진행률 초기화
@@ -92,11 +97,11 @@ extension ContactView: WKNavigationDelegate {
     }
     
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        // "새 창으로 열기" 링크 WebView 내에서 열기
-        if navigationAction.targetFrame == nil {
-            webView.load(navigationAction.request)
+        if let url = navigationAction.request.url, url.scheme == "gitodo" {
+            delegate?.handleLogin(url: url)
         }
         decisionHandler(.allow)
     }
     
 }
+

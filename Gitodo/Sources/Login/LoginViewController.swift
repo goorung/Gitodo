@@ -28,23 +28,23 @@ final class LoginViewController: BaseViewController<LoginView> {
     private func setupNotificationCenterObserver() {
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(handleLoginStart),
+            selector: #selector(handleAccessTokenFetchDidStart),
             name: .AccessTokenFetchDidStart,
             object: nil
         )
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(handleLoginEnd),
+            selector: #selector(handleAccessTokenFetchDidEnd),
             name: .AccessTokenFetchDidEnd,
             object: nil
         )
     }
     
-    @objc private func handleLoginStart() {
+    @objc private func handleAccessTokenFetchDidStart() {
         contentView.startLoading()
     }
     
-    @objc private func handleLoginEnd() {
+    @objc private func handleAccessTokenFetchDidEnd() {
         contentView.endLoading()
         DispatchQueue.main.async {
             let mainViewModel = MainViewModel(localRepositoryService: LocalRepositoryService())
