@@ -144,8 +144,7 @@ final class TodoViewModel: BaseViewModel {
             try localTodoService.toggleCompleteStatus(of: id)
             
             if let firstResponderIndexPath,
-               todos.value[firstResponderIndexPath.row].todo.isEmpty,
-               firstResponderIndexPath.row == todos.value.count - 1 {
+               todos.value[firstResponderIndexPath.row].todo.isEmpty {
                 resignFirstResponder.accept(firstResponderIndexPath)
                 return
             }

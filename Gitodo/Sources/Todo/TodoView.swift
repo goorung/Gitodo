@@ -141,7 +141,6 @@ final class TodoView: UIView {
        
        if let firstResponderIndexPath = viewModel?.firstResponderIndexPath {
            todoTableView.scrollToRow(at: firstResponderIndexPath, at: .none, animated: true)
-           viewModel?.firstResponderIndexPath = nil
        }
    }
 
@@ -215,7 +214,7 @@ extension TodoView: UITableViewDelegate {
             
             var snapshot = self.todoDataSource?.snapshot()
             snapshot?.deleteItems([viewModel.identifier])
-            self.todoDataSource?.apply(snapshot!, animatingDifferences: true)
+            self.todoDataSource?.apply(snapshot!, animatingDifferences: false)
             
             completionHandler(true)
         }
