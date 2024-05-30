@@ -183,6 +183,15 @@ final class IssueInfoView: UIView {
     }
     
     func loadMarkdown(markdown: String?) {
+        var markdown = markdown
+        if markdown == nil || markdown?.isEmpty == true {
+            markdown = """
+        <div align="center" style="color:gray;">
+        내용이 없습니다.
+        </div>
+        """
+        }
+        
         let css = """
         body { font-size: 15px; }
         code {
