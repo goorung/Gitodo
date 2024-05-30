@@ -181,6 +181,13 @@ final class TodoView: UIView {
                 self?.generateHaptic()
                 cell.todoBecomeFirstResponder()
             }).disposed(by: disposeBag)
+        
+        viewModel.output.resignFirstResponder
+            .drive(onNext: { [weak self] indexPath in
+                guard let indexPath else { return }
+                guard let cell = self?.todoTableView.cellForRow(at: indexPath) as? TodoCell else { return }
+                cell.todoResignFirstResponder()
+            }).disposed(by: disposeBag)
     }
     
     private func applySnapshot(with viewModels: [TodoCellViewModel]) {
