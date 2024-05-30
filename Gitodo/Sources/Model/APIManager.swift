@@ -53,14 +53,14 @@ final class APIManager {
     }
     
     func fetchRepositories() async throws -> [Repository] {
-        let url = URL(string: "\(baseURL)/user/repos")
+        let url = URL(string: "\(baseURL)/user/repos?per_page=100")
         return try await fetchData(from: url)
     }
     
     func fetchIssues(for repo: MyRepo) async throws -> [Issue] {
         let repoName = repo.name
         let ownerName = repo.ownerName
-        let url = URL(string: "\(baseURL)/repos/\(ownerName)/\(repoName)/issues")
+        let url = URL(string: "\(baseURL)/repos/\(ownerName)/\(repoName)/issues?per_page=100")
         return try await fetchData(from: url)
     }
     
