@@ -71,6 +71,7 @@ final class ContactView: UIView {
     private func loadWebView() {
         guard let url = URL(string: "https://github.com/goorung/Gitodo/wiki/%EC%82%AC%EC%9A%A9%EC%9E%90-%EB%A7%A4%EB%89%B4%EC%96%BC-%7C-FAQ") else { return }
         webView.load(URLRequest(url: url))
+        webView.allowsBackForwardNavigationGestures = true
     }
     
 }
