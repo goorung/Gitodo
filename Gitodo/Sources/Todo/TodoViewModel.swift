@@ -145,7 +145,7 @@ final class TodoViewModel: BaseViewModel {
             try localTodoService.toggleCompleteStatus(of: id)
             
             if let lastResponderIndexPath,
-               todos.value[lastResponderIndexPath.row].todo.isEmpty {
+               todos.value[safe: lastResponderIndexPath.row]?.todo.isEmpty == true {
                 resignFirstResponder.accept(lastResponderIndexPath)
                 return
             }
@@ -207,4 +207,10 @@ extension TodoViewModel: TodoCellViewModelDelegate {
         }
     }
     
+}
+
+extension Array {
+    subscript(safe index: Int) -> Element? {
+        return self.indices ~= index ? self[index] : nil
+    }
 }
