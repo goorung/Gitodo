@@ -18,7 +18,7 @@ final class ContactView: UIView {
     
     // MARK: - UI Components
     
-    private lazy var webView = WKWebView()
+    private lazy var webView = WebViewPreloader.shared.getWebView()
     
     private lazy var progressView = {
         let view = UIProgressView()
@@ -44,7 +44,7 @@ final class ContactView: UIView {
     
     deinit {
         progressObserver?.invalidate()
-        webView.stopLoading()
+        WebViewPreloader.shared.clear()
     }
     
     // MARK: - Setup Methods
