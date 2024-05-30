@@ -9,8 +9,8 @@ import Foundation
 
 extension Notification.Name {
     
-    static let LoginDidStart = Notification.Name("LoginDidStart")
-    static let LoginDidEnd = Notification.Name("LoginDidEnd")
+    static let AccessTokenFetchDidStart = Notification.Name("AccessTokenFetchDidStart")
+    static let AccessTokenFetchDidEnd = Notification.Name("AccessTokenFetchDidEnd")
     static let AssigneeCollectionViewHeightDidUpdate = Notification.Name("AssigneeCollectionViewHeightDidUpdate")
     static let LabelCollectionViewHeightDidUpdate = Notification.Name("LabelCollectionViewHeightDidUpdate")
     static let RepositoryOrderDidUpdate = Notification.Name("RepositoryOrderDidUpdate")

@@ -20,7 +20,7 @@ final class LoginManager {
         return Bundle.main.object(forInfoDictionaryKey: "CLIENT_SECRET") as? String ?? ""
     }
     
-    private let baseURL = "https://github.com/login/oauth/"
+    private let baseURL = "https://github.com/login/oauth"
     
     func getLoginURL() -> URL? {
         var components = URLComponents(string: "\(baseURL)/authorize")

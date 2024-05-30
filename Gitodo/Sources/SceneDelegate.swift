@@ -52,33 +52,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             }
             return
         }
-        
-        guard let context = URLContexts.first,
-              let components = URLComponents(url: context.url, resolvingAgainstBaseURL: false),
-              let queryItems = components.queryItems,
-              let code = queryItems.first(where: { $0.name == "code" })?.value
-        else {
-            Toaster.shared.makeToast("로그인에 실패했습니다.\n다시 시도해주세요.")
-            return
-        }
-        
-        NotificationCenter.default.post(name: .LoginDidStart, object: nil)
-        Task {
-            do {
-                try await LoginManager.shared.fetchAccessToken(with: code)
-                print("Access Token 발급 완료")
-                UserDefaultsManager.isLogin = true
-                DispatchQueue.main.async {
-                    let mainViewModel = MainViewModel(localRepositoryService: LocalRepositoryService())
-                    let mainViewController = MainViewController(viewModel: mainViewModel)
-                    self.window?.rootViewController = UINavigationController(rootViewController: mainViewController)
-                }
-            } catch {
-                print("Access Token 요청 실패: \(error.localizedDescription)")
-                Toaster.shared.makeToast("로그인에 실패했습니다.\n다시 시도해주세요.")
-            }
-            NotificationCenter.default.post(name: .LoginDidEnd, object: nil)
-        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

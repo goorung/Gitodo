@@ -10,8 +10,6 @@ import UIKit
 
 final class LoginViewController: BaseViewController<LoginView> {
     
-    private var safariViewController: SFSafariViewController?
-    
     // MARK: - Life Cycle
     
     override func viewDidLoad() {
@@ -30,25 +28,29 @@ final class LoginViewController: BaseViewController<LoginView> {
     private func setupNotificationCenterObserver() {
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(handleLoginStart),
-            name: .LoginDidStart,
+            selector: #selector(handleAccessTokenFetchDidStart),
+            name: .AccessTokenFetchDidStart,
             object: nil
         )
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(handleLoginEnd),
-            name: .LoginDidEnd,
+            selector: #selector(handleAccessTokenFetchDidEnd),
+            name: .AccessTokenFetchDidEnd,
             object: nil
         )
     }
     
-    @objc private func handleLoginStart() {
-        safariViewController?.dismiss(animated: true)
+    @objc private func handleAccessTokenFetchDidStart() {
         contentView.startLoading()
     }
     
-    @objc private func handleLoginEnd() {
+    @objc private func handleAccessTokenFetchDidEnd() {
         contentView.endLoading()
+        DispatchQueue.main.async {
+            let mainViewModel = MainViewModel(localRepositoryService: LocalRepositoryService())
+            let mainViewController = MainViewController(viewModel: mainViewModel)
+            self.view.window?.rootViewController = UINavigationController(rootViewController: mainViewController)
+        }
     }
     
 }
@@ -56,9 +58,7 @@ final class LoginViewController: BaseViewController<LoginView> {
 extension LoginViewController: LoginDelegate {
     
     func loginWithGithub() {
-        guard let url = LoginManager.shared.getLoginURL() else { return }
-        safariViewController = SFSafariViewController(url: url)
-        present(safariViewController!, animated: true, completion: nil)
+        present(AuthViewController(), animated: true)
     }
     
 }
