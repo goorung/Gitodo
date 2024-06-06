@@ -52,6 +52,8 @@ final class TodoViewModel: BaseViewModel {
     var firstResponderIndexPath: IndexPath?
     var lastResponderIndexPath: IndexPath? 
     
+    var todoViewModels = [UUID: TodoCellViewModel]()
+    
     private let localTodoService: LocalTodoServiceProtocol
     
     // MARK: - Initializer
@@ -103,13 +105,21 @@ final class TodoViewModel: BaseViewModel {
         do {
             let todos = try localTodoService.fetchAll(in: repo.id)
             
-            let todoViewModels = todos
-                .map{ (todoItem) -> TodoCellViewModel in
-                let viewModel = TodoCellViewModel(todoItem: todoItem, tintColorHex: repo.hexColor)
-                viewModel.delegate = self
-                return viewModel
-            }
-            self.todos.accept(todoViewModels)
+            let viewModels = todos
+                .map { (todoItem) -> TodoCellViewModel in
+                    let newViewModel: TodoCellViewModel
+                    if let viewModel = todoViewModels[todoItem.id] {
+                        newViewModel = viewModel
+                        newViewModel.setTodoItem(todoItem: todoItem)
+                        newViewModel.tintColorHex = repo.hexColor
+                    } else {
+                        newViewModel = TodoCellViewModel(todoItem: todoItem, tintColorHex: repo.hexColor)
+                        todoViewModels[newViewModel.id] = newViewModel
+                    }
+                    newViewModel.delegate = self
+                    return newViewModel
+                }
+            self.todos.accept(viewModels)
         } catch {
             logError(in: "fetchTodos", error)
         }
@@ -158,6 +168,7 @@ final class TodoViewModel: BaseViewModel {
     private func deleteTodo(with id: UUID) {
         do {
             try localTodoService.delete(id)
+            todoViewModels.removeValue(forKey: id)
             fetchTodos()
         } catch {
             logError(in: "deleteTodo", error)
