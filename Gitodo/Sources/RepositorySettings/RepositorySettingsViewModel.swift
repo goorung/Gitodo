@@ -75,7 +75,12 @@ final class RepositorySettingsViewModel: BaseViewModel {
         }).disposed(by: disposeBag)
         
         updateRepoOrderSubject.subscribe (onNext: { [weak self] in
-            try? self?.updateRepos()
+            guard let self else { return }
+            do {
+                publicRepos.accept(try self.localRepositoryService.fetchPublic())
+            } catch {
+                logError(in: "updateRepoOrder", error)
+            }
         }).disposed(by: disposeBag)
         
         togglePublicSubject.subscribe(onNext: { [weak self] repo in
