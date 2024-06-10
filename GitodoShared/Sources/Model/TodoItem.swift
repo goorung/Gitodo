@@ -8,7 +8,7 @@
 import Foundation
 
 public struct TodoItem {
-    public var id: UUID = .init()
+    public var id: UUID
     public var todo: String
     public var isComplete: Bool
     public var order: Int = 0

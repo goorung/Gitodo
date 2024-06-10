@@ -73,4 +73,8 @@ class TodoCellViewModel {
         TodoIdentifierItem(id: todoItem.id, isComplete: todoItem.isComplete, order: todoItem.order, tintColorHex: tintColorHex)
     }
     
+    func setTodoItem(todoItem: TodoItem) {
+        self.todoItem = todoItem
+    }
+    
 }
