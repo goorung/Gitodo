@@ -82,7 +82,7 @@ final class RepositorySettingsViewController: BaseViewController<RepositorySetti
     }
     
     @objc private func handleRepoOrderChange() {
-        viewModel.input.fetchRepo.onNext(())
+        viewModel.input.updateRepoOrder.onNext(())
     }
     
     @objc private func handleAccessTokenExpire() {

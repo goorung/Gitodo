@@ -16,6 +16,7 @@ final class RepositorySettingsViewModel: BaseViewModel {
     
     struct Input {
         let fetchRepo: AnyObserver<Void>
+        let updateRepoOrder: AnyObserver<Void>
         let togglePublic: AnyObserver<MyRepo>
         let updateRepoInfo: AnyObserver<MyRepo>
         let removeRepo: AnyObserver<MyRepo>
@@ -35,6 +36,7 @@ final class RepositorySettingsViewModel: BaseViewModel {
     let output: Output
     
     private let fetchRepoSubject = PublishSubject<Void>()
+    private let updateRepoOrderSubject = PublishSubject<Void>()
     private let togglePublicSubject = PublishSubject<MyRepo>()
     private let updateRepoInfoSubject = PublishSubject<MyRepo>()
     private let removeRepoSubject = PublishSubject<MyRepo>()
@@ -51,7 +53,8 @@ final class RepositorySettingsViewModel: BaseViewModel {
         self.localRepositoryService = localRepositoryService
 
         input = Input(
-            fetchRepo: fetchRepoSubject.asObserver(),
+            fetchRepo: fetchRepoSubject.asObserver(), 
+            updateRepoOrder: updateRepoOrderSubject.asObserver(),
             togglePublic: togglePublicSubject.asObserver(),
             updateRepoInfo: updateRepoInfoSubject.asObserver(),
             removeRepo: removeRepoSubject.asObserver()
@@ -69,6 +72,15 @@ final class RepositorySettingsViewModel: BaseViewModel {
     func bindInputs() {
         fetchRepoSubject.subscribe(onNext: { [weak self] in
             self?.fetchRepos()
+        }).disposed(by: disposeBag)
+        
+        updateRepoOrderSubject.subscribe (onNext: { [weak self] in
+            guard let self else { return }
+            do {
+                publicRepos.accept(try self.localRepositoryService.fetchPublic())
+            } catch {
+                logError(in: "updateRepoOrder", error)
+            }
         }).disposed(by: disposeBag)
         
         togglePublicSubject.subscribe(onNext: { [weak self] repo in
