@@ -60,7 +60,7 @@ final class LabelCollectionView: UICollectionView {
     private func setupProperty() {
         delegate = self
         dataSource = self
-        register(LabelCell.self, forCellWithReuseIdentifier: LabelCell.reuseIdentifier)
+        register(cellType: LabelCell.self)
         backgroundColor = .clear
         isUserInteractionEnabled = false
     }
@@ -95,9 +95,7 @@ extension LabelCollectionView: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let labels = labels else { return UICollectionViewCell() }
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: LabelCell.reuseIdentifier, for: indexPath) as? LabelCell else {
-            fatalError("Unable to dequeue IssueCell")
-        }
+        let cell = collectionView.dequeueReusableCell(for: indexPath, cellType: LabelCell.self)
         cell.configure(with: labels[indexPath.row])
         return cell
     }

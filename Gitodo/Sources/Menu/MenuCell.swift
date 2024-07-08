@@ -9,9 +9,7 @@ import UIKit
 
 import SnapKit
 
-final class MenuCell: UITableViewCell {
-    
-    static let reuseIdentifier = "MenuCell"
+final class MenuCell: UITableViewCell, Reusable {
     
     // MARK: - UI Components
     

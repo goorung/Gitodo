@@ -49,7 +49,7 @@ final class RepoCollectionView: UICollectionView, UIGestureRecognizerDelegate {
         dragDelegate = self
         dropDelegate = self
         dragInteractionEnabled = true
-        register(RepositoryInfoCell.self, forCellWithReuseIdentifier: RepositoryInfoCell.reuseIdentifier)
+        register(cellType: RepositoryInfoCell.self)
     }
     
     required init?(coder: NSCoder) {
@@ -65,7 +65,7 @@ extension RepoCollectionView: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RepositoryInfoCell.reuseIdentifier, for: indexPath) as? RepositoryInfoCell else { return UICollectionViewCell() }
+        let cell = collectionView.dequeueReusableCell(for: indexPath, cellType: RepositoryInfoCell.self)
         let repo = repos[indexPath.row]
         cell.configure(repository: repo)
         

@@ -29,7 +29,7 @@ final class IssueView: UIView {
         let tableView = UITableView()
         tableView.backgroundColor = .background
         tableView.rowHeight = UITableView.automaticDimension
-        tableView.register(IssueCell.self, forCellReuseIdentifier: IssueCell.reuseIdentifier)
+        tableView.register(cellType: IssueCell.self)
         return tableView
     }()
     

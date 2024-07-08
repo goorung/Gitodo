@@ -11,9 +11,7 @@ import GitodoShared
 
 import SnapKit
 
-final class RepositoryInfoCell: UICollectionViewCell {
-    
-    static let reuseIdentifier = "RepositoryInfoCell"
+final class RepositoryInfoCell: UICollectionViewCell, Reusable {
     
     private(set) var repository: MyRepo?
     

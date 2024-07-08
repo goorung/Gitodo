@@ -58,7 +58,7 @@ final class RepositorySettingsView: UIView {
         tableView.isScrollEnabled = false
         tableView.dragDelegate = self
         tableView.dropDelegate = self
-        tableView.register(RepositoryCell.self, forCellReuseIdentifier: RepositoryCell.reuseIdentifier)
+        tableView.register(cellType: RepositoryCell.self)
         return tableView
     }()
     

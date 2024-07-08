@@ -26,7 +26,7 @@ final class TodoView: UIView {
         view.backgroundColor = .background
         view.separatorStyle = .none
         view.rowHeight = UITableView.automaticDimension
-        view.register(TodoCell.self, forCellReuseIdentifier: TodoCell.reuseIdentifier)
+        view.register(cellType: TodoCell.self)
         view.keyboardDismissMode = .interactive
         view.delegate = self
         return view
@@ -99,7 +99,7 @@ final class TodoView: UIView {
     private func configureDataSource() {
         todoDataSource = UITableViewDiffableDataSource(tableView: todoTableView) { [weak self] tableView, indexPath, itemIdentifier in
             guard let self, let viewModel = self.viewModel else { fatalError() }
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: TodoCell.reuseIdentifier, for: indexPath) as? TodoCell else { fatalError() }
+            let cell = tableView.dequeueReusableCell(for: indexPath, cellType: TodoCell.self)
             cell.selectionStyle = .none
             cell.configure(with: viewModel.viewModel(at: indexPath))
             cell.checkbox.rx.tapGesture()

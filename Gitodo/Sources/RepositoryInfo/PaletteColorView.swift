@@ -38,7 +38,7 @@ final class PaletteColorView: UICollectionView {
     private func setupProperty() {
         delegate = self
         dataSource = self
-        register(PaletteColorCell.self, forCellWithReuseIdentifier: PaletteColorCell.reuseIdentifier)
+        register(cellType: PaletteColorCell.self)
         backgroundColor = .background
     }
     
@@ -85,9 +85,7 @@ extension PaletteColorView: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PaletteColorCell.reuseIdentifier, for: indexPath) as? PaletteColorCell else {
-            fatalError("Unable to dequeue PaletteColorCell")
-        }
+        let cell = collectionView.dequeueReusableCell(for: indexPath, cellType: PaletteColorCell.self)
         let color = PaletteColor.allCases[indexPath.row]
         cell.configure(with: UIColor(hex: color.hex))
         if indexPath.row == selectedIndex {
