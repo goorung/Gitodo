@@ -56,6 +56,8 @@ final class RepositorySettingsView: UIView {
         tableView.layer.cornerRadius = 10
         tableView.backgroundColor = .background
         tableView.isScrollEnabled = false
+        tableView.dragDelegate = self
+        tableView.dropDelegate = self
         tableView.register(RepositoryCell.self, forCellReuseIdentifier: RepositoryCell.reuseIdentifier)
         return tableView
     }()
@@ -186,6 +188,31 @@ extension RepositorySettingsView: UICollectionViewDelegate {
         let repo = collectionView.repos[indexPath.row]
         generateHaptic()
         delegate?.presentRepositoryInfoViewController(repository: repo)
+    }
+    
+}
+
+extension RepositorySettingsView: UITableViewDragDelegate {
+    
+    func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
+        return [UIDragItem(itemProvider: NSItemProvider())]
+    }
+    
+}
+
+extension RepositorySettingsView: UITableViewDropDelegate {
+    
+    func tableView(_ tableView: UITableView, performDropWith coordinator: UITableViewDropCoordinator) {
+        guard let sourceItem = coordinator.items.first,
+              let sourceIndexPath = sourceItem.sourceIndexPath
+        else { return }
+        guard let destinationIndexPath = coordinator.destinationIndexPath else { return }
+        
+        viewModel?.input.updateRepoOrder.onNext((sourceIndexPath, destinationIndexPath))
+    }
+    
+    func tableView(_ tableView: UITableView, dropSessionDidUpdate session: UIDropSession, withDestinationIndexPath destinationIndexPath: IndexPath?) -> UITableViewDropProposal {
+        return UITableViewDropProposal(operation: .move, intent: .insertAtDestinationIndexPath)
     }
     
 }

@@ -16,6 +16,7 @@ final class RepositorySettingsViewModel: BaseViewModel {
     
     struct Input {
         let fetchRepo: AnyObserver<Void>
+        let updateRepoOrder: AnyObserver<(IndexPath, IndexPath)>
         let updateRepoInfo: AnyObserver<MyRepo>
     }
     
@@ -31,6 +32,7 @@ final class RepositorySettingsViewModel: BaseViewModel {
     let output: Output
     
     private let fetchRepoSubject = PublishSubject<Void>()
+    private let updateRepoOrderSubject = PublishSubject<(IndexPath, IndexPath)>()
     private let updateRepoInfoSubject = PublishSubject<MyRepo>()
     
     private let myRepos = PublishRelay<[MyRepo]>()
@@ -43,7 +45,8 @@ final class RepositorySettingsViewModel: BaseViewModel {
         self.localRepositoryService = localRepositoryService
 
         input = Input(
-            fetchRepo: fetchRepoSubject.asObserver(), 
+            fetchRepo: fetchRepoSubject.asObserver(),
+            updateRepoOrder: updateRepoOrderSubject.asObserver(),
             updateRepoInfo: updateRepoInfoSubject.asObserver()
         )
         
@@ -59,6 +62,10 @@ final class RepositorySettingsViewModel: BaseViewModel {
             self?.fetchRepos()
         }).disposed(by: disposeBag)
         
+        updateRepoOrderSubject.subscribe(onNext: { [weak self] from, to in
+            self?.updateRepoOrder(from, to)
+        }).disposed(by: disposeBag)
+        
         updateRepoInfoSubject.subscribe(onNext: { [weak self] repo in
             self?.updateRepoInfo(repo)
         }).disposed(by: disposeBag)
@@ -72,12 +79,25 @@ final class RepositorySettingsViewModel: BaseViewModel {
         }
     }
     
+    private func updateRepoOrder(_ from: IndexPath, _ to: IndexPath) {
+        do {
+            var currentRepos = try localRepositoryService.fetchPublic()
+            let movedRepo = currentRepos.remove(at: from.row)
+            currentRepos.insert(movedRepo, at: to.row)
+            try self.localRepositoryService.updateOrder(of: currentRepos)
+            try updateRepos()
+            NotificationCenter.default.post(name: .RepositoryOrderDidUpdate, object: self)
+        } catch {
+            logError(in:  #function, error)
+        }
+    }
+    
     private func updateRepoInfo(_ repo: MyRepo) {
         do {
             try localRepositoryService.updateInfo(of: repo)
             try updateRepos()
         } catch {
-            logError(in: "updateRepoInfo", error)
+            logError(in:  #function, error)
         }
     }
     

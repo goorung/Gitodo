@@ -27,7 +27,6 @@ final class RepositoryCell: UITableViewCell {
     
     private lazy var moveButton = {
         let button = UIButton()
-        button.isHidden = true
         button.tintColor = .systemGray4
         button.isUserInteractionEnabled = false
         button.configuration = .plain()
@@ -75,15 +74,10 @@ final class RepositoryCell: UITableViewCell {
     func configure(with repo: MyRepo) {
         self.repo = repo
         nameLabel.text = repo.fullName
-        moveButton.isHidden = !repo.isPublic
     }
     
     func getRepo() -> MyRepo? {
         return repo
-    }
-    
-    func select() {
-        moveButton.isHidden.toggle()
     }
     
 }
