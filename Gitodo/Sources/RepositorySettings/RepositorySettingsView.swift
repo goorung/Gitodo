@@ -14,19 +14,17 @@ import RxSwift
 import SnapKit
 
 protocol RepositorySettingsDelegate: AnyObject {
-    func presentAlertViewController(completion: @escaping (() -> Void))
     func presentRepositoryInfoViewController(repository: MyRepo)
 }
 
 final class RepositorySettingsView: UIView {
     
+    weak var delegate: RepositorySettingsDelegate?
     private var viewModel: RepositorySettingsViewModel?
     private let disposeBag = DisposeBag()
-    weak var delegate: RepositorySettingsDelegate?
     
     private let heightForRow: CGFloat = 50.0
-    private var repoTableViewHeightConstraint: Constraint?
-    private var deletedRepoTableViewHeightConstraint: Constraint?
+    private var myRepositoryTableViewHeightConstraint: Constraint?
     
     // MARK: - UI Components
     
@@ -124,7 +122,7 @@ final class RepositorySettingsView: UIView {
         contentView.addSubview(myRepositoryTableView)
         myRepositoryTableView.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
-            self.repoTableViewHeightConstraint = make.height.equalTo(0).constraint
+            self.myRepositoryTableViewHeightConstraint = make.height.equalTo(0).constraint
             make.bottom.equalToSuperview()
         }
         
@@ -168,7 +166,7 @@ final class RepositorySettingsView: UIView {
                 guard let self = self else { return }
                 emptyView.isHidden = !repos.isEmpty
                 let height = CGFloat(repos.count) * heightForRow
-                repoTableViewHeightConstraint?.update(offset: height)
+                myRepositoryTableViewHeightConstraint?.update(offset: height)
                 myRepositoryTableView.layoutIfNeeded() // 즉시 레이아웃 업데이트
             })
             .drive(myRepositoryTableView.rx.items(

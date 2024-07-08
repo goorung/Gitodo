@@ -86,7 +86,6 @@ final class RepositorySettingsViewModel: BaseViewModel {
             currentRepos.insert(movedRepo, at: to.row)
             try self.localRepositoryService.updateOrder(of: currentRepos)
             try updateRepos()
-            NotificationCenter.default.post(name: .RepositoryOrderDidUpdate, object: self)
         } catch {
             logError(in:  #function, error)
         }
