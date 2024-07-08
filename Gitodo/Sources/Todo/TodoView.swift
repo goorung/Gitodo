@@ -47,21 +47,10 @@ final class TodoView: UIView {
     
     private lazy var emptyLabel = {
         let label = UILabel()
-        
-        let text = """
-        할 일이 비었어요.
-        할 일을 추가해주세요! 😙
-        """
-        let attributedString = NSMutableAttributedString(string: text)
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = 4
-        attributedString.addAttribute(NSAttributedString.Key.paragraphStyle, value: paragraphStyle, range: NSMakeRange(0, attributedString.length))
-        label.attributedText = attributedString
-        
+        label.setTextWithLineHeight("할 일이 비었어요.\n할 일을 추가해주세요! 😙")
         label.textAlignment = .center
         label.font = .bodySB
         label.textColor = .tertiaryLabel
-        label.numberOfLines = 2
         return label
     }()
     

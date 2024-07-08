@@ -25,14 +25,13 @@ final class RepositoryCell: UITableViewCell {
         return label
     }()
     
-    private lazy var selectedButton = {
+    private lazy var moveButton = {
         let button = UIButton()
         button.isHidden = true
-        button.tintColor = .label
+        button.tintColor = .systemGray4
         button.isUserInteractionEnabled = false
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "checkmark")
-        button.configuration?.preferredSymbolConfigurationForImage = .init(pointSize: 10.0, weight: .bold)
+        button.configuration?.image = UIImage(systemName: "line.horizontal.3")
         return button
     }()
     
@@ -65,8 +64,8 @@ final class RepositoryCell: UITableViewCell {
             make.centerY.equalToSuperview()
         }
         
-        contentView.addSubview(selectedButton)
-        selectedButton.snp.makeConstraints { make in
+        contentView.addSubview(moveButton)
+        moveButton.snp.makeConstraints { make in
             make.trailing.equalToSuperview().inset(20)
             make.centerY.equalToSuperview()
             make.width.height.equalTo(15)
@@ -76,7 +75,7 @@ final class RepositoryCell: UITableViewCell {
     func configure(with repo: MyRepo) {
         self.repo = repo
         nameLabel.text = repo.fullName
-        selectedButton.isHidden = !repo.isPublic
+        moveButton.isHidden = !repo.isPublic
     }
     
     func getRepo() -> MyRepo? {
@@ -84,7 +83,7 @@ final class RepositoryCell: UITableViewCell {
     }
     
     func select() {
-        selectedButton.isHidden.toggle()
+        moveButton.isHidden.toggle()
     }
     
 }

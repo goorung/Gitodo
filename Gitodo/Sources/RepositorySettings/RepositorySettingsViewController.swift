@@ -39,11 +39,12 @@ final class RepositorySettingsViewController: BaseViewController<RepositorySetti
     // MARK: - Setup Navigation Bar
     
     func setupNavigationBar() {
-        setTitle("레포지토리 설정")
+        setNavigationBarBackground(.secondarySystemBackground)
+        setTitle("레포지토리 관리")
         if UserDefaultsManager.isPublicRepoSet {
             setLeftButton(symbolName: "chevron.left")
             setLeftButtonAction(#selector(popViewControllerIf))
-            setRightButton(symbolName: "arrow.clockwise")
+            setRightButton(symbolName: "plus")
             setRightButtonAction(#selector(fetchRepo))
         } else {
             setRightButton(title: "완료")
@@ -82,7 +83,7 @@ final class RepositorySettingsViewController: BaseViewController<RepositorySetti
     }
     
     @objc private func handleRepoOrderChange() {
-        viewModel.input.updateRepoOrder.onNext(())
+        viewModel.input.fetchRepo.onNext(())
     }
     
     @objc private func handleAccessTokenExpire() {
@@ -100,7 +101,7 @@ final class RepositorySettingsViewController: BaseViewController<RepositorySetti
     // MARK: - Bind
     
     private func bind() {
-        viewModel.output.publicRepos
+        viewModel.output.myRepos
             .map { $0.count }
             .drive(onNext: { [weak self] count in
                 guard let self = self else { return }
