@@ -12,6 +12,13 @@ public struct User: Codable {
     public let avatarUrl: String
 }
 
+public struct Organization: Codable {
+    public let login: String
+    public let id: Int
+    public let avatarUrl: String
+    public let description: String?
+}
+
 public struct Repository: Codable {
     public let id: Int
     public let name: String

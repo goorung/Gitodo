@@ -42,10 +42,9 @@ final class RepositorySettingsViewController: BaseViewController<RepositorySetti
         setNavigationBarBackground(.secondarySystemBackground)
         setTitle("레포지토리 관리")
         if UserDefaultsManager.isPublicRepoSet {
-            setLeftButton(symbolName: "chevron.left")
-            setLeftButtonAction(#selector(popViewControllerIf))
+            setLeftBackButton()
             setRightButton(symbolName: "plus")
-            setRightButtonAction(#selector(fetchRepo))
+            setRightButtonAction(#selector(handlePlusButtonTap))
         } else {
             setRightButton(title: "완료")
             setRightButtonAction(#selector(popViewControllerIf))
@@ -61,8 +60,8 @@ final class RepositorySettingsViewController: BaseViewController<RepositorySetti
         }
     }
     
-    @objc private func fetchRepo() {
-        viewModel.input.fetchRepo.onNext(())
+    @objc private func handlePlusButtonTap() {
+        navigationController?.pushViewController(OrganizationViewController(), animated: true)
     }
     
     // MARK: - Setup NotificationCenter Observer
