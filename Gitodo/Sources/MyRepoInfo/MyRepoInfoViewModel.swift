@@ -1,5 +1,5 @@
 //
-//  RepositoryInfoViewModel.swift
+//  MyRepoInfoViewModel.swift
 //  Gitodo
 //
 //  Created by 이지현 on 5/6/24.
@@ -9,7 +9,7 @@ import Foundation
 
 import GitodoShared
 
-final class RepositoryInfoViewModel {
+final class MyRepoInfoViewModel {
     private(set) var repository: MyRepo
     
     init(repository: MyRepo) {

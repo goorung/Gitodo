@@ -1,5 +1,5 @@
 //
-//  RepositoryView.swift
+//  MyRepoView.swift
 //  Gitodo
 //
 //  Created by 이지현 on 4/25/24.
@@ -9,7 +9,7 @@ import UIKit
 
 import SnapKit
 
-final class RepositoryView: UIView {
+final class MyRepoView: UIView {
     
     // MARK - UI Components
     

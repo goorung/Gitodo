@@ -121,14 +121,14 @@ final class RepositorySettingsViewController: BaseViewController<RepositorySetti
 extension RepositorySettingsViewController: RepositorySettingsDelegate {
     
     func presentRepositoryInfoViewController(repository: MyRepo) {
-        let viewController = RepositoryInfoViewController(viewModel: RepositoryInfoViewModel(repository: repository))
+        let viewController = MyRepoInfoViewController(viewModel: MyRepoInfoViewModel(repository: repository))
         viewController.delegate = self
         present(viewController, animated: true)
     }
     
 }
 
-extension RepositorySettingsViewController: RepositoryInfoViewControllerDelegate {
+extension RepositorySettingsViewController: MyRepoInfoViewControllerDelegate {
     
     func doneButtonTapped(repository: MyRepo) {
         viewModel.input.updateRepoInfo.onNext(repository)

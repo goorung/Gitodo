@@ -65,7 +65,7 @@ final class OrganizationViewModel: BaseViewModel {
                 let orgnizationList = [me.asOrganization()] + fetchedOrganizations
                 organizations.accept(orgnizationList)
             } catch let error {
-                print("fetch organizations failed : \(error)")
+                print("[OrganizationViewModel] fetchOrganizations failed : \(error)")
             }
             isLoading.accept(false)
         }

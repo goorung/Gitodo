@@ -24,13 +24,12 @@ final class RepositoryCell: UITableViewCell, Reusable {
         return label
     }()
     
-    private lazy var moveButton = {
-        let button = UIButton()
-        button.tintColor = .systemGray4
-        button.isUserInteractionEnabled = false
-        button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "line.horizontal.3")
-        return button
+    private lazy var moveImageView = {
+        let imageView = UIImageView()
+        imageView.image = UIImage(systemName: "line.horizontal.3")
+        imageView.tintColor = .systemGray3
+        imageView.contentMode = .scaleAspectFit
+        return imageView
     }()
     
     // MARK: - Initializer
@@ -55,18 +54,18 @@ final class RepositoryCell: UITableViewCell, Reusable {
     // MARK: - Setup Methods
     
     private func setupLayout() {
-        contentView.addSubview(nameLabel)
-        nameLabel.snp.makeConstraints { make in
-            make.leading.equalToSuperview().inset(20)
-            make.trailing.equalToSuperview().inset(45)
+        contentView.addSubview(moveImageView)
+        moveImageView.snp.makeConstraints { make in
+            make.width.height.equalTo(24)
+            make.trailing.equalToSuperview().inset(20)
             make.centerY.equalToSuperview()
         }
         
-        contentView.addSubview(moveButton)
-        moveButton.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(20)
+        contentView.addSubview(nameLabel)
+        nameLabel.snp.makeConstraints { make in
+            make.leading.equalToSuperview().inset(20)
+            make.trailing.equalTo(moveImageView.snp.leading).offset(-10)
             make.centerY.equalToSuperview()
-            make.width.height.equalTo(15)
         }
     }
     

@@ -29,7 +29,7 @@ final class RepositorySettingsView: UIView {
     // MARK: - UI Components
     
     private lazy var myRepositoryPreview = {
-        let collectionView = RepoCollectionView(isEditMode: true)
+        let collectionView = MyRepoCollectionView(isEditMode: true)
         collectionView.delegate = self
         return collectionView
     }()
@@ -182,7 +182,7 @@ final class RepositorySettingsView: UIView {
 extension RepositorySettingsView: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let collectionView = collectionView as? RepoCollectionView else { return }
+        guard let collectionView = collectionView as? MyRepoCollectionView else { return }
         let repo = collectionView.repos[indexPath.row]
         generateHaptic()
         delegate?.presentRepositoryInfoViewController(repository: repo)
