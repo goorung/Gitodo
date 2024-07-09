@@ -139,8 +139,8 @@ final class MainView: UIView {
         }
     }
     
-    func setIssueDelegate(_ delegate: IssueDelegate) {
-        issueView.issueDelegate = delegate
+    func setIssueDelegate(_ delegate: IssueViewDelegate) {
+        issueView.delegate = delegate
     }
     
     // MARK: - Bind

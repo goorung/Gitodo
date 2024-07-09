@@ -7,13 +7,17 @@
 
 import UIKit
 
+import GitodoShared
+
 final class OrganizationViewController: BaseViewController<OrganizationView>, BaseViewControllerProtocol {
+    
     private let viewModel = OrganizationViewModel()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setupNavigationBar()
+        contentView.delegate = self
         contentView.bind(with: viewModel)
         viewModel.input.viewDidLoad.onNext(())
     }
@@ -24,5 +28,18 @@ final class OrganizationViewController: BaseViewController<OrganizationView>, Ba
         setLeftBackButton()
     }
     
+}
+
+extension OrganizationViewController: OrganizationViewDelegate {
+    
+    func pushRepositoryViewController(for owner: String, type: RepositoryFetchType) {
+        let repositoryViewModel = RepositoryViewModel(
+            for: owner,
+            type: type,
+            service: LocalRepositoryService()
+        )
+        let repositoryViewController = RepositoryViewController(viewModel: repositoryViewModel)
+        navigationController?.pushViewController(repositoryViewController, animated: true)
+    }
     
 }

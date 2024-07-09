@@ -35,6 +35,8 @@ final class OrganizationViewModel: BaseViewModel {
     private let organizations = BehaviorRelay<[Organization]>(value: [])
     private let isLoading = BehaviorRelay<Bool>(value: false)
     
+    private var me: String?
+    
     // MARK: - Initializer
     
     init() {
@@ -69,6 +71,10 @@ final class OrganizationViewModel: BaseViewModel {
             }
             isLoading.accept(false)
         }
+    }
+    
+    func getRepositoryOwner(at indexPath: IndexPath) -> String {
+        return organizations.value[indexPath.row].login
     }
     
 }

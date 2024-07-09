@@ -7,12 +7,19 @@
 
 import UIKit
 
+import GitodoShared
+
 import RxCocoa
 import RxSwift
 import SnapKit
 
+protocol OrganizationViewDelegate: AnyObject {
+    func pushRepositoryViewController(for: String, type: RepositoryFetchType)
+}
+
 final class OrganizationView: LoadableView {
     
+    weak var delegate: OrganizationViewDelegate?
     private var viewModel: OrganizationViewModel?
     private let disposeBag = DisposeBag()
     
@@ -43,6 +50,7 @@ final class OrganizationView: LoadableView {
         
         backgroundColor = .secondarySystemBackground
         setupLayout()
+        bind()
     }
     
     required init?(coder: NSCoder) {
@@ -74,6 +82,16 @@ final class OrganizationView: LoadableView {
     }
     
     // MARK: - Bind
+    
+    func bind() {
+        organizationTableView.rx.itemSelected
+            .subscribe(onNext: { [weak self] indexPath in
+                guard let self, let viewModel else { return }
+                let owner = viewModel.getRepositoryOwner(at: indexPath)
+                let type: RepositoryFetchType = indexPath.row == 0 ? .user : .organization
+                delegate?.pushRepositoryViewController(for: owner, type: type)
+            }).disposed(by: disposeBag)
+    }
     
     func bind(with viewModel: OrganizationViewModel) {
         self.viewModel = viewModel

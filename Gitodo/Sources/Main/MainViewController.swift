@@ -211,7 +211,7 @@ extension MainViewController: UIPopoverPresentationControllerDelegate {
     
 }
 
-extension MainViewController: IssueDelegate {
+extension MainViewController: IssueViewDelegate {
     
     func presentInfoViewController(issue: Issue) {
         let issueInfoViewController = IssueInfoViewController()

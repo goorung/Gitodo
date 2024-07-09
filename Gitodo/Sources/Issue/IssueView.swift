@@ -13,13 +13,13 @@ import RxCocoa
 import RxSwift
 import SnapKit
 
-protocol IssueDelegate: AnyObject {
+protocol IssueViewDelegate: AnyObject {
     func presentInfoViewController(issue: Issue)
 }
 
 final class IssueView: LoadableView {
     
-    weak var issueDelegate: IssueDelegate?
+    weak var delegate: IssueViewDelegate?
     private var viewModel: IssueViewModel?
     private let disposeBag = DisposeBag()
     
@@ -103,7 +103,7 @@ final class IssueView: LoadableView {
         issueTableView.rx.itemSelected
             .subscribe(onNext: { [weak self] indexPath in
                 guard let self = self, let viewModel = viewModel else { return }
-                issueDelegate?.presentInfoViewController(issue: viewModel.issue(at: indexPath))
+                delegate?.presentInfoViewController(issue: viewModel.issue(at: indexPath))
             }).disposed(by: disposeBag)
     }
     

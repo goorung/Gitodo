@@ -101,8 +101,4 @@ final class OrganizationCell: UITableViewCell, Reusable {
         descriptionLabel.text = organization.description
     }
     
-    func getOrganization() -> Organization? {
-        return organization
-    }
-    
 }

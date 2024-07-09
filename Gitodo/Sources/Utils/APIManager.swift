@@ -57,8 +57,14 @@ final class APIManager {
         return try await fetchData(from: url)
     }
     
-    func fetchRepositories() async throws -> [Repository] {
-        let url = URL(string: "\(baseURL)/user/repos?per_page=100")
+    func fetchRepositories(for owner: String, type: RepositoryFetchType) async throws -> [Repository] {
+        var url: URL?
+        switch type {
+        case .organization:
+            url = URL(string: "\(baseURL)/orgs/\(owner)/repos?per_page=100")
+        case .user:
+            url = URL(string: "\(baseURL)/users/\(owner)/repos?per_page=100")
+        }
         return try await fetchData(from: url)
     }
     
