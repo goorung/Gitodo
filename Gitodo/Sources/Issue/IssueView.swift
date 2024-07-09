@@ -17,7 +17,7 @@ protocol IssueDelegate: AnyObject {
     func presentInfoViewController(issue: Issue)
 }
 
-final class IssueView: UIView {
+final class IssueView: LoadableView {
     
     weak var issueDelegate: IssueDelegate?
     private var viewModel: IssueViewModel?
@@ -40,14 +40,6 @@ final class IssueView: UIView {
         label.textColor = .tertiaryLabel
         return label
     }()
-    
-    private lazy var loadingView = {
-        let view = UIView()
-        view.backgroundColor = .background
-        return view
-    }()
-    
-    private lazy var loadingIndicator = UIActivityIndicatorView()
     
     // MARK: - Initializer
     
@@ -82,17 +74,7 @@ final class IssueView: UIView {
             make.centerY.equalToSuperview().offset(-45)
         }
         
-        addSubview(loadingView)
-        loadingView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
-        
-        loadingView.addSubview(loadingIndicator)
-        loadingIndicator.snp.makeConstraints { make in
-            make.width.height.equalTo(50)
-            make.centerX.equalToSuperview()
-            make.centerY.equalToSuperview().offset(-45)
-        }
+        bringSubviewToFront(loadingView)
     }
     
     private func setupNotificationCenterObserver() {
@@ -142,28 +124,17 @@ final class IssueView: UIView {
                 switch state {
                 case .hasIssues:
                     messageLabel.isHidden = true
-                case .noIssues:
-                    showMessageLabel(with: "생성된 이슈가 없습니다 🫥")
-                case .repoDeleted:
-                    showMessageLabel(with: "원격 저장소에서 삭제된 레포지토리입니다 👻")
-                case .noInternetConnection:
-                    showMessageLabel(with: "네트워크 연결이 필요합니다 🌐")
-                case .error:
-                    showMessageLabel(with: "문제가 발생했습니다.\n잠시 후 다시 시도해주세요!")
+                default:
+                    showMessageLabel(with: state.message)
                 }
             }).disposed(by: disposeBag)
         
         viewModel.output.isLoading
             .drive(onNext: { [weak self] isLoading in
-                guard let self = self else { return }
                 if isLoading {
-                    loadingView.isHidden = false
-                    loadingIndicator.startAnimating()
+                    self?.showLoading()
                 } else {
-                    DispatchQueue.main.async {
-                        self.loadingIndicator.stopAnimating()
-                        self.loadingView.isHidden = true
-                    }
+                    self?.hideLoading()
                 }
             }).disposed(by: disposeBag)
     }

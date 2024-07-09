@@ -11,30 +11,30 @@ import RxCocoa
 import RxSwift
 import SnapKit
 
-final class OrganizationView: UIView {
+final class OrganizationView: LoadableView {
     
     private var viewModel: OrganizationViewModel?
     private let disposeBag = DisposeBag()
+    
+    private let heightForRow: CGFloat = 60.0
     private var organizationTableViewHeightConstraint: Constraint?
     
     // MARK: - UI Components
+    
+    private lazy var scrollView = UIScrollView()
+    
+    private lazy var contentView = UIView()
     
     private lazy var organizationTableView = {
         let tableView = UITableView()
         tableView.clipsToBounds = true
         tableView.layer.cornerRadius = 10
-        tableView.rowHeight = 60
+        tableView.rowHeight = heightForRow
+        tableView.backgroundColor = .background
+        tableView.isScrollEnabled = false
         tableView.register(cellType: OrganizationCell.self)
         return tableView
     }()
-    
-    private lazy var loadingView = {
-        let view = UIView()
-        view.backgroundColor = .background
-        return view
-    }()
-    
-    private lazy var loadingIndicator = UIActivityIndicatorView()
     
     // MARK: - Initializer
     
@@ -52,22 +52,25 @@ final class OrganizationView: UIView {
     // MARK: - Setup Methods
     
     private func setupLayout() {
-        addSubview(organizationTableView)
-        organizationTableView.snp.makeConstraints { make in
+        addSubview(scrollView)
+        scrollView.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(20)
         }
         
-        addSubview(loadingView)
-        loadingView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+        scrollView.addSubview(contentView)
+        contentView.snp.makeConstraints { make in
+            make.edges.equalTo(scrollView.contentLayoutGuide)
+            make.width.equalTo(scrollView.snp.width)
         }
         
-        loadingView.addSubview(loadingIndicator)
-        loadingIndicator.snp.makeConstraints { make in
-            make.width.height.equalTo(50)
-            make.centerX.equalToSuperview()
-            make.centerY.equalToSuperview().offset(-45)
+        contentView.addSubview(organizationTableView)
+        organizationTableView.snp.makeConstraints { make in
+            make.top.leading.trailing.equalToSuperview()
+            self.organizationTableViewHeightConstraint = make.height.equalTo(0).constraint
+            make.bottom.equalToSuperview()
         }
+        
+        bringSubviewToFront(loadingView)
     }
     
     // MARK: - Bind
@@ -76,6 +79,12 @@ final class OrganizationView: UIView {
         self.viewModel = viewModel
         
         viewModel.output.organizations
+            .do(onNext: { [weak self] organizations in
+                guard let self = self else { return }
+                let height = CGFloat(organizations.count) * heightForRow
+                organizationTableViewHeightConstraint?.update(offset: height)
+                organizationTableView.layoutIfNeeded() // 즉시 레이아웃 업데이트
+            })
             .drive(organizationTableView.rx.items(
                 cellIdentifier: OrganizationCell.reuseIdentifier,
                 cellType: OrganizationCell.self)
@@ -85,15 +94,10 @@ final class OrganizationView: UIView {
         
         viewModel.output.isLoading
             .drive(onNext: { [weak self] isLoading in
-                guard let self = self else { return }
                 if isLoading {
-                    loadingView.isHidden = false
-                    loadingIndicator.startAnimating()
+                    self?.showLoading()
                 } else {
-                    DispatchQueue.main.async {
-                        self.loadingIndicator.stopAnimating()
-                        self.loadingView.isHidden = true
-                    }
+                    self?.hideLoading()
                 }
             }).disposed(by: disposeBag)
     }

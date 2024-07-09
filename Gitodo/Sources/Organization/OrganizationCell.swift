@@ -83,14 +83,12 @@ final class OrganizationCell: UITableViewCell, Reusable {
             make.top.equalToSuperview().inset(10)
             make.leading.equalTo(profileImageView.snp.trailing).offset(15)
             make.trailing.equalTo(chevronImageView.snp.leading).offset(-20)
-            make.trailing.equalToSuperview().inset(20)
         }
         
         contentView.addSubview(descriptionLabel)
         descriptionLabel.snp.makeConstraints { make in
             make.top.equalTo(nameLabel.snp.bottom).offset(5)
-            make.leading.equalTo(profileImageView.snp.trailing).offset(15)
-            make.trailing.equalTo(chevronImageView.snp.leading).offset(-20)
+            make.leading.trailing.equalTo(nameLabel)
             make.bottom.equalToSuperview().inset(10)
         }
     }
