@@ -60,7 +60,9 @@ final class OrganizationViewModel: BaseViewModel {
         isLoading.accept(true)
         Task {
             do {
-                let orgnizationList = try await APIManager.shared.fetchOrganizations()
+                let me = try await APIManager.shared.fetchMe()
+                let fetchedOrganizations = try await APIManager.shared.fetchOrganizations()
+                let orgnizationList = [me.asOrganization()] + fetchedOrganizations
                 organizations.accept(orgnizationList)
             } catch let error {
                 print("fetch organizations failed : \(error)")
