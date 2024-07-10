@@ -52,6 +52,7 @@ final class RepositoryView: LoadableView {
         backgroundColor = .secondarySystemBackground
         loadingView.backgroundColor = .secondarySystemBackground
         setupLayout()
+        bind()
     }
     
     required init?(coder: NSCoder) {
@@ -91,6 +92,18 @@ final class RepositoryView: LoadableView {
     }
     
     // MARK: - Bind
+    
+    private func bind() {
+        repositoryTableView.rx.itemSelected
+            .subscribe(onNext: { [weak self] indexPath in
+                guard let self,
+                      let viewModel,
+                      let cell = repositoryTableView.cellForRow(at: indexPath) as? RepositoryCell
+                else { return }
+                viewModel.input.togglePublic.onNext(indexPath)
+                cell.togglePublic()
+            }).disposed(by: disposeBag)
+    }
     
     func bind(with viewModel: RepositoryViewModel) {
         self.viewModel = viewModel

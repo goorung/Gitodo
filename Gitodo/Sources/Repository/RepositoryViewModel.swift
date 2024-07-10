@@ -16,7 +16,7 @@ final class RepositoryViewModel: BaseViewModel {
     
     struct Input {
         let viewDidLoad: AnyObserver<Void>
-        let togglePublic: AnyObserver<Repository>
+        let togglePublic: AnyObserver<IndexPath>
     }
     
     struct Output {
@@ -32,12 +32,13 @@ final class RepositoryViewModel: BaseViewModel {
     let output: Output
     
     private let viewDidLoad = PublishSubject<Void>()
-    private let togglePublic = PublishSubject<Repository>()
+    private let togglePublic = PublishSubject<IndexPath>()
     
     private let repositoryCellViewModels = BehaviorRelay<[RepositoryCellViewModel]>(value: [])
     private let isLoading = BehaviorRelay<Bool>(value: false)
     
     private let owner: Organization
+    private var repositories: [Repository]?
     private let type: RepositoryFetchType
     private let localRepositoryService: LocalRepositoryServiceProtocol
     
@@ -69,6 +70,10 @@ final class RepositoryViewModel: BaseViewModel {
         viewDidLoad.subscribe(onNext: { [weak self] in
             self?.fetchRepositoriesWithLocal()
         }).disposed(by: disposeBag)
+        
+        togglePublic.subscribe(onNext: { [weak self] indexPath in
+            self?.togglePublicRepository(at: indexPath)
+        }).disposed(by: disposeBag)
     }
     
     private func fetchRepositoriesWithLocal() {
@@ -80,13 +85,14 @@ final class RepositoryViewModel: BaseViewModel {
                     for: owner.login,
                     type: type
                 )
+                self.repositories = repositoryList
                 // local
                 let ownerPublicRepository = try self.localRepositoryService.fetchPublic()
                     .filter { $0.ownerName == owner.login }
                 // 뷰 모델 생성, 로컬 데이터를 기반으로 isPublic 플래그 설정
                 let cellViewModel = repositoryList.map { repository in
                     let isPublic = ownerPublicRepository.contains { $0.id == repository.id }
-                    return RepositoryCellViewModel(repository: repository, isPublic: isPublic)
+                    return RepositoryCellViewModel(repository: repository.name, isPublic: isPublic)
                 }
                 repositoryCellViewModels.accept(cellViewModel)
             } catch let error {
@@ -94,6 +100,12 @@ final class RepositoryViewModel: BaseViewModel {
             }
             isLoading.accept(false)
         }
+    }
+    
+    private func togglePublicRepository(at indexPath: IndexPath) {
+        var cellViewModels = repositoryCellViewModels.value
+        cellViewModels[indexPath.row].isPublic.toggle()
+        repositoryCellViewModels.accept(cellViewModels)
     }
     
     func getOwner() -> Organization {

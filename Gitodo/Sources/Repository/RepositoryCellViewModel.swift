@@ -10,6 +10,6 @@ import Foundation
 import GitodoShared
 
 struct RepositoryCellViewModel {
-    let repository: Repository
+    let repository: String
     var isPublic: Bool = false
 }

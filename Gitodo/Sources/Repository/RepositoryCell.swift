@@ -9,6 +9,8 @@ import UIKit
 
 final class RepositoryCell: UITableViewCell, Reusable {
  
+    private var isPublic: Bool?
+    
     // MARK: - UI Components
     
     private lazy var nameLabel = {
@@ -55,11 +57,19 @@ final class RepositoryCell: UITableViewCell, Reusable {
     }
     
     func configure(with viewModel: RepositoryCellViewModel) {
-        nameLabel.text = viewModel.repository.name
-        setPublic(viewModel.isPublic)
+        self.isPublic = viewModel.isPublic
+        
+        nameLabel.text = viewModel.repository
+        setSelectButtonStatus()
     }
     
-    func setPublic(_ isPublic: Bool) {
+    func togglePublic() {
+        isPublic?.toggle()
+        setSelectButtonStatus()
+    }
+    
+    private func setSelectButtonStatus() {
+        guard let isPublic else { return }
         let image = isPublic ?
         UIImage(systemName: "circle.inset.filled") :
         UIImage(systemName: "circle")
