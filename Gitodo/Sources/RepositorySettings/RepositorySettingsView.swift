@@ -61,22 +61,9 @@ final class RepositorySettingsView: UIView {
         return tableView
     }()
     
-    private lazy var emptyView = {
-        let view = UIView()
-        view.backgroundColor = .background
-        view.clipsToBounds = true
-        view.layer.cornerRadius = 10
-        return view
-    }()
-    
-    private lazy var emptyLabel = {
-        let label = UILabel()
-        label.setTextWithLineHeight("생성된 레포지토리가 없습니다 🫥\nGithub에서 레포지토리를 추가해보세요!")
-        label.textAlignment = .center
-        label.font = .bodySB
-        label.textColor = .tertiaryLabel
-        return label
-    }()
+    private lazy var emptyView = EmptyView(
+        message: "레포지토리가 없습니다 🫥\n+ 버튼을 눌러 레포지토리를 추가해보세요!"
+    )
     
     // MARK: - Initializer
     
@@ -131,11 +118,6 @@ final class RepositorySettingsView: UIView {
         emptyView.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
             make.height.equalTo(heightForRow * 2)
-        }
-        
-        emptyView.addSubview(emptyLabel)
-        emptyLabel.snp.makeConstraints { make in
-            make.center.equalToSuperview()
         }
     }
     

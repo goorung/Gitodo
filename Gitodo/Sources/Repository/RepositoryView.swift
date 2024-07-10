@@ -44,6 +44,10 @@ final class RepositoryView: LoadableView {
         return tableView
     }()
     
+    private lazy var emptyView = EmptyView(
+        message: "레포지토리가 없습니다 🫥\nGithub에서 레포지토리를 추가해보세요!"
+    )
+    
     // MARK: - Initializer
     
     override init(frame: CGRect) {
@@ -88,6 +92,12 @@ final class RepositoryView: LoadableView {
             make.bottom.equalToSuperview()
         }
         
+        contentView.addSubview(emptyView)
+        emptyView.snp.makeConstraints { make in
+            make.top.leading.trailing.equalToSuperview()
+            make.height.equalTo(heightForRow * 2)
+        }
+        
         bringSubviewToFront(loadingView)
     }
     
@@ -112,6 +122,7 @@ final class RepositoryView: LoadableView {
         viewModel.output.repositories
             .do(onNext: { [weak self] repositories in
                 guard let self = self else { return }
+                emptyView.isHidden = !repositories.isEmpty
                 let height = CGFloat(repositories.count) * heightForRow
                 repositoryTableViewHeightConstraint?.update(offset: height)
                 repositoryTableView.layoutIfNeeded() // 즉시 레이아웃 업데이트

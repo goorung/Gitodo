@@ -47,14 +47,14 @@ final class RepositorySettingsViewController: BaseViewController<RepositorySetti
         setNavigationBarBackground(.secondarySystemBackground)
         setTitle("레포지토리 관리")
         if UserDefaultsManager.isPublicRepoSet {
-            setLeftBackButton()
-            setRightButton(symbolName: "plus")
-            setRightButtonAction(#selector(handlePlusButtonTap))
+            setLeftButton(symbolName: "chevron.left")
+            setLeftButtonAction(#selector(popViewControllerIf))
         } else {
-            setRightButton(title: "완료")
-            setRightButtonAction(#selector(popViewControllerIf))
+            setLeftButton(title: "완료")
+            setLeftButtonAction(#selector(popViewControllerIf))
         }
-        
+        setRightButton(symbolName: "plus")
+        setRightButtonAction(#selector(handlePlusButtonTap))
     }
     
     @objc private func popViewControllerIf() {
