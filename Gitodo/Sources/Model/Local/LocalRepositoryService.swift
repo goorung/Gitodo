@@ -22,6 +22,7 @@ protocol LocalRepositoryServiceProtocol {
     func delete(_ repo: MyRepo) throws
     func reset() throws
     func updateRepository(repository: Repository, isPublic: Bool) throws
+    func hideRepository(_ repo: MyRepo) throws
 }
 
 final class LocalRepositoryService: LocalRepositoryServiceProtocol {
@@ -227,6 +228,22 @@ final class LocalRepositoryService: LocalRepositoryServiceProtocol {
         } catch {
             throw RealmError.updateError(error)
         }
+        
+        WidgetCenter.shared.reloadAllTimelines()
+    }
+    
+    func hideRepository(_ repo: MyRepo) throws {
+        let realm = try initializeRealm()
+        
+        do {
+            try realm.write {
+                let hideRepo = realm.object(ofType: RepositoryEntity.self, forPrimaryKey: repo.id)
+                hideRepo?.isPublic = false
+            }
+        } catch {
+            throw RealmError.updateError(error)
+        }
+        
         
         WidgetCenter.shared.reloadAllTimelines()
     }

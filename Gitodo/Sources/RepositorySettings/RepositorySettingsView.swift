@@ -54,6 +54,7 @@ final class RepositorySettingsView: UIView {
         tableView.layer.cornerRadius = 10
         tableView.backgroundColor = .background
         tableView.isScrollEnabled = false
+        tableView.delegate = self
         tableView.dragDelegate = self
         tableView.dropDelegate = self
         tableView.register(cellType: MyRepoCell.self)
@@ -179,6 +180,8 @@ final class RepositorySettingsView: UIView {
     
 }
 
+// MARK: - MyRepoInfoCollectionView
+
 extension RepositorySettingsView: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -186,6 +189,22 @@ extension RepositorySettingsView: UICollectionViewDelegate {
         let repo = collectionView.repos[indexPath.row]
         generateHaptic()
         delegate?.presentRepositoryInfoViewController(repository: repo)
+    }
+    
+}
+
+// MARK: - MyRepositoryTableView
+
+extension RepositorySettingsView: UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let hideAction = UIContextualAction(style: .normal, title: "숨김") { [weak self] _, _, completionHandler in
+            self?.viewModel?.input.hideRepo.onNext(indexPath)
+            completionHandler(true)
+        }
+        hideAction.backgroundColor = .systemGray4
+        
+        return UISwipeActionsConfiguration(actions: [hideAction])
     }
     
 }

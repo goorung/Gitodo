@@ -18,6 +18,7 @@ final class RepositorySettingsViewModel: BaseViewModel {
         let fetchRepo: AnyObserver<Void>
         let updateRepoOrder: AnyObserver<(IndexPath, IndexPath)>
         let updateRepoInfo: AnyObserver<MyRepo>
+        let hideRepo: AnyObserver<IndexPath>
     }
     
     struct Output {
@@ -31,9 +32,10 @@ final class RepositorySettingsViewModel: BaseViewModel {
     let input: Input
     let output: Output
     
-    private let fetchRepoSubject = PublishSubject<Void>()
-    private let updateRepoOrderSubject = PublishSubject<(IndexPath, IndexPath)>()
-    private let updateRepoInfoSubject = PublishSubject<MyRepo>()
+    private let fetchRepo = PublishSubject<Void>()
+    private let updateRepoOrder = PublishSubject<(IndexPath, IndexPath)>()
+    private let updateRepoInfo = PublishSubject<MyRepo>()
+    private let hideRepo = PublishSubject<IndexPath>()
     
     private let myRepos = PublishRelay<[MyRepo]>()
     
@@ -45,9 +47,10 @@ final class RepositorySettingsViewModel: BaseViewModel {
         self.localRepositoryService = localRepositoryService
 
         input = Input(
-            fetchRepo: fetchRepoSubject.asObserver(),
-            updateRepoOrder: updateRepoOrderSubject.asObserver(),
-            updateRepoInfo: updateRepoInfoSubject.asObserver()
+            fetchRepo: fetchRepo.asObserver(),
+            updateRepoOrder: updateRepoOrder.asObserver(),
+            updateRepoInfo: updateRepoInfo.asObserver(),
+            hideRepo: hideRepo.asObserver()
         )
         
         output = Output(
@@ -58,16 +61,20 @@ final class RepositorySettingsViewModel: BaseViewModel {
     }
     
     func bindInputs() {
-        fetchRepoSubject.subscribe(onNext: { [weak self] in
+        fetchRepo.subscribe(onNext: { [weak self] in
             self?.fetchRepos()
         }).disposed(by: disposeBag)
         
-        updateRepoOrderSubject.subscribe(onNext: { [weak self] from, to in
+        updateRepoOrder.subscribe(onNext: { [weak self] from, to in
             self?.updateRepoOrder(from, to)
         }).disposed(by: disposeBag)
         
-        updateRepoInfoSubject.subscribe(onNext: { [weak self] repo in
+        updateRepoInfo.subscribe(onNext: { [weak self] repo in
             self?.updateRepoInfo(repo)
+        }).disposed(by: disposeBag)
+        
+        hideRepo.subscribe(onNext: { [weak self] indexPath in
+            self?.hideRepo(at: indexPath)
         }).disposed(by: disposeBag)
     }
     
@@ -94,6 +101,16 @@ final class RepositorySettingsViewModel: BaseViewModel {
     private func updateRepoInfo(_ repo: MyRepo) {
         do {
             try localRepositoryService.updateInfo(of: repo)
+            try updateRepos()
+        } catch {
+            logError(in:  #function, error)
+        }
+    }
+    
+    private func hideRepo(at indexPath: IndexPath) {
+        do {
+            let myRepositories = try localRepositoryService.fetchPublic()
+            try localRepositoryService.hideRepository(myRepositories[indexPath.row])
             try updateRepos()
         } catch {
             logError(in:  #function, error)
