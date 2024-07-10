@@ -32,7 +32,7 @@ final class OrganizationViewController: BaseViewController<OrganizationView>, Ba
 
 extension OrganizationViewController: OrganizationViewDelegate {
     
-    func pushRepositoryViewController(for owner: String, type: RepositoryFetchType) {
+    func pushRepositoryViewController(for owner: Organization, type: RepositoryFetchType) {
         let repositoryViewModel = RepositoryViewModel(
             for: owner,
             type: type,

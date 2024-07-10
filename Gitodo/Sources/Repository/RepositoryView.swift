@@ -25,11 +25,19 @@ final class RepositoryView: LoadableView {
     
     private lazy var contentView = UIView()
     
+    private lazy var organizationView = {
+        let view = OrganizationCell(style: .default, reuseIdentifier: OrganizationCell.reuseIdentifier)
+        view.backgroundColor = .clear
+        view.hideChevron()
+        return view
+    }()
+    
     private lazy var repositoryTableView = {
         let tableView = UITableView()
         tableView.clipsToBounds = true
         tableView.layer.cornerRadius = 10
         tableView.rowHeight = heightForRow
+        tableView.separatorStyle = .none
         tableView.backgroundColor = .background
         tableView.isScrollEnabled = false
         tableView.register(cellType: RepositoryCell.self)
@@ -53,9 +61,17 @@ final class RepositoryView: LoadableView {
     // MARK: - Setup Methods
     
     private func setupLayout() {
+        addSubview(organizationView)
+        organizationView.snp.makeConstraints { make in
+            make.top.equalToSuperview().inset(10)
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(60)
+        }
+        
         addSubview(scrollView)
         scrollView.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(20)
+            make.top.equalTo(organizationView.snp.bottom).offset(15)
+            make.leading.trailing.bottom.equalToSuperview().inset(20)
         }
         
         scrollView.addSubview(contentView)
@@ -78,6 +94,7 @@ final class RepositoryView: LoadableView {
     
     func bind(with viewModel: RepositoryViewModel) {
         self.viewModel = viewModel
+        organizationView.configure(with: viewModel.getOwner())
         
         viewModel.output.repositories
             .do(onNext: { [weak self] repositories in

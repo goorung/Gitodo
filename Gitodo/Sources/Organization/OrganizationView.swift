@@ -14,7 +14,7 @@ import RxSwift
 import SnapKit
 
 protocol OrganizationViewDelegate: AnyObject {
-    func pushRepositoryViewController(for: String, type: RepositoryFetchType)
+    func pushRepositoryViewController(for: Organization, type: RepositoryFetchType)
 }
 
 final class OrganizationView: LoadableView {

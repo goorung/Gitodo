@@ -73,8 +73,8 @@ final class OrganizationViewModel: BaseViewModel {
         }
     }
     
-    func getRepositoryOwner(at indexPath: IndexPath) -> String {
-        return organizations.value[indexPath.row].login
+    func getRepositoryOwner(at indexPath: IndexPath) -> Organization {
+        return organizations.value[indexPath.row]
     }
     
 }

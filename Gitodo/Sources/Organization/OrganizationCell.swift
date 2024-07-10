@@ -101,4 +101,8 @@ final class OrganizationCell: UITableViewCell, Reusable {
         descriptionLabel.text = organization.description
     }
     
+    func hideChevron() {
+        chevronImageView.isHidden = true
+    }
+    
 }
