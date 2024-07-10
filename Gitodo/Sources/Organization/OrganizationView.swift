@@ -49,6 +49,7 @@ final class OrganizationView: LoadableView {
         super.init(frame: frame)
         
         backgroundColor = .secondarySystemBackground
+        loadingView.backgroundColor = .secondarySystemBackground
         setupLayout()
         bind()
     }

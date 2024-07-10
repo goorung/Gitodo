@@ -42,6 +42,7 @@ final class RepositoryView: LoadableView {
         super.init(frame: frame)
         
         backgroundColor = .secondarySystemBackground
+        loadingView.backgroundColor = .secondarySystemBackground
         setupLayout()
     }
     
