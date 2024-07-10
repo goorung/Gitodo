@@ -1,5 +1,5 @@
 //
-//  RepositoryCell.swift
+//  MyRepoCell.swift
 //  Gitodo
 //
 //  Created by jiyeon on 4/27/24.
@@ -11,7 +11,7 @@ import GitodoShared
 
 import SnapKit
 
-final class RepositoryCell: UITableViewCell, Reusable {
+final class MyRepoCell: UITableViewCell, Reusable {
     
     private var repo: MyRepo?
     
@@ -37,7 +37,6 @@ final class RepositoryCell: UITableViewCell, Reusable {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        backgroundColor = .clear
         selectionStyle = .none
         setupLayout()
     }

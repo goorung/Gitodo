@@ -27,6 +27,7 @@ final class RepositoryViewController: BaseViewController<RepositoryView>, BaseVi
         super.viewDidLoad()
         
         setupNavigationBar()
+        contentView.bind(with: viewModel)
         viewModel.input.viewDidLoad.onNext(())
     }
     

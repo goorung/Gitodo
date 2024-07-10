@@ -1,5 +1,5 @@
 //
-//  MyRepoCell.swift
+//  MyRepoInfoCell.swift
 //  Gitodo
 //
 //  Created by 이지현 on 4/29/24.
@@ -11,7 +11,7 @@ import GitodoShared
 
 import SnapKit
 
-final class MyRepoCell: UICollectionViewCell, Reusable {
+final class MyRepoInfoCell: UICollectionViewCell, Reusable {
     
     private(set) var repository: MyRepo?
     

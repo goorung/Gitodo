@@ -29,7 +29,7 @@ final class RepositorySettingsView: UIView {
     // MARK: - UI Components
     
     private lazy var myRepositoryPreview = {
-        let collectionView = MyRepoCollectionView(isEditMode: true)
+        let collectionView = MyRepoInfoCollectionView(isEditMode: true)
         collectionView.delegate = self
         return collectionView
     }()
@@ -56,7 +56,7 @@ final class RepositorySettingsView: UIView {
         tableView.isScrollEnabled = false
         tableView.dragDelegate = self
         tableView.dropDelegate = self
-        tableView.register(cellType: RepositoryCell.self)
+        tableView.register(cellType: MyRepoCell.self)
         return tableView
     }()
     
@@ -144,7 +144,7 @@ final class RepositorySettingsView: UIView {
         myRepositoryTableView.rx.itemSelected
             .subscribe(onNext: { [weak self] indexPath in
                 guard let self = self,
-                      let cell = myRepositoryTableView.cellForRow(at: indexPath) as? RepositoryCell,
+                      let cell = myRepositoryTableView.cellForRow(at: indexPath) as? MyRepoCell,
                       let repo = cell.getRepo()
                 else { return }
                 generateHaptic()
@@ -170,8 +170,8 @@ final class RepositorySettingsView: UIView {
                 myRepositoryTableView.layoutIfNeeded() // 즉시 레이아웃 업데이트
             })
             .drive(myRepositoryTableView.rx.items(
-                cellIdentifier: RepositoryCell.reuseIdentifier,
-                cellType: RepositoryCell.self)
+                cellIdentifier: MyRepoCell.reuseIdentifier,
+                cellType: MyRepoCell.self)
             ) { _, repo, cell in
                 cell.configure(with: repo)
             }.disposed(by: disposeBag)
@@ -182,7 +182,7 @@ final class RepositorySettingsView: UIView {
 extension RepositorySettingsView: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let collectionView = collectionView as? MyRepoCollectionView else { return }
+        guard let collectionView = collectionView as? MyRepoInfoCollectionView else { return }
         let repo = collectionView.repos[indexPath.row]
         generateHaptic()
         delegate?.presentRepositoryInfoViewController(repository: repo)

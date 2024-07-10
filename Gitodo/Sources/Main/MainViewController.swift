@@ -225,7 +225,7 @@ extension MainViewController: IssueViewDelegate {
 
 extension MainViewController: MainViewDelegate {
     
-    func showMenu(from cell: MyRepoCell) {
+    func showMenu(from cell: MyRepoInfoCell) {
         guard let repo = cell.repository else { return }
         let menuViewController = RepoMenuViewController(repo: repo)
         menuViewController.delegate = self
