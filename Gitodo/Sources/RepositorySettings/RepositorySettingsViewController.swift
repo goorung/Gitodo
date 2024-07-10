@@ -29,6 +29,11 @@ final class RepositorySettingsViewController: BaseViewController<RepositorySetti
         
         contentView.delegate = self
         contentView.bind(with: viewModel)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
         viewModel.input.fetchRepo.onNext(())
     }
     

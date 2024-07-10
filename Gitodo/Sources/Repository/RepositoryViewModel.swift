@@ -106,6 +106,16 @@ final class RepositoryViewModel: BaseViewModel {
         var cellViewModels = repositoryCellViewModels.value
         cellViewModels[indexPath.row].isPublic.toggle()
         repositoryCellViewModels.accept(cellViewModels)
+        
+        do {
+            guard let repositories else { return }
+            try localRepositoryService.updateRepository(
+                repository: repositories[indexPath.row],
+                isPublic: cellViewModels[indexPath.row].isPublic
+            )
+        } catch let error {
+            print("[RepositoryViewModel] updateRepository failed : \(error.localizedDescription)")
+        }
     }
     
     func getOwner() -> Organization {

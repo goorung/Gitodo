@@ -21,6 +21,7 @@ protocol LocalRepositoryServiceProtocol {
     func updateOrder(of repos: [MyRepo]) throws
     func delete(_ repo: MyRepo) throws
     func reset() throws
+    func updateRepository(repository: Repository, isPublic: Bool) throws
 }
 
 final class LocalRepositoryService: LocalRepositoryServiceProtocol {
@@ -202,6 +203,32 @@ final class LocalRepositoryService: LocalRepositoryServiceProtocol {
         } catch {
             throw RealmError.deleteError(error)
         }
+    }
+    
+    func updateRepository(repository: Repository, isPublic: Bool) throws {
+        let realm = try initializeRealm()
+        
+        do {
+            try realm.write {
+                if let existingRepo = realm.object(ofType: RepositoryEntity.self, forPrimaryKey: repository.id) {
+                    // 이미 저장된 레포지토리인 경우
+                    existingRepo.isPublic = isPublic
+                    if isPublic {
+                        existingRepo.order = getPublicMaxOrder(realm: realm) + 1
+                    }
+                } else if isPublic {
+                    // 새로운 public 레포지토리인 경우
+                    let newRepo = RepositoryEntity(MyRepo.initItem(repository: repository))
+                    newRepo.isPublic = true
+                    newRepo.order = getPublicMaxOrder(realm: realm) + 1
+                    realm.add(newRepo)
+                }
+            }
+        } catch {
+            throw RealmError.updateError(error)
+        }
+        
+        WidgetCenter.shared.reloadAllTimelines()
     }
     
 }
