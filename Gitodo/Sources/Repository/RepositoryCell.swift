@@ -22,6 +22,7 @@ final class RepositoryCell: UITableViewCell, Reusable {
     
     private lazy var selectButton = {
         let button = UIButton()
+        button.isUserInteractionEnabled = false
         return button
     }()
     
