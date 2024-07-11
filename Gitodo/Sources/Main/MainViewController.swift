@@ -43,6 +43,7 @@ final class MainViewController: BaseViewController<MainView>, BaseViewController
         bind()
         contentView.bind(with: viewModel)
         contentView.setIssueDelegate(self)
+        contentView.setTodoDelegate(self)
         
         pushRepositorySettingViewControllerIf()
     }
@@ -235,6 +236,23 @@ extension MainViewController: MainViewDelegate {
             popoverController.sourceView = cell
             popoverController.sourceRect = CGRect(x: cell.bounds.midX, y: cell.bounds.maxY + 5, width: 0, height: 0)
             popoverController.permittedArrowDirections = .up
+            popoverController.delegate = self
+        }
+        
+        present(menuViewController, animated: true)
+    }
+    
+}
+
+extension MainViewController: TodoViewDelegate {
+    func showMenu(from button: UIButton) {
+        let menuViewController = CleanupMenuViewController()
+        menuViewController.modalPresentationStyle = .popover
+        
+        if let popoverController = menuViewController.popoverPresentationController {
+            popoverController.sourceView = button
+            popoverController.sourceRect = CGRect(x: button.bounds.midX, y: button.bounds.minY - 50, width: 0, height: 0)
+            popoverController.permittedArrowDirections = []
             popoverController.delegate = self
         }
         

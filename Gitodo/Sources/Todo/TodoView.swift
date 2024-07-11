@@ -13,8 +13,12 @@ import RxCocoa
 import RxSwift
 import SnapKit
 
+protocol TodoViewDelegate: AnyObject {
+    func showMenu(from button: UIButton)
+}
+
 final class TodoView: UIView {
-    
+    weak var delegate: TodoViewDelegate?
     private var viewModel: TodoViewModel?
     private var todoDataSource: UITableViewDiffableDataSource<TodoSection, TodoIdentifierItem>?
     private let disposeBag = DisposeBag()
@@ -37,7 +41,7 @@ final class TodoView: UIView {
         button.tintAdjustmentMode = .normal
         button.setImage(UIImage(systemName: "wand.and.stars", withConfiguration: UIImage.SymbolConfiguration(weight: .bold)), for: .normal)
         button.setImage(UIImage(systemName: "wand.and.stars", withConfiguration: UIImage.SymbolConfiguration(weight: .bold)), for: .highlighted)
-        button.setTitle(" 정리", for: .normal)
+        button.setTitle("  정리", for: .normal)
         button.titleLabel?.font = .title3
         button.tintColor = .init(hex: PaletteColor.blue1.hex)
         button.setTitleColor(.init(hex: PaletteColor.blue1.hex), for: .normal)
@@ -50,7 +54,7 @@ final class TodoView: UIView {
         button.tintAdjustmentMode = .normal
         button.setImage(UIImage(systemName: "plus.circle.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), for: .normal)
         button.setImage(UIImage(systemName: "plus.circle.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), for: .highlighted)
-        button.setTitle(" 할 일 추가", for: .normal)
+        button.setTitle("  할 일 추가", for: .normal)
         button.titleLabel?.font = .title3
         button.tintColor = .init(hex: PaletteColor.blue1.hex)
         button.setTitleColor(.init(hex: PaletteColor.blue1.hex), for: .normal)
@@ -168,8 +172,7 @@ final class TodoView: UIView {
     }
     
     @objc private func cleanupButtonTapped() {
-        print("cleanup button tapped")
-//        viewModel?.input.appendTodo.onNext(())
+        delegate?.showMenu(from: cleanupButton)
     }
     
     // MARK: - Bind

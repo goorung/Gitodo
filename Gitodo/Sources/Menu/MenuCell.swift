@@ -16,6 +16,7 @@ final class MenuCell: UITableViewCell, Reusable {
     private lazy var symbolImageView = {
         let imageView = UIImageView()
         imageView.tintColor = .label
+        imageView.contentMode = .scaleAspectFit
         return imageView
     }()
     
@@ -45,7 +46,7 @@ final class MenuCell: UITableViewCell, Reusable {
     private func setupLayout() {
         contentView.addSubview(symbolImageView)
         symbolImageView.snp.makeConstraints { make in
-            make.width.height.equalTo(15)
+            make.width.height.equalTo(17)
             make.centerY.equalToSuperview()
             make.leading.equalToSuperview().inset(20)
         }
@@ -66,6 +67,15 @@ final class MenuCell: UITableViewCell, Reusable {
     func configure(with menu: RepoMenuType) {
         symbolImageView.image = UIImage(systemName: menu.symbol)
         titleLabel.text = menu.title
+    }
+    
+    func configure(image: UIImage?, text: String, color: UIColor? = nil) {
+        symbolImageView.image = image
+        titleLabel.text = text
+        if let color {
+            symbolImageView.tintColor = color
+            titleLabel.textColor = color
+        }
     }
     
 }

@@ -143,6 +143,10 @@ final class MainView: UIView {
         issueView.delegate = delegate
     }
     
+    func setTodoDelegate(_ delegate: TodoViewDelegate) {
+        todoView.delegate = delegate
+    }
+    
     // MARK: - Bind
     
     private func bind() {
