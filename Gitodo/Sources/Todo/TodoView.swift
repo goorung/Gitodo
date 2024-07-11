@@ -32,6 +32,19 @@ final class TodoView: UIView {
         return view
     }()
     
+    private lazy var cleanupButton = {
+        let button = UIButton()
+        button.tintAdjustmentMode = .normal
+        button.setImage(UIImage(systemName: "wand.and.stars", withConfiguration: UIImage.SymbolConfiguration(weight: .bold)), for: .normal)
+        button.setImage(UIImage(systemName: "wand.and.stars", withConfiguration: UIImage.SymbolConfiguration(weight: .bold)), for: .highlighted)
+        button.setTitle(" 정리", for: .normal)
+        button.titleLabel?.font = .title3
+        button.tintColor = .init(hex: PaletteColor.blue1.hex)
+        button.setTitleColor(.init(hex: PaletteColor.blue1.hex), for: .normal)
+        button.addTarget(self, action: #selector(cleanupButtonTapped), for: .touchUpInside)
+        return button
+    }()
+    
     private lazy var todoAddButton = {
         let button = UIButton()
         button.tintAdjustmentMode = .normal
@@ -86,6 +99,12 @@ final class TodoView: UIView {
         todoAddButton.snp.makeConstraints { make in
             make.top.equalTo(todoTableView.snp.bottom).offset(10)
             make.trailing.equalToSuperview().inset(20)
+            make.bottom.equalToSuperview().inset(10)
+        }
+        addSubview(cleanupButton)
+        cleanupButton.snp.makeConstraints { make in
+            make.top.equalTo(todoTableView.snp.bottom).offset(10)
+            make.leading.equalToSuperview().inset(20)
             make.bottom.equalToSuperview().inset(10)
         }
         
@@ -148,6 +167,11 @@ final class TodoView: UIView {
         viewModel?.input.appendTodo.onNext(())
     }
     
+    @objc private func cleanupButtonTapped() {
+        print("cleanup button tapped")
+//        viewModel?.input.appendTodo.onNext(())
+    }
+    
     // MARK: - Bind
     
     func bind(with viewModel: TodoViewModel) {
@@ -187,9 +211,11 @@ final class TodoView: UIView {
         todoDataSource?.apply(snapshot, animatingDifferences: false)
     }
     
-    func setAddButtonTintColor(_ color: UIColor) {
+    func setButtonsTintColor(_ color: UIColor) {
         todoAddButton.setTitleColor(color, for: .normal)
         todoAddButton.tintColor = color
+        cleanupButton.setTitleColor(color, for: .normal)
+        cleanupButton.tintColor = color
     }
     
 }

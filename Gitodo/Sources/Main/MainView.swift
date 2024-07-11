@@ -183,7 +183,7 @@ final class MainView: UIView {
                 
                 let color = UIColor(hex: repo.hexColor)
                 setSegmentedControlTintColor(color)
-                todoView.setAddButtonTintColor(color)
+                todoView.setButtonsTintColor(color)
                 
                 todoViewModel.input.fetchTodo.onNext(repo)
                 issueViewModel.input.setCurrentRepo.onNext(repo)
