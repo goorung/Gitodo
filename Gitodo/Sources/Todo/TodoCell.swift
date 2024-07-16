@@ -14,9 +14,7 @@ protocol TodoCellDelegate: AnyObject {
     func updateHeightOfRow(_ cell: TodoCell, _ textView: UITextView)
 }
 
-final class TodoCell: UITableViewCell {
-    
-    static let reuseIdentifier = "TodoCell"
+final class TodoCell: UITableViewCell, Reusable {
     
     weak var delegate: TodoCellDelegate?
     var viewModel: TodoCellViewModel?

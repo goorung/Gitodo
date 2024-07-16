@@ -138,7 +138,7 @@ final class MainViewModel: BaseViewModel {
         }
         
         do {
-            try localRepositoryService.togglePublicStatus(of: repo)
+            try localRepositoryService.hideRepository(repo)
             fetchRepos()
         } catch {
             logError(in: "hideRepo", error)

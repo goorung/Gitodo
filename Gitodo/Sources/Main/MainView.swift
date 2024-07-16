@@ -15,7 +15,7 @@ import RxGesture
 import SnapKit
 
 protocol MainViewDelegate: AnyObject {
-    func showMenu(from cell: RepositoryInfoCell)
+    func showMenu(from cell: MyRepoInfoCell)
 }
 
 final class MainView: UIView {
@@ -29,7 +29,7 @@ final class MainView: UIView {
     // MARK: - UI Components
     
     private lazy var repoCollectionView = {
-        let collectionView = RepoCollectionView(isEditMode: false)
+        let collectionView = MyRepoInfoCollectionView(isEditMode: false)
         collectionView.delegate = self
         return collectionView
     }()
@@ -133,14 +133,14 @@ final class MainView: UIView {
             generateHaptic()
             let point = gestureRecognizer.location(in: repoCollectionView)
             if let indexPath = repoCollectionView.indexPathForItem(at: point) {
-                guard let cell = repoCollectionView.cellForItem(at: indexPath) as? RepositoryInfoCell else { return }
+                guard let cell = repoCollectionView.cellForItem(at: indexPath) as? MyRepoInfoCell else { return }
                 delegate?.showMenu(from: cell)
             }
         }
     }
     
-    func setIssueDelegate(_ delegate: IssueDelegate) {
-        issueView.issueDelegate = delegate
+    func setIssueDelegate(_ delegate: IssueViewDelegate) {
+        issueView.delegate = delegate
     }
     
     // MARK: - Bind

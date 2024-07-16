@@ -26,7 +26,7 @@ final class TodoView: UIView {
         view.backgroundColor = .background
         view.separatorStyle = .none
         view.rowHeight = UITableView.automaticDimension
-        view.register(TodoCell.self, forCellReuseIdentifier: TodoCell.reuseIdentifier)
+        view.register(cellType: TodoCell.self)
         view.keyboardDismissMode = .interactive
         view.delegate = self
         return view
@@ -47,21 +47,10 @@ final class TodoView: UIView {
     
     private lazy var emptyLabel = {
         let label = UILabel()
-        
-        let text = """
-        할 일이 비었어요.
-        할 일을 추가해주세요! 😙
-        """
-        let attributedString = NSMutableAttributedString(string: text)
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = 4
-        attributedString.addAttribute(NSAttributedString.Key.paragraphStyle, value: paragraphStyle, range: NSMakeRange(0, attributedString.length))
-        label.attributedText = attributedString
-        
+        label.setTextWithLineHeight("할 일이 비었어요.\n할 일을 추가해주세요! 😙")
         label.textAlignment = .center
         label.font = .bodySB
         label.textColor = .tertiaryLabel
-        label.numberOfLines = 2
         return label
     }()
     
@@ -110,7 +99,7 @@ final class TodoView: UIView {
     private func configureDataSource() {
         todoDataSource = UITableViewDiffableDataSource(tableView: todoTableView) { [weak self] tableView, indexPath, itemIdentifier in
             guard let self, let viewModel = self.viewModel else { fatalError() }
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: TodoCell.reuseIdentifier, for: indexPath) as? TodoCell else { fatalError() }
+            let cell = tableView.dequeueReusableCell(for: indexPath, cellType: TodoCell.self)
             cell.selectionStyle = .none
             cell.configure(with: viewModel.viewModel(at: indexPath))
             cell.checkbox.rx.tapGesture()

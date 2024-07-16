@@ -16,16 +16,13 @@ final class RepositorySettingsViewModel: BaseViewModel {
     
     struct Input {
         let fetchRepo: AnyObserver<Void>
-        let updateRepoOrder: AnyObserver<Void>
-        let togglePublic: AnyObserver<MyRepo>
+        let updateRepoOrder: AnyObserver<(IndexPath, IndexPath)>
         let updateRepoInfo: AnyObserver<MyRepo>
-        let removeRepo: AnyObserver<MyRepo>
+        let hideRepo: AnyObserver<IndexPath>
     }
     
     struct Output {
-        var repos: Driver<[MyRepo]>
-        var publicRepos: Driver<[MyRepo]>
-        var isLoading: Driver<Bool>
+        var myRepos: Driver<[MyRepo]>
     }
     
     var disposeBag = DisposeBag()
@@ -35,15 +32,12 @@ final class RepositorySettingsViewModel: BaseViewModel {
     let input: Input
     let output: Output
     
-    private let fetchRepoSubject = PublishSubject<Void>()
-    private let updateRepoOrderSubject = PublishSubject<Void>()
-    private let togglePublicSubject = PublishSubject<MyRepo>()
-    private let updateRepoInfoSubject = PublishSubject<MyRepo>()
-    private let removeRepoSubject = PublishSubject<MyRepo>()
+    private let fetchRepo = PublishSubject<Void>()
+    private let updateRepoOrder = PublishSubject<(IndexPath, IndexPath)>()
+    private let updateRepoInfo = PublishSubject<MyRepo>()
+    private let hideRepo = PublishSubject<IndexPath>()
     
-    private let repos = PublishRelay<[MyRepo]>()
-    private let publicRepos = PublishRelay<[MyRepo]>()
-    private let isLoading = PublishRelay<Bool>()
+    private let myRepos = PublishRelay<[MyRepo]>()
     
     private let localRepositoryService: LocalRepositoryServiceProtocol
     
@@ -53,73 +47,55 @@ final class RepositorySettingsViewModel: BaseViewModel {
         self.localRepositoryService = localRepositoryService
 
         input = Input(
-            fetchRepo: fetchRepoSubject.asObserver(), 
-            updateRepoOrder: updateRepoOrderSubject.asObserver(),
-            togglePublic: togglePublicSubject.asObserver(),
-            updateRepoInfo: updateRepoInfoSubject.asObserver(),
-            removeRepo: removeRepoSubject.asObserver()
+            fetchRepo: fetchRepo.asObserver(),
+            updateRepoOrder: updateRepoOrder.asObserver(),
+            updateRepoInfo: updateRepoInfo.asObserver(),
+            hideRepo: hideRepo.asObserver()
         )
         
         output = Output(
-            repos: repos.asDriver(onErrorJustReturn: []),
-            publicRepos: publicRepos.asDriver(onErrorJustReturn: []),
-            isLoading: isLoading.asDriver(onErrorJustReturn: false)
+            myRepos: myRepos.asDriver(onErrorJustReturn: [])
         )
         
         bindInputs() 
     }
     
     func bindInputs() {
-        fetchRepoSubject.subscribe(onNext: { [weak self] in
+        fetchRepo.subscribe(onNext: { [weak self] in
             self?.fetchRepos()
         }).disposed(by: disposeBag)
         
-        updateRepoOrderSubject.subscribe (onNext: { [weak self] in
-            guard let self else { return }
-            do {
-                publicRepos.accept(try self.localRepositoryService.fetchPublic())
-            } catch {
-                logError(in: "updateRepoOrder", error)
-            }
+        updateRepoOrder.subscribe(onNext: { [weak self] from, to in
+            self?.updateRepoOrder(from, to)
         }).disposed(by: disposeBag)
         
-        togglePublicSubject.subscribe(onNext: { [weak self] repo in
-            self?.togglePublic(repo)
-        }).disposed(by: disposeBag)
-        
-        updateRepoInfoSubject.subscribe(onNext: { [weak self] repo in
+        updateRepoInfo.subscribe(onNext: { [weak self] repo in
             self?.updateRepoInfo(repo)
         }).disposed(by: disposeBag)
         
-        removeRepoSubject.subscribe(onNext: { [weak self] id in
-            self?.removeRepo(id)
+        hideRepo.subscribe(onNext: { [weak self] indexPath in
+            self?.hideRepo(at: indexPath)
         }).disposed(by: disposeBag)
     }
     
     private func fetchRepos() {
-        isLoading.accept(true)
-        Task {
-            do {
-                let allRepos = try await APIManager.shared.fetchRepositories().map {
-                    MyRepo.initItem(repository: $0)
-                }
-                try localRepositoryService.sync(with: allRepos)
-            } catch {
-                logError(in: "fetchRepos", error)
-            }
+        do {
             try updateRepos()
-            isLoading.accept(false)
+        } catch {
+            logError(in: #function, error)
         }
     }
     
-    private func togglePublic(_ repo: MyRepo) {
+    private func updateRepoOrder(_ from: IndexPath, _ to: IndexPath) {
         do {
-            try localRepositoryService.togglePublicStatus(of: repo)
+            var currentRepos = try localRepositoryService.fetchPublic()
+            let movedRepo = currentRepos.remove(at: from.row)
+            currentRepos.insert(movedRepo, at: to.row)
+            try self.localRepositoryService.updateOrder(of: currentRepos)
             try updateRepos()
         } catch {
-            logError(in: "togglePublic", error)
+            logError(in:  #function, error)
         }
-        
     }
     
     private func updateRepoInfo(_ repo: MyRepo) {
@@ -127,23 +103,22 @@ final class RepositorySettingsViewModel: BaseViewModel {
             try localRepositoryService.updateInfo(of: repo)
             try updateRepos()
         } catch {
-            logError(in: "updateRepoInfo", error)
+            logError(in:  #function, error)
         }
     }
     
-    private func removeRepo(_ repo: MyRepo) {
+    private func hideRepo(at indexPath: IndexPath) {
         do {
-            try localRepositoryService.delete(repo)
+            let myRepositories = try localRepositoryService.fetchPublic()
+            try localRepositoryService.hideRepository(myRepositories[indexPath.row])
             try updateRepos()
         } catch {
-            logError(in: "removeRepo", error)
+            logError(in:  #function, error)
         }
-        
     }
     
     private func updateRepos() throws {
-        repos.accept(try localRepositoryService.fetchAll())
-        publicRepos.accept(try localRepositoryService.fetchPublic())
+        myRepos.accept(try localRepositoryService.fetchPublic())
     }
     
     private func logError(in functionName: String, _ error: Error) {

@@ -11,9 +11,7 @@ import GitodoShared
 
 import SnapKit
 
-final class LabelCell: UICollectionViewCell {
-    
-    static let reuseIdentifier = "LabelCell"
+final class LabelCell: UICollectionViewCell, Reusable {
     
     // MARK: - UI Components
     

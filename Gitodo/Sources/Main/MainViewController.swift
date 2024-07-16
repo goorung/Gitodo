@@ -196,7 +196,7 @@ extension MainViewController: MenuDelegate, RepoMenuDelegate {
     }
     
     private func presentRepoInfoViewController(_ repo: MyRepo) {
-        let viewController = RepositoryInfoViewController(viewModel: RepositoryInfoViewModel(repository: repo))
+        let viewController = MyRepoInfoViewController(viewModel: MyRepoInfoViewModel(repository: repo))
         viewController.delegate = self
         present(viewController, animated: true)
     }
@@ -211,7 +211,7 @@ extension MainViewController: UIPopoverPresentationControllerDelegate {
     
 }
 
-extension MainViewController: IssueDelegate {
+extension MainViewController: IssueViewDelegate {
     
     func presentInfoViewController(issue: Issue) {
         let issueInfoViewController = IssueInfoViewController()
@@ -225,7 +225,7 @@ extension MainViewController: IssueDelegate {
 
 extension MainViewController: MainViewDelegate {
     
-    func showMenu(from cell: RepositoryInfoCell) {
+    func showMenu(from cell: MyRepoInfoCell) {
         guard let repo = cell.repository else { return }
         let menuViewController = RepoMenuViewController(repo: repo)
         menuViewController.delegate = self
@@ -243,7 +243,7 @@ extension MainViewController: MainViewDelegate {
     
 }
 
-extension MainViewController: RepositoryInfoViewControllerDelegate {
+extension MainViewController: MyRepoInfoViewControllerDelegate {
     
     func doneButtonTapped(repository: MyRepo) {
         viewModel.input.updateRepoInfo.onNext(repository)

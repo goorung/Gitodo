@@ -1,5 +1,5 @@
 //
-//  RepoCollectionView.swift
+//  MyRepoInfoCollectionView.swift
 //  Gitodo
 //
 //  Created by 이지현 on 4/29/24.
@@ -9,7 +9,7 @@ import UIKit
 
 import GitodoShared
 
-final class RepoCollectionView: UICollectionView, UIGestureRecognizerDelegate {
+final class MyRepoInfoCollectionView: UICollectionView, UIGestureRecognizerDelegate {
     
     let localRepositoryService = LocalRepositoryService()
     let isEditMode: Bool
@@ -49,7 +49,7 @@ final class RepoCollectionView: UICollectionView, UIGestureRecognizerDelegate {
         dragDelegate = self
         dropDelegate = self
         dragInteractionEnabled = true
-        register(RepositoryInfoCell.self, forCellWithReuseIdentifier: RepositoryInfoCell.reuseIdentifier)
+        register(cellType: MyRepoInfoCell.self)
     }
     
     required init?(coder: NSCoder) {
@@ -58,14 +58,14 @@ final class RepoCollectionView: UICollectionView, UIGestureRecognizerDelegate {
     
 }
 
-extension RepoCollectionView: UICollectionViewDataSource {
+extension MyRepoInfoCollectionView: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         repos.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RepositoryInfoCell.reuseIdentifier, for: indexPath) as? RepositoryInfoCell else { return UICollectionViewCell() }
+        let cell = collectionView.dequeueReusableCell(for: indexPath, cellType: MyRepoInfoCell.self)
         let repo = repos[indexPath.row]
         cell.configure(repository: repo)
         
@@ -85,7 +85,7 @@ extension RepoCollectionView: UICollectionViewDataSource {
     
 }
 
-extension RepoCollectionView: UICollectionViewDelegate {
+extension MyRepoInfoCollectionView: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, canMoveItemAt indexPath: IndexPath) -> Bool {
         return isEditMode
@@ -93,7 +93,7 @@ extension RepoCollectionView: UICollectionViewDelegate {
     
 }
 
-extension RepoCollectionView: UICollectionViewDragDelegate {
+extension MyRepoInfoCollectionView: UICollectionViewDragDelegate {
     
     func collectionView(_ collectionView: UICollectionView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
         guard isEditMode else { return [] }
@@ -102,7 +102,7 @@ extension RepoCollectionView: UICollectionViewDragDelegate {
     
 }
 
-extension RepoCollectionView: UICollectionViewDropDelegate {
+extension MyRepoInfoCollectionView: UICollectionViewDropDelegate {
     
     func collectionView(_ collectionView: UICollectionView, performDropWith coordinator: UICollectionViewDropCoordinator) {
         guard isEditMode else { return }

@@ -1,5 +1,5 @@
 //
-//  RepositoryInfoCell.swift
+//  MyRepoInfoCell.swift
 //  Gitodo
 //
 //  Created by 이지현 on 4/29/24.
@@ -11,15 +11,13 @@ import GitodoShared
 
 import SnapKit
 
-final class RepositoryInfoCell: UICollectionViewCell {
-    
-    static let reuseIdentifier = "RepositoryInfoCell"
+final class MyRepoInfoCell: UICollectionViewCell, Reusable {
     
     private(set) var repository: MyRepo?
     
     // MARK: - UI Components
     
-    private lazy var repositoryView = RepositoryView()
+    private lazy var myRepoView = MyRepoView()
     
     // MARK: - Initializer
     
@@ -36,27 +34,27 @@ final class RepositoryInfoCell: UICollectionViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         
-        repositoryView.reset()
+        myRepoView.reset()
     }
     
     // MARK: - Setup Methods
     
     private func setupLayout() {
-        contentView.addSubview(repositoryView)
-        repositoryView.snp.makeConstraints { make in
+        contentView.addSubview(myRepoView)
+        myRepoView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
     }
     
     func configure(repository: MyRepo) {
         self.repository = repository
-        repositoryView.setName(repository.nickname)
-        repositoryView.setColor(UIColor(hex: repository.hexColor))
-        repositoryView.setSymbol(repository.symbol)
+        myRepoView.setName(repository.nickname)
+        myRepoView.setColor(UIColor(hex: repository.hexColor))
+        myRepoView.setSymbol(repository.symbol)
     }
     
     func setEditMode() {
-        repositoryView.setEditMode()
+        myRepoView.setEditMode()
     }
     
 }

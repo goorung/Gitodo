@@ -30,14 +30,6 @@ final class IssueViewModel: BaseViewModel {
     
     // MARK: - Properties
     
-    enum IssueState {
-        case hasIssues
-        case noIssues
-        case repoDeleted
-        case noInternetConnection
-        case error
-    }
-    
     let input: Input
     let output: Output
     

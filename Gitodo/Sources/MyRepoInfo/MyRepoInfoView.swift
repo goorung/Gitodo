@@ -1,5 +1,5 @@
 //
-//  RepositoryInfoView.swift
+//  MyRepoInfoView.swift
 //  Gitodo
 //
 //  Created by jiyeon on 4/27/24.
@@ -13,9 +13,9 @@ import SnapKit
 import RxCocoa
 import RxSwift
 
-final class RepositoryInfoView: UIView {
+final class MyRepoInfoView: UIView {
     
-    private var viewModel: RepositoryInfoViewModel?
+    private var viewModel: MyRepoInfoViewModel?
     private let disposeBag = DisposeBag()
     
     // MARK: - UI Components
@@ -26,8 +26,8 @@ final class RepositoryInfoView: UIView {
         return label
     }()
     
-    private lazy var previewView: RepositoryView = {
-        let view = RepositoryView()
+    private lazy var previewView: MyRepoView = {
+        let view = MyRepoView()
         return view
     }()
     
@@ -172,7 +172,7 @@ final class RepositoryInfoView: UIView {
             }).disposed(by: disposeBag)
     }
     
-    func bind(with viewModel: RepositoryInfoViewModel) {
+    func bind(with viewModel: MyRepoInfoViewModel) {
         self.viewModel = viewModel
         
         previewLabel.text = "\(viewModel.fullName) 미리보기"
@@ -191,7 +191,7 @@ final class RepositoryInfoView: UIView {
     
 }
 
-extension RepositoryInfoView {
+extension MyRepoInfoView {
     
     private func createLabel(withText text: String) -> UILabel {
         let label = UILabel()
@@ -211,7 +211,7 @@ extension RepositoryInfoView {
     
 }
 
-extension RepositoryInfoView: PaletteColorDelegate {
+extension MyRepoInfoView: PaletteColorDelegate {
     
     func selectColor(_ color: PaletteColor) {
         previewView.setColor(UIColor(hex: color.hex))
