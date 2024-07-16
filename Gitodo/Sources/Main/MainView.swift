@@ -193,9 +193,9 @@ final class MainView: UIView {
                 issueViewModel.input.setCurrentRepo.onNext(repo)
             }.disposed(by: disposeBag)
         
-        viewModel.output.refreshTodos
+        viewModel.output.refreshTodo
             .drive(onNext: { [weak self] in
-                self?.todoViewModel.input.refreshTodos.onNext(())
+                self?.todoViewModel.input.refreshTodo.onNext(())
             }).disposed(by: disposeBag)
     }
     

@@ -28,7 +28,7 @@ final class MainViewModel: BaseViewModel {
         var selectedRepo: Driver<MyRepo?>
         var repos: Driver<[MyRepo]>
         var hideDisabled: Driver<Void>
-        var refreshTodos: Driver<Void>
+        var refreshTodo: Driver<Void>
     }
     
     var disposeBag = DisposeBag()
@@ -49,7 +49,7 @@ final class MainViewModel: BaseViewModel {
     private var selectedRepo = BehaviorRelay<MyRepo?>(value: nil)
     private let repos = BehaviorRelay<[MyRepo]>(value: [])
     private let hideDisabled = PublishRelay<Void>()
-    private let refreshTodos = PublishRelay<Void>()
+    private let refreshTodo = PublishRelay<Void>()
     
     private let localRepositoryService: LocalRepositoryServiceProtocol
     private let localTodoService: LocalTodoServiceProtocol
@@ -74,7 +74,7 @@ final class MainViewModel: BaseViewModel {
             selectedRepo: selectedRepo.asDriver(onErrorJustReturn: nil),
             repos: repos.asDriver(onErrorJustReturn: []),
             hideDisabled: hideDisabled.asDriver(onErrorJustReturn: ()),
-            refreshTodos: refreshTodos.asDriver(onErrorJustReturn: ())
+            refreshTodo: refreshTodo.asDriver(onErrorJustReturn: ())
         )
         
         bindInputs()
@@ -120,7 +120,7 @@ final class MainViewModel: BaseViewModel {
         do {
             guard let repoId = selectedRepo.value?.id else { return }
             try localTodoService.deleteCompletedTodos(in: repoId)
-            refreshTodos.accept(())
+            refreshTodo.accept(())
         } catch {
             print("[MainViewModel] deleteCompletedTodos failed : \(error.localizedDescription)")
         }

@@ -24,7 +24,7 @@ final class TodoViewModel: BaseViewModel {
         let appendTodo: AnyObserver<Void>
         let toggleTodo: AnyObserver<UUID>
         let deleteTodo: AnyObserver<UUID>
-        let refreshTodos: AnyObserver<Void>
+        let refreshTodo: AnyObserver<Void>
     }
     
     struct Output {
@@ -44,7 +44,7 @@ final class TodoViewModel: BaseViewModel {
     private let appendTodoSubject = PublishSubject<Void>()
     private let toggleTodoSubject = PublishSubject<UUID>()
     private let deleteTodoSubject = PublishSubject<UUID>()
-    private let refreshTodosSubject = PublishSubject<Void>()
+    private let refreshTodoSubject = PublishSubject<Void>()
     
     private var todos = BehaviorRelay<[TodoCellViewModel]>(value: [])
     private var makeFirstResponder = PublishRelay<IndexPath?>()
@@ -67,7 +67,7 @@ final class TodoViewModel: BaseViewModel {
             appendTodo: appendTodoSubject.asObserver(),
             toggleTodo: toggleTodoSubject.asObserver(),
             deleteTodo: deleteTodoSubject.asObserver(), 
-            refreshTodos: refreshTodosSubject.asObserver()
+            refreshTodo: refreshTodoSubject.asObserver()
         )
         output = Output(
             todos: todos
@@ -102,7 +102,7 @@ final class TodoViewModel: BaseViewModel {
             self?.deleteTodo(with: id)
         }).disposed(by: disposeBag)
         
-        refreshTodosSubject.subscribe(onNext: { [weak self] in
+        refreshTodoSubject.subscribe(onNext: { [weak self] in
             self?.fetchTodos()
         }).disposed(by: disposeBag)
     }
