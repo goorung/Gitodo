@@ -24,7 +24,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         Toaster.shared.setToastType(.round)
         
         if UserDefaultsManager.isLogin {
-            let mainViewModel = MainViewModel(localRepositoryService: LocalRepositoryService())
+            let mainViewModel = MainViewModel(localRepositoryService: LocalRepositoryService(), localTodoService: LocalTodoService())
             let mainViewController = MainViewController(viewModel: mainViewModel)
             window?.rootViewController = UINavigationController(rootViewController: mainViewController)
         } else {

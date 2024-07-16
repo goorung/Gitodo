@@ -19,6 +19,7 @@ protocol LocalTodoServiceProtocol {
     func toggleCompleteStatus(of todoID: UUID) throws
     func update(_ todo: TodoItem) throws
     func delete(_ todoID: UUID) throws
+    func deleteCompletedTodos(in repositoryID: Int) throws
 }
 
 final class LocalTodoService: LocalTodoServiceProtocol {
@@ -157,6 +158,23 @@ final class LocalTodoService: LocalTodoServiceProtocol {
             if todo.order > order {
                 todo.order += offset
             }
+        }
+    }
+    
+    func deleteCompletedTodos(in repositoryID: Int) throws {
+        let realm = try initializeRealm()
+        
+        guard let repository = realm.object(ofType: RepositoryEntity.self, forPrimaryKey: repositoryID) else {
+            throw RealmError.noDataError
+        }
+        let completedTodos = repository.todos.where { $0.isComplete }
+        
+        do {
+            try realm.write({
+                realm.delete(completedTodos)
+            })
+        } catch {
+            throw RealmError.deleteError(error)
         }
     }
     

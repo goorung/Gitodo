@@ -77,11 +77,12 @@ extension CleanupMenuViewController: UITableViewDataSource, UITableViewDelegate 
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if indexPath.row == 0 {
-            print("숨김 버튼 클릭")
-        } else {
-            delegate?.deleteCompletedTasks()
+        dismiss(animated: true) { [weak self] in
+            if indexPath.row == 0 {
+                print("숨김 버튼 클릭")
+            } else {
+                self?.delegate?.deleteCompletedTasks()
+            }
         }
-        dismiss(animated: true)
     }
 }

@@ -262,13 +262,27 @@ extension MainViewController: TodoViewDelegate {
     
 }
 
-
-// TODO: 경고 메시지 띄우기, 로컬에서 삭제 후 MainView에서 todo view에 재 fetch 요청
 extension MainViewController: CleanupMenuDelegate {
     func deleteCompletedTasks() {
-        
+        presentCleanupAlertViewController()
     }
     
+    private func presentCleanupAlertViewController() {
+        let alertController = UIAlertController(
+            title: "",
+            message: "이 레포지토리의 완료된 항목을 모두 삭제하시겠습니까?",
+            preferredStyle: .alert
+        )
+        
+        let deleteAction = UIAlertAction(title: "삭제", style: .destructive) { [weak self] _ in
+            self?.viewModel.input.deleteCompletedTodos.onNext(())
+        }
+        let cancelAction = UIAlertAction(title: "취소", style: .cancel)
+        
+        alertController.addAction(deleteAction)
+        alertController.addAction(cancelAction)
+        present(alertController, animated: true)
+    }
     
 }
 

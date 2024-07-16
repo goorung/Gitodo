@@ -192,6 +192,11 @@ final class MainView: UIView {
                 todoViewModel.input.fetchTodo.onNext(repo)
                 issueViewModel.input.setCurrentRepo.onNext(repo)
             }.disposed(by: disposeBag)
+        
+        viewModel.output.refreshTodos
+            .drive(onNext: { [weak self] in
+                self?.todoViewModel.input.refreshTodos.onNext(())
+            }).disposed(by: disposeBag)
     }
     
     private func setSegmentedControlTintColor(_ color: UIColor) {
