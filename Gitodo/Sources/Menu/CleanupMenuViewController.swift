@@ -7,8 +7,12 @@
 
 import UIKit
 
+protocol CleanupMenuDelegate: AnyObject {
+    func deleteCompletedTasks()
+}
+
 class CleanupMenuViewController: UIViewController {
-//    weak var delegate: MenuDelegate?
+    weak var delegate: CleanupMenuDelegate?
     
     // MARK: - UI Components
     
@@ -76,7 +80,7 @@ extension CleanupMenuViewController: UITableViewDataSource, UITableViewDelegate 
         if indexPath.row == 0 {
             print("숨김 버튼 클릭")
         } else {
-            print("모두 삭제 버튼 클릭")
+            delegate?.deleteCompletedTasks()
         }
         dismiss(animated: true)
     }

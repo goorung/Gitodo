@@ -248,6 +248,7 @@ extension MainViewController: TodoViewDelegate {
     func showMenu(from button: UIButton) {
         let menuViewController = CleanupMenuViewController()
         menuViewController.modalPresentationStyle = .popover
+        menuViewController.delegate = self
         
         if let popoverController = menuViewController.popoverPresentationController {
             popoverController.sourceView = button
@@ -258,6 +259,16 @@ extension MainViewController: TodoViewDelegate {
         
         present(menuViewController, animated: true)
     }
+    
+}
+
+
+// TODO: 경고 메시지 띄우기, 로컬에서 삭제 후 MainView에서 todo view에 재 fetch 요청
+extension MainViewController: CleanupMenuDelegate {
+    func deleteCompletedTasks() {
+        
+    }
+    
     
 }
 
