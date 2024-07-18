@@ -81,7 +81,7 @@ extension CleanupMenuViewController: UITableViewDataSource, UITableViewDelegate 
             if hideCompletedTasks {
                 cell.configure(image: UIImage(systemName: "eye"), text: "완료된 항목 보기")
             } else {
-                cell.configure(image: UIImage(systemName: "eye.slash"), text: "완료된 항목 숨김")
+                cell.configure(image: UIImage(systemName: "eye.slash"), text: "완료된 항목 숨기기")
             }
         } else {
             cell.configure(image: UIImage(systemName: "trash"), text: "완료된 항목 모두 삭제", color: .systemRed)
