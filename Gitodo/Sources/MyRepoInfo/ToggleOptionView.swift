@@ -11,7 +11,12 @@ import GitodoShared
 
 import SnapKit
 
+protocol ToggleOptionViewProtocol: AnyObject {
+    func changeValue(_ value: Bool)
+}
+
 class ToggleOptionView: UIView {
+    weak var delegate: ToggleOptionViewProtocol?
     
     private let title: String
     private var isSelected: Bool
@@ -28,6 +33,7 @@ class ToggleOptionView: UIView {
         let button = UISwitch()
         button.isOn = isSelected
         button.onTintColor = UIColor(hex: PaletteColor.blue1.hex)
+        button.addTarget(self, action: #selector(tappedToggleButton(sender:)), for: .valueChanged)
         return button
     }()
 
@@ -59,5 +65,13 @@ class ToggleOptionView: UIView {
     
     func setButtonColor(_ hex: UInt) {
         toggleButton.onTintColor = UIColor(hex: hex)
+    }
+    
+    func setStatus(_ isOn: Bool) {
+        toggleButton.isOn = isOn
+    }
+    
+    @objc func tappedToggleButton(sender: UISwitch) {
+        delegate?.changeValue(sender.isOn)
     }
 }

@@ -58,7 +58,7 @@ final class LocalRepositoryService: LocalRepositoryServiceProtocol {
         return repositoryEntities.map { $0.toDomain() }
     }
     
-    /// 레포지토리 정보(nickname, symbol, hexColor)를 업데이트.
+    /// 레포지토리 정보(nickname, symbol, hexColor, hideCompletedTasks)를 업데이트.
     func updateInfo(of repo: MyRepo) throws {
         let realm = try initializeRealm()
         guard let repositoryEntity = realm.object(ofType: RepositoryEntity.self, forPrimaryKey: repo.id) else {
@@ -69,6 +69,7 @@ final class LocalRepositoryService: LocalRepositoryServiceProtocol {
                 repositoryEntity.nickname = repo.nickname
                 repositoryEntity.symbol = repo.symbol
                 repositoryEntity.hexColor = Int(repo.hexColor)
+                repositoryEntity.hideCompletedTasks = repo.hideCompletedTasks
             }
         } catch {
             throw RealmError.updateError(error)

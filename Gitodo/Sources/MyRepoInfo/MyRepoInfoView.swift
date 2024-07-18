@@ -80,7 +80,11 @@ final class MyRepoInfoView: UIView {
     
     private lazy var deleteOptionView = SelectedOptionView(title: "완료된 할 일 자동 삭제", selectedOption: "3시간 후")
     
-    private lazy var hideOptionView = ToggleOptionView(title: "완료된 할 일 숨기기", isSelected: false)
+    private lazy var hideOptionView = {
+        let view = ToggleOptionView(title: "완료된 할 일 숨기기", isSelected: false)
+        view.delegate = self
+        return view
+    }()
     
     // MARK: - Initializer
     
@@ -112,7 +116,7 @@ final class MyRepoInfoView: UIView {
         
         containerView.addSubview(previewView)
         previewView.snp.makeConstraints { make in
-            make.top.equalTo(previewLabel.snp.bottom).offset(10)
+            make.top.equalTo(previewLabel.snp.bottom).offset(15)
             make.centerX.equalToSuperview()
             make.width.equalTo(60)
             make.height.equalTo(80)
@@ -178,14 +182,14 @@ final class MyRepoInfoView: UIView {
         deleteOptionView.snp.makeConstraints { make in
             make.top.equalTo(settingLabel.snp.bottom).offset(10)
             make.horizontalEdges.equalToSuperview().inset(20)
-            make.height.equalTo(44)
+            make.height.equalTo(42)
         }
         
         containerView.addSubview(hideOptionView)
         hideOptionView.snp.makeConstraints { make in
             make.top.equalTo(deleteOptionView.snp.bottom)
             make.horizontalEdges.equalToSuperview().inset(20)
-            make.height.equalTo(44)
+            make.height.equalTo(42)
             make.bottom.equalToSuperview().inset(20)
         }
     }
@@ -231,6 +235,7 @@ final class MyRepoInfoView: UIView {
         symbolTextField.text = viewModel.symbol
         colorView.setInitialColor(viewModel.hexColor)
         hideOptionView.setButtonColor(viewModel.hexColor)
+        hideOptionView.setStatus(viewModel.hideCompletedTasks)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -271,6 +276,13 @@ extension MyRepoInfoView: PaletteColorDelegate {
         previewView.setColor(UIColor(hex: color.hex))
         hideOptionView.setButtonColor(color.hex)
         viewModel?.hexColor = color.hex
+    }
+    
+}
+
+extension MyRepoInfoView: ToggleOptionViewProtocol {
+    func changeValue(_ value: Bool) {
+        viewModel?.hideCompletedTasks = value
     }
     
 }
