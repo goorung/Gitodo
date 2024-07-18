@@ -9,10 +9,12 @@ import UIKit
 
 protocol CleanupMenuDelegate: AnyObject {
     func deleteCompletedTasks()
+    func toggleHideStatus()
 }
 
 class CleanupMenuViewController: UIViewController {
     weak var delegate: CleanupMenuDelegate?
+    private var hideCompletedTasks: Bool
     
     // MARK: - UI Components
     
@@ -26,6 +28,17 @@ class CleanupMenuViewController: UIViewController {
         tableView.separatorInset = .init(top: 0, left: 5, bottom: 0, right: 5)
         return tableView
     }()
+    
+    // MARK: - Initializer
+    
+    init(hideCompletedTasks: Bool) {
+        self.hideCompletedTasks = hideCompletedTasks
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // MARK: - Life Cycle
     
@@ -65,7 +78,11 @@ extension CleanupMenuViewController: UITableViewDataSource, UITableViewDelegate 
             fatalError("Unable to dequeue MenuCell")
         }
         if indexPath.row == 0 {
-            cell.configure(image: UIImage(systemName: "eye.slash"), text: "완료된 항목 숨김")
+            if hideCompletedTasks {
+                cell.configure(image: UIImage(systemName: "eye"), text: "완료된 항목 보기")
+            } else {
+                cell.configure(image: UIImage(systemName: "eye.slash"), text: "완료된 항목 숨김")
+            }
         } else {
             cell.configure(image: UIImage(systemName: "trash"), text: "완료된 항목 모두 삭제", color: .systemRed)
         }
@@ -79,7 +96,7 @@ extension CleanupMenuViewController: UITableViewDataSource, UITableViewDelegate 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         dismiss(animated: true) { [weak self] in
             if indexPath.row == 0 {
-                print("숨김 버튼 클릭")
+                self?.delegate?.toggleHideStatus()
             } else {
                 self?.delegate?.deleteCompletedTasks()
             }
