@@ -29,6 +29,11 @@ final class RepositorySettingsViewController: BaseViewController<RepositorySetti
         
         contentView.delegate = self
         contentView.bind(with: viewModel)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
         viewModel.input.fetchRepo.onNext(())
     }
     
@@ -39,17 +44,17 @@ final class RepositorySettingsViewController: BaseViewController<RepositorySetti
     // MARK: - Setup Navigation Bar
     
     func setupNavigationBar() {
-        setTitle("레포지토리 설정")
+        setNavigationBarBackground(.secondarySystemBackground)
+        setTitle("레포지토리 관리")
         if UserDefaultsManager.isPublicRepoSet {
             setLeftButton(symbolName: "chevron.left")
             setLeftButtonAction(#selector(popViewControllerIf))
-            setRightButton(symbolName: "arrow.clockwise")
-            setRightButtonAction(#selector(fetchRepo))
         } else {
-            setRightButton(title: "완료")
-            setRightButtonAction(#selector(popViewControllerIf))
+            setLeftButton(title: "완료")
+            setLeftButtonAction(#selector(popViewControllerIf))
         }
-        
+        setRightButton(symbolName: "plus")
+        setRightButtonAction(#selector(handlePlusButtonTap))
     }
     
     @objc private func popViewControllerIf() {
@@ -60,8 +65,8 @@ final class RepositorySettingsViewController: BaseViewController<RepositorySetti
         }
     }
     
-    @objc private func fetchRepo() {
-        viewModel.input.fetchRepo.onNext(())
+    @objc private func handlePlusButtonTap() {
+        navigationController?.pushViewController(OrganizationViewController(), animated: true)
     }
     
     // MARK: - Setup NotificationCenter Observer
@@ -82,7 +87,7 @@ final class RepositorySettingsViewController: BaseViewController<RepositorySetti
     }
     
     @objc private func handleRepoOrderChange() {
-        viewModel.input.updateRepoOrder.onNext(())
+        viewModel.input.fetchRepo.onNext(())
     }
     
     @objc private func handleAccessTokenExpire() {
@@ -100,7 +105,7 @@ final class RepositorySettingsViewController: BaseViewController<RepositorySetti
     // MARK: - Bind
     
     private func bind() {
-        viewModel.output.publicRepos
+        viewModel.output.myRepos
             .map { $0.count }
             .drive(onNext: { [weak self] count in
                 guard let self = self else { return }
@@ -121,31 +126,14 @@ final class RepositorySettingsViewController: BaseViewController<RepositorySetti
 extension RepositorySettingsViewController: RepositorySettingsDelegate {
     
     func presentRepositoryInfoViewController(repository: MyRepo) {
-        let viewController = RepositoryInfoViewController(viewModel: RepositoryInfoViewModel(repository: repository))
+        let viewController = MyRepoInfoViewController(viewModel: MyRepoInfoViewModel(repository: repository))
         viewController.delegate = self
         present(viewController, animated: true)
     }
     
-    func presentAlertViewController(completion: @escaping (() -> Void)) {
-        let alertController = UIAlertController(
-            title: "레포지토리 삭제",
-            message: "정말로 삭제하시겠습니까?\n모든 할 일이 함께 삭제됩니다.",
-            preferredStyle: .alert
-        )
-        
-        let deleteAction = UIAlertAction(title: "삭제", style: .destructive) { _ in
-            completion()
-        }
-        let cancelAction = UIAlertAction(title: "취소", style: .cancel)
-        
-        alertController.addAction(deleteAction)
-        alertController.addAction(cancelAction)
-        present(alertController, animated: true)
-    }
-    
 }
 
-extension RepositorySettingsViewController: RepositoryInfoViewControllerDelegate {
+extension RepositorySettingsViewController: MyRepoInfoViewControllerDelegate {
     
     func doneButtonTapped(repository: MyRepo) {
         viewModel.input.updateRepoInfo.onNext(repository)

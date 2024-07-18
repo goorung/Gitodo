@@ -43,6 +43,7 @@ final class MainViewController: BaseViewController<MainView>, BaseViewController
         bind()
         contentView.bind(with: viewModel)
         contentView.setIssueDelegate(self)
+        contentView.setTodoDelegate(self)
         
         pushRepositorySettingViewControllerIf()
     }
@@ -196,7 +197,7 @@ extension MainViewController: MenuDelegate, RepoMenuDelegate {
     }
     
     private func presentRepoInfoViewController(_ repo: MyRepo) {
-        let viewController = RepositoryInfoViewController(viewModel: RepositoryInfoViewModel(repository: repo))
+        let viewController = MyRepoInfoViewController(viewModel: MyRepoInfoViewModel(repository: repo))
         viewController.delegate = self
         present(viewController, animated: true)
     }
@@ -211,7 +212,7 @@ extension MainViewController: UIPopoverPresentationControllerDelegate {
     
 }
 
-extension MainViewController: IssueDelegate {
+extension MainViewController: IssueViewDelegate {
     
     func presentInfoViewController(issue: Issue) {
         let issueInfoViewController = IssueInfoViewController()
@@ -225,7 +226,7 @@ extension MainViewController: IssueDelegate {
 
 extension MainViewController: MainViewDelegate {
     
-    func showMenu(from cell: RepositoryInfoCell) {
+    func showMenu(from cell: MyRepoInfoCell) {
         guard let repo = cell.repository else { return }
         let menuViewController = RepoMenuViewController(repo: repo)
         menuViewController.delegate = self
@@ -243,7 +244,49 @@ extension MainViewController: MainViewDelegate {
     
 }
 
-extension MainViewController: RepositoryInfoViewControllerDelegate {
+extension MainViewController: TodoViewDelegate {
+    func showMenu(from button: UIButton) {
+        let menuViewController = CleanupMenuViewController()
+        menuViewController.modalPresentationStyle = .popover
+        menuViewController.delegate = self
+        
+        if let popoverController = menuViewController.popoverPresentationController {
+            popoverController.sourceView = button
+            popoverController.sourceRect = CGRect(x: button.bounds.midX, y: button.bounds.minY - 50, width: 0, height: 0)
+            popoverController.permittedArrowDirections = []
+            popoverController.delegate = self
+        }
+        
+        present(menuViewController, animated: true)
+    }
+    
+}
+
+extension MainViewController: CleanupMenuDelegate {
+    func deleteCompletedTasks() {
+        presentCleanupAlertViewController()
+    }
+    
+    private func presentCleanupAlertViewController() {
+        let alertController = UIAlertController(
+            title: "",
+            message: "이 레포지토리의 완료된 항목을 모두 삭제하시겠습니까?",
+            preferredStyle: .alert
+        )
+        
+        let deleteAction = UIAlertAction(title: "삭제", style: .destructive) { [weak self] _ in
+            self?.viewModel.input.deleteCompletedTodos.onNext(())
+        }
+        let cancelAction = UIAlertAction(title: "취소", style: .cancel)
+        
+        alertController.addAction(deleteAction)
+        alertController.addAction(cancelAction)
+        present(alertController, animated: true)
+    }
+    
+}
+
+extension MainViewController: MyRepoInfoViewControllerDelegate {
     
     func doneButtonTapped(repository: MyRepo) {
         viewModel.input.updateRepoInfo.onNext(repository)

@@ -1,5 +1,5 @@
 //
-//  RepositoryInfoViewController.swift
+//  MyRepoInfoViewController.swift
 //  Gitodo
 //
 //  Created by jiyeon on 4/27/24.
@@ -9,18 +9,18 @@ import UIKit
 
 import GitodoShared
 
-protocol RepositoryInfoViewControllerDelegate: AnyObject {
+protocol MyRepoInfoViewControllerDelegate: AnyObject {
     func doneButtonTapped(repository: MyRepo)
 }
 
-final class RepositoryInfoViewController: BaseViewController<RepositoryInfoView>, BaseViewControllerProtocol {
+final class MyRepoInfoViewController: BaseViewController<MyRepoInfoView>, BaseViewControllerProtocol {
     
-    weak var delegate: RepositoryInfoViewControllerDelegate?
-    private var viewModel: RepositoryInfoViewModel?
+    weak var delegate: MyRepoInfoViewControllerDelegate?
+    private var viewModel: MyRepoInfoViewModel?
     
     // MARK: - Initializer
     
-    init(viewModel: RepositoryInfoViewModel) {
+    init(viewModel: MyRepoInfoViewModel) {
         super.init(nibName: nil, bundle: nil)
         
         self.viewModel = viewModel

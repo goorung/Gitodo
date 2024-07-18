@@ -2,85 +2,150 @@
 //  RepositoryView.swift
 //  Gitodo
 //
-//  Created by 이지현 on 4/25/24.
+//  Created by 지연 on 7/10/24.
 //
 
 import UIKit
 
+import RxCocoa
+import RxSwift
 import SnapKit
 
-final class RepositoryView: UIView {
+final class RepositoryView: LoadableView {
     
-    // MARK - UI Components
+    private var viewModel: RepositoryViewModel?
+    private let disposeBag = DisposeBag()
     
-    private lazy var circleView = SymbolCircleView()
+    private let heightForRow: CGFloat = 44.0
+    private var repositoryTableViewHeightConstraint: Constraint?
     
-    private lazy var editLabel = {
-        let label = UILabel()
-        label.text = "편집"
-        label.textColor = .label
-        label.textAlignment = .center
-        label.font = .caption
-        label.isHidden = true
-        return label
+    // MARK: - UI Components
+    
+    private lazy var scrollView = UIScrollView()
+    
+    private lazy var contentView = UIView()
+    
+    private lazy var organizationView = {
+        let view = OrganizationCell(style: .default, reuseIdentifier: OrganizationCell.reuseIdentifier)
+        view.backgroundColor = .clear
+        view.hideChevron()
+        return view
     }()
     
-    private lazy var nameLabel = {
-        let label = UILabel()
-        label.font = .footnote
-        label.textAlignment = .center
-        return label
+    private lazy var repositoryTableView = {
+        let tableView = UITableView()
+        tableView.clipsToBounds = true
+        tableView.layer.cornerRadius = 10
+        tableView.rowHeight = heightForRow
+        tableView.separatorStyle = .none
+        tableView.backgroundColor = .background
+        tableView.isScrollEnabled = false
+        tableView.register(cellType: RepositoryCell.self)
+        return tableView
     }()
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
+    private lazy var emptyView = {
+        let view = EmptyView(message: "레포지토리가 없습니다 🫥\nGithub에서 레포지토리를 추가해보세요!")
+        view.isHidden = true
+        return view
+    }()
         
+    
+    // MARK: - Initializer
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        backgroundColor = .secondarySystemBackground
+        loadingView.backgroundColor = .secondarySystemBackground
         setupLayout()
+        bind()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     // MARK: - Setup Methods
     
     private func setupLayout() {
-        addSubview(circleView)
-        circleView.snp.makeConstraints { make in
+        addSubview(organizationView)
+        organizationView.snp.makeConstraints { make in
+            make.top.equalToSuperview().inset(10)
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(60)
+        }
+        
+        addSubview(scrollView)
+        scrollView.snp.makeConstraints { make in
+            make.top.equalTo(organizationView.snp.bottom).offset(15)
+            make.leading.trailing.bottom.equalToSuperview().inset(20)
+        }
+        
+        scrollView.addSubview(contentView)
+        contentView.snp.makeConstraints { make in
+            make.edges.equalTo(scrollView.contentLayoutGuide)
+            make.width.equalTo(scrollView.snp.width)
+        }
+        
+        contentView.addSubview(repositoryTableView)
+        repositoryTableView.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
-            make.width.height.equalTo(frame.width)
+            self.repositoryTableViewHeightConstraint = make.height.equalTo(0).constraint
+            make.bottom.equalToSuperview()
         }
         
-        addSubview(editLabel)
-        editLabel.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            make.centerY.equalTo(circleView.snp.centerY)
+        contentView.addSubview(emptyView)
+        emptyView.snp.makeConstraints { make in
+            make.top.leading.trailing.equalToSuperview()
+            make.height.equalTo(heightForRow * 2)
         }
         
-        addSubview(nameLabel)
-        nameLabel.snp.makeConstraints { make in
-            make.top.equalTo(circleView.snp.bottom).offset(5)
-            make.leading.trailing.bottom.equalToSuperview()
-        }
+        bringSubviewToFront(loadingView)
     }
     
-    func setName(_ name: String?) {
-        nameLabel.text = name
+    // MARK: - Bind
+    
+    private func bind() {
+        repositoryTableView.rx.itemSelected
+            .subscribe(onNext: { [weak self] indexPath in
+                guard let self,
+                      let viewModel,
+                      let cell = repositoryTableView.cellForRow(at: indexPath) as? RepositoryCell
+                else { return }
+                viewModel.input.togglePublic.onNext(indexPath)
+                cell.togglePublic()
+            }).disposed(by: disposeBag)
     }
     
-    func setColor(_ color: UIColor) {
-        circleView.setBackgroundColor(color)
-    }
-    
-    func setSymbol(_ symbol: String?) {
-        circleView.setSymbol(symbol)
-    }
-    
-    func reset() {
-        nameLabel.text = nil
-        editLabel.isHidden = true
-        circleView.reset()
-    }
-    
-    func setEditMode() {
-        circleView.alpha = 0.5
-        editLabel.isHidden = false
+    func bind(with viewModel: RepositoryViewModel) {
+        self.viewModel = viewModel
+        organizationView.configure(with: viewModel.getOwner())
+        
+        viewModel.output.repositories
+            .skip(1)
+            .do(onNext: { [weak self] repositories in
+                guard let self = self else { return }
+                emptyView.isHidden = !repositories.isEmpty
+                let height = CGFloat(repositories.count) * heightForRow
+                repositoryTableViewHeightConstraint?.update(offset: height)
+                repositoryTableView.layoutIfNeeded() // 즉시 레이아웃 업데이트
+            })
+            .drive(repositoryTableView.rx.items(
+                cellIdentifier: RepositoryCell.reuseIdentifier,
+                cellType: RepositoryCell.self)
+            ) { _, repositoryCellViewModel, cell in
+                cell.configure(with: repositoryCellViewModel)
+            }.disposed(by: disposeBag)
+        
+        viewModel.output.isLoading
+            .drive(onNext: { [weak self] isLoading in
+                if isLoading {
+                    self?.showLoading()
+                } else {
+                    self?.hideLoading()
+                }
+            }).disposed(by: disposeBag)
     }
     
 }

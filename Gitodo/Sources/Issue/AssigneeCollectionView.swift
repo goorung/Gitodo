@@ -63,7 +63,7 @@ final class AssigneeCollectionView: UICollectionView {
     private func setupProperty() {
         delegate = self
         dataSource = self
-        register(AssigneeCell.self, forCellWithReuseIdentifier: AssigneeCell.reuseIdentifier)
+        register(cellType: AssigneeCell.self)
         backgroundColor = .clear
         isUserInteractionEnabled = false
     }
@@ -94,9 +94,7 @@ extension AssigneeCollectionView: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let assignees = assignees else { return UICollectionViewCell() }
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: AssigneeCell.reuseIdentifier, for: indexPath) as? AssigneeCell else {
-            fatalError("Unable to dequeue AssigneeCell")
-        }
+        let cell = collectionView.dequeueReusableCell(for: indexPath, cellType: AssigneeCell.self)
         cell.configure(with: assignees[indexPath.row].avatarUrl)
         return cell
     }

@@ -195,5 +195,10 @@ class BaseViewController<View: UIView>: UIViewController {
             profileImageView.makeCircle() // cornerRadius 설정
         }
     }
+    
+    func setNavigationBarBackground(_ color: UIColor) {
+        topInsetView.backgroundColor = color
+        navigationBarView.backgroundColor = color
+    }
 
 }

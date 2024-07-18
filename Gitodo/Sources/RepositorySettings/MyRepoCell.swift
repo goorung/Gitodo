@@ -1,5 +1,5 @@
 //
-//  RepositoryCell.swift
+//  MyRepoCell.swift
 //  Gitodo
 //
 //  Created by jiyeon on 4/27/24.
@@ -11,9 +11,8 @@ import GitodoShared
 
 import SnapKit
 
-final class RepositoryCell: UITableViewCell {
+final class MyRepoCell: UITableViewCell, Reusable {
     
-    static let reuseIdentifier = "RepositoryCell"
     private var repo: MyRepo?
     
     // MARK: - UI Components
@@ -25,15 +24,12 @@ final class RepositoryCell: UITableViewCell {
         return label
     }()
     
-    private lazy var selectedButton = {
-        let button = UIButton()
-        button.isHidden = true
-        button.tintColor = .label
-        button.isUserInteractionEnabled = false
-        button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: "checkmark")
-        button.configuration?.preferredSymbolConfigurationForImage = .init(pointSize: 10.0, weight: .bold)
-        return button
+    private lazy var moveImageView = {
+        let imageView = UIImageView()
+        imageView.image = UIImage(systemName: "line.horizontal.3")
+        imageView.tintColor = .systemGray3
+        imageView.contentMode = .scaleAspectFit
+        return imageView
     }()
     
     // MARK: - Initializer
@@ -41,7 +37,6 @@ final class RepositoryCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        backgroundColor = .clear
         selectionStyle = .none
         setupLayout()
     }
@@ -58,33 +53,28 @@ final class RepositoryCell: UITableViewCell {
     // MARK: - Setup Methods
     
     private func setupLayout() {
-        contentView.addSubview(nameLabel)
-        nameLabel.snp.makeConstraints { make in
-            make.leading.equalToSuperview().inset(20)
-            make.trailing.equalToSuperview().inset(45)
+        contentView.addSubview(moveImageView)
+        moveImageView.snp.makeConstraints { make in
+            make.width.height.equalTo(24)
+            make.trailing.equalToSuperview().inset(20)
             make.centerY.equalToSuperview()
         }
         
-        contentView.addSubview(selectedButton)
-        selectedButton.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(20)
+        contentView.addSubview(nameLabel)
+        nameLabel.snp.makeConstraints { make in
+            make.leading.equalToSuperview().inset(20)
+            make.trailing.equalTo(moveImageView.snp.leading).offset(-10)
             make.centerY.equalToSuperview()
-            make.width.height.equalTo(15)
         }
     }
     
     func configure(with repo: MyRepo) {
         self.repo = repo
         nameLabel.text = repo.fullName
-        selectedButton.isHidden = !repo.isPublic
     }
     
     func getRepo() -> MyRepo? {
         return repo
-    }
-    
-    func select() {
-        selectedButton.isHidden.toggle()
     }
     
 }

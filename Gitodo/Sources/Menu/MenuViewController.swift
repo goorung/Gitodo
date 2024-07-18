@@ -22,7 +22,7 @@ final class MenuViewController: UIViewController {
     private lazy var menuTableView = {
         let tableView = UITableView()
         tableView.backgroundColor = .background
-        tableView.register(MenuCell.self, forCellReuseIdentifier: MenuCell.reuseIdentifier)
+        tableView.register(cellType: MenuCell.self)
         tableView.delegate = self
         tableView.dataSource = self
         tableView.isScrollEnabled = false
@@ -79,9 +79,7 @@ extension MenuViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: MenuCell.reuseIdentifier) as? MenuCell else {
-            fatalError("Unable to dequeue MenuCell")
-        }
+        let cell = tableView.dequeueReusableCell(for: indexPath, cellType: MenuCell.self)
         cell.configure(with: MainMenuType.allCases[indexPath.row])
         return cell
     }

@@ -13,8 +13,12 @@ import RxCocoa
 import RxSwift
 import SnapKit
 
+protocol TodoViewDelegate: AnyObject {
+    func showMenu(from button: UIButton)
+}
+
 final class TodoView: UIView {
-    
+    weak var delegate: TodoViewDelegate?
     private var viewModel: TodoViewModel?
     private var todoDataSource: UITableViewDiffableDataSource<TodoSection, TodoIdentifierItem>?
     private let disposeBag = DisposeBag()
@@ -26,10 +30,23 @@ final class TodoView: UIView {
         view.backgroundColor = .background
         view.separatorStyle = .none
         view.rowHeight = UITableView.automaticDimension
-        view.register(TodoCell.self, forCellReuseIdentifier: TodoCell.reuseIdentifier)
+        view.register(cellType: TodoCell.self)
         view.keyboardDismissMode = .interactive
         view.delegate = self
         return view
+    }()
+    
+    private lazy var cleanupButton = {
+        let button = UIButton()
+        button.tintAdjustmentMode = .normal
+        button.setImage(UIImage(systemName: "wand.and.stars", withConfiguration: UIImage.SymbolConfiguration(weight: .bold)), for: .normal)
+        button.setImage(UIImage(systemName: "wand.and.stars", withConfiguration: UIImage.SymbolConfiguration(weight: .bold)), for: .highlighted)
+        button.setTitle("  정리", for: .normal)
+        button.titleLabel?.font = .title3
+        button.tintColor = .init(hex: PaletteColor.blue1.hex)
+        button.setTitleColor(.init(hex: PaletteColor.blue1.hex), for: .normal)
+        button.addTarget(self, action: #selector(cleanupButtonTapped), for: .touchUpInside)
+        return button
     }()
     
     private lazy var todoAddButton = {
@@ -37,7 +54,7 @@ final class TodoView: UIView {
         button.tintAdjustmentMode = .normal
         button.setImage(UIImage(systemName: "plus.circle.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), for: .normal)
         button.setImage(UIImage(systemName: "plus.circle.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), for: .highlighted)
-        button.setTitle(" 할 일 추가", for: .normal)
+        button.setTitle("  할 일 추가", for: .normal)
         button.titleLabel?.font = .title3
         button.tintColor = .init(hex: PaletteColor.blue1.hex)
         button.setTitleColor(.init(hex: PaletteColor.blue1.hex), for: .normal)
@@ -47,21 +64,10 @@ final class TodoView: UIView {
     
     private lazy var emptyLabel = {
         let label = UILabel()
-        
-        let text = """
-        할 일이 비었어요.
-        할 일을 추가해주세요! 😙
-        """
-        let attributedString = NSMutableAttributedString(string: text)
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = 4
-        attributedString.addAttribute(NSAttributedString.Key.paragraphStyle, value: paragraphStyle, range: NSMakeRange(0, attributedString.length))
-        label.attributedText = attributedString
-        
+        label.setTextWithLineHeight("할 일이 비었어요.\n할 일을 추가해주세요! 😙")
         label.textAlignment = .center
         label.font = .bodySB
         label.textColor = .tertiaryLabel
-        label.numberOfLines = 2
         return label
     }()
     
@@ -99,6 +105,12 @@ final class TodoView: UIView {
             make.trailing.equalToSuperview().inset(20)
             make.bottom.equalToSuperview().inset(10)
         }
+        addSubview(cleanupButton)
+        cleanupButton.snp.makeConstraints { make in
+            make.top.equalTo(todoTableView.snp.bottom).offset(10)
+            make.leading.equalToSuperview().inset(20)
+            make.bottom.equalToSuperview().inset(10)
+        }
         
         addSubview(emptyLabel)
         emptyLabel.snp.makeConstraints { make in
@@ -110,7 +122,7 @@ final class TodoView: UIView {
     private func configureDataSource() {
         todoDataSource = UITableViewDiffableDataSource(tableView: todoTableView) { [weak self] tableView, indexPath, itemIdentifier in
             guard let self, let viewModel = self.viewModel else { fatalError() }
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: TodoCell.reuseIdentifier, for: indexPath) as? TodoCell else { fatalError() }
+            let cell = tableView.dequeueReusableCell(for: indexPath, cellType: TodoCell.self)
             cell.selectionStyle = .none
             cell.configure(with: viewModel.viewModel(at: indexPath))
             cell.checkbox.rx.tapGesture()
@@ -159,6 +171,10 @@ final class TodoView: UIView {
         viewModel?.input.appendTodo.onNext(())
     }
     
+    @objc private func cleanupButtonTapped() {
+        delegate?.showMenu(from: cleanupButton)
+    }
+    
     // MARK: - Bind
     
     func bind(with viewModel: TodoViewModel) {
@@ -198,9 +214,11 @@ final class TodoView: UIView {
         todoDataSource?.apply(snapshot, animatingDifferences: false)
     }
     
-    func setAddButtonTintColor(_ color: UIColor) {
+    func setButtonsTintColor(_ color: UIColor) {
         todoAddButton.setTitleColor(color, for: .normal)
         todoAddButton.tintColor = color
+        cleanupButton.setTitleColor(color, for: .normal)
+        cleanupButton.tintColor = color
     }
     
 }

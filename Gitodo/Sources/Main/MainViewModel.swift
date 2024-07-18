@@ -21,12 +21,14 @@ final class MainViewModel: BaseViewModel {
         let updateRepoInfo: AnyObserver<MyRepo>
         let hideRepo: AnyObserver<MyRepo>
         let resetAllRepository: AnyObserver<Void>
+        let deleteCompletedTodos: AnyObserver<Void>
     }
     
     struct Output {
         var selectedRepo: Driver<MyRepo?>
         var repos: Driver<[MyRepo]>
         var hideDisabled: Driver<Void>
+        var refreshTodo: Driver<Void>
     }
     
     var disposeBag = DisposeBag()
@@ -42,17 +44,21 @@ final class MainViewModel: BaseViewModel {
     private let resetAllRepositorySubject = PublishSubject<Void>()
     private let updateRepoInfoSubject = PublishSubject<MyRepo>()
     private let hideRepoSubject = PublishSubject<MyRepo>()
+    private let deleteCompletedTodosSubject = PublishSubject<Void>()
     
     private var selectedRepo = BehaviorRelay<MyRepo?>(value: nil)
     private let repos = BehaviorRelay<[MyRepo]>(value: [])
     private let hideDisabled = PublishRelay<Void>()
+    private let refreshTodo = PublishRelay<Void>()
     
     private let localRepositoryService: LocalRepositoryServiceProtocol
+    private let localTodoService: LocalTodoServiceProtocol
     
     // MARK: - Initializer
     
-    init(localRepositoryService: LocalRepositoryServiceProtocol) {
+    init(localRepositoryService: LocalRepositoryServiceProtocol, localTodoService: LocalTodoServiceProtocol) {
         self.localRepositoryService = localRepositoryService
+        self.localTodoService = localTodoService
         
         input = Input(
             viewWillAppear: viewWillAppearSubject.asObserver(), 
@@ -60,13 +66,15 @@ final class MainViewModel: BaseViewModel {
             selectRepoIndex: selectRepoIndexSubject.asObserver(),
             updateRepoInfo: updateRepoInfoSubject.asObserver(),
             hideRepo: hideRepoSubject.asObserver(),
-            resetAllRepository: resetAllRepositorySubject.asObserver()
+            resetAllRepository: resetAllRepositorySubject.asObserver(),
+            deleteCompletedTodos: deleteCompletedTodosSubject.asObserver()
         )
         
         output = Output(
             selectedRepo: selectedRepo.asDriver(onErrorJustReturn: nil),
             repos: repos.asDriver(onErrorJustReturn: []),
-            hideDisabled: hideDisabled.asDriver(onErrorJustReturn: ())
+            hideDisabled: hideDisabled.asDriver(onErrorJustReturn: ()),
+            refreshTodo: refreshTodo.asDriver(onErrorJustReturn: ())
         )
         
         bindInputs()
@@ -102,6 +110,20 @@ final class MainViewModel: BaseViewModel {
         hideRepoSubject.subscribe(onNext: { [weak self] repo in
             self?.hideRepo(repo)
         }).disposed(by: disposeBag)
+        
+        deleteCompletedTodosSubject.subscribe(onNext:  { [weak self] in
+            self?.deleteCompletedTodos()
+        }).disposed(by: disposeBag)
+    }
+    
+    private func deleteCompletedTodos() {
+        do {
+            guard let repoId = selectedRepo.value?.id else { return }
+            try localTodoService.deleteCompletedTodos(in: repoId)
+            refreshTodo.accept(())
+        } catch {
+            print("[MainViewModel] deleteCompletedTodos failed : \(error.localizedDescription)")
+        }
     }
     
     private func fetchRepos() {
@@ -138,7 +160,7 @@ final class MainViewModel: BaseViewModel {
         }
         
         do {
-            try localRepositoryService.togglePublicStatus(of: repo)
+            try localRepositoryService.hideRepository(repo)
             fetchRepos()
         } catch {
             logError(in: "hideRepo", error)
