@@ -13,8 +13,13 @@ import SnapKit
 import RxCocoa
 import RxSwift
 
+protocol MyRepoInfoViewDelegate: AnyObject {
+    func pushCompletedOptionViewController()
+}
+
 final class MyRepoInfoView: UIView {
     
+    weak var delegate: MyRepoInfoViewDelegate?
     private var viewModel: MyRepoInfoViewModel?
     private let disposeBag = DisposeBag()
     
@@ -78,7 +83,17 @@ final class MyRepoInfoView: UIView {
         return label
     }()
     
-    private lazy var deleteOptionView = SelectedOptionView(title: "완료된 할 일 자동 삭제", selectedOption: "3시간 후")
+    private lazy var deleteOptionView: UIView = {
+        let view = SelectedOptionView(title: "완료된 할 일 삭제", selectedOption: "3시간 후")
+        view.isUserInteractionEnabled = true
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(deleteOptionViewTapped))
+        view.addGestureRecognizer(tapGestureRecognizer)
+        return view
+    }()
+    
+    @objc private func deleteOptionViewTapped() {
+        delegate?.pushCompletedOptionViewController()
+    }
     
     private lazy var hideOptionView = {
         let view = ToggleOptionView(title: "완료된 할 일 숨기기", isSelected: false)
@@ -180,16 +195,16 @@ final class MyRepoInfoView: UIView {
         
         containerView.addSubview(deleteOptionView)
         deleteOptionView.snp.makeConstraints { make in
-            make.top.equalTo(settingLabel.snp.bottom).offset(10)
+            make.top.equalTo(settingLabel.snp.bottom).offset(12)
             make.horizontalEdges.equalToSuperview().inset(20)
-            make.height.equalTo(42)
+            make.height.equalTo(44)
         }
         
         containerView.addSubview(hideOptionView)
         hideOptionView.snp.makeConstraints { make in
             make.top.equalTo(deleteOptionView.snp.bottom)
             make.horizontalEdges.equalToSuperview().inset(20)
-            make.height.equalTo(42)
+            make.height.equalTo(44)
             make.bottom.equalToSuperview().inset(20)
         }
     }

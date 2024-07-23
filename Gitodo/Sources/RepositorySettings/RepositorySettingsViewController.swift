@@ -128,7 +128,7 @@ extension RepositorySettingsViewController: RepositorySettingsDelegate {
     func presentRepositoryInfoViewController(repository: MyRepo) {
         let viewController = MyRepoInfoViewController(viewModel: MyRepoInfoViewModel(repository: repository))
         viewController.delegate = self
-        present(viewController, animated: true)
+        present(UINavigationController(rootViewController: viewController), animated: true)
     }
     
 }

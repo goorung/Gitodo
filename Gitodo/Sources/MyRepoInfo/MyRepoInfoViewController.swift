@@ -25,6 +25,7 @@ final class MyRepoInfoViewController: BaseViewController<MyRepoInfoView>, BaseVi
         
         self.viewModel = viewModel
         contentView.bind(with: viewModel)
+        contentView.delegate = self
     }
     
     required init?(coder: NSCoder) {
@@ -57,6 +58,13 @@ final class MyRepoInfoViewController: BaseViewController<MyRepoInfoView>, BaseVi
         guard let repository = viewModel?.repository else { return }
         delegate?.doneButtonTapped(repository: repository)
         dismiss(animated: true)
+    }
+    
+}
+
+extension MyRepoInfoViewController: MyRepoInfoViewDelegate {
+    func pushCompletedOptionViewController() {
+        navigationController?.pushViewController(DeletionOptionViewController(), animated: true)
     }
     
 }

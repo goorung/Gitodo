@@ -199,7 +199,7 @@ extension MainViewController: MenuDelegate, RepoMenuDelegate {
     private func presentRepoInfoViewController(_ repo: MyRepo) {
         let viewController = MyRepoInfoViewController(viewModel: MyRepoInfoViewModel(repository: repo))
         viewController.delegate = self
-        present(viewController, animated: true)
+        present(UINavigationController(rootViewController: viewController), animated: true)
     }
     
 }
