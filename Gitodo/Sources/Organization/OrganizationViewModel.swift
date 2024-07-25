@@ -33,7 +33,7 @@ final class OrganizationViewModel: BaseViewModel {
     private let viewDidLoad = PublishSubject<Void>()
     
     private let organizations = BehaviorRelay<[Organization]>(value: [])
-    private let isLoading = BehaviorRelay<Bool>(value: false)
+    private let isLoading = BehaviorRelay<Bool>(value: true)
     
     private var me: String?
     
@@ -59,7 +59,6 @@ final class OrganizationViewModel: BaseViewModel {
     }
     
     private func fetchOrganizations() {
-        isLoading.accept(true)
         Task {
             do {
                 let me = try await APIManager.shared.fetchMe()

@@ -35,7 +35,7 @@ final class RepositoryViewModel: BaseViewModel {
     private let togglePublic = PublishSubject<IndexPath>()
     
     private let repositoryCellViewModels = BehaviorRelay<[RepositoryCellViewModel]>(value: [])
-    private let isLoading = BehaviorRelay<Bool>(value: false)
+    private let isLoading = BehaviorRelay<Bool>(value: true)
     
     private let owner: Organization
     private var repositories: [Repository]?
@@ -77,7 +77,6 @@ final class RepositoryViewModel: BaseViewModel {
     }
     
     private func fetchRepositoriesWithLocal() {
-        isLoading.accept(true)
         Task {
             do {
                 // fetch
