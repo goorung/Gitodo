@@ -10,19 +10,21 @@ import UIKit
 import SnapKit
 
 class DeletionOptionViewController: BaseViewController<DeletionOptionView>, BaseViewControllerProtocol, UIGestureRecognizerDelegate {
-
+    
+//    init(viewModel: MyRepoInfoViewModel?) {
+//        self.viewModel = viewModel
+//    }
+//    
+//    required init?(coder: NSCoder) {
+//        fatalError("init(coder:) has not been implemented")
+//    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         navigationController?.interactivePopGestureRecognizer?.delegate = self
         navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         setupNavigationBar()
-    }
-    
-    override func viewWillLayoutSubviews() {
-        contentView.optionTableView.snp.makeConstraints { make in
-            make.height.equalTo(contentView.optionTableView.contentSize.height + 210)
-        }
     }
     
     func setupNavigationBar() {

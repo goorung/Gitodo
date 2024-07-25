@@ -20,7 +20,7 @@ protocol MyRepoInfoViewDelegate: AnyObject {
 final class MyRepoInfoView: UIView {
     
     weak var delegate: MyRepoInfoViewDelegate?
-    private var viewModel: MyRepoInfoViewModel?
+    private weak var viewModel: MyRepoInfoViewModel?
     private let disposeBag = DisposeBag()
     
     // MARK: - UI Components

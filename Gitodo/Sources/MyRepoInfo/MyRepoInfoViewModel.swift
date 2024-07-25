@@ -30,29 +30,26 @@ final class MyRepoInfoViewModel {
     
     var nickname: String {
         get { repository.nickname }
-        set {
-            repository.nickname = newValue
-        }
+        set { repository.nickname = newValue }
     }
     
     var symbol: String? {
         get { repository.symbol }
-        set {
-            repository.symbol = newValue
-        }
+        set { repository.symbol = newValue }
     }
     
     var hexColor: UInt {
         get { repository.hexColor }
-        set {
-            repository.hexColor = newValue
-        }
+        set { repository.hexColor = newValue }
     }
     
     var hideCompletedTasks: Bool {
         get { repository.hideCompletedTasks }
-        set {
-            repository.hideCompletedTasks = newValue
-        }
+        set { repository.hideCompletedTasks = newValue }
+    }
+    
+    var deletionOption: DeletionOption {
+        get { repository.deletionOption }
+        set { repository.deletionOption = newValue }
     }
 }

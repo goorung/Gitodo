@@ -21,7 +21,7 @@ protocol MainViewDelegate: AnyObject {
 final class MainView: UIView {
     
     weak var delegate: MainViewDelegate?
-    private var viewModel: MainViewModel?
+    private weak var viewModel: MainViewModel?
     private let todoViewModel = TodoViewModel(localTodoService: LocalTodoService())
     private let issueViewModel = IssueViewModel()
     private let disposeBag = DisposeBag()

@@ -85,7 +85,8 @@ class OptionCell: UITableViewCell {
     
     }
     
-    func configure(title: String) {
+    func configure(title: String, isSelected: Bool) {
         nameLabel.text = title
+        selectedButton.isHidden = !isSelected
     }
 }
