@@ -57,8 +57,17 @@ struct TodoWidgetEntry: TimelineEntry {
     }
     
     var topFourTodos: [TodoItem] {
-        if let repository {
-            Array(repository.todos.sorted{ $0.order < $1.order }.prefix(4))
+        if let repository{
+            if repository.hideCompletedTasks {
+                Array(repository.todos
+                    .filter{ !$0.isComplete }
+                    .sorted{ $0.order < $1.order }
+                    .prefix(4))
+            } else {
+                Array(repository.todos
+                    .sorted{ $0.order < $1.order }
+                    .prefix(4))
+            }
         } else {
             []
         }

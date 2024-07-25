@@ -48,4 +48,11 @@ final class MyRepoInfoViewModel {
             repository.hexColor = newValue
         }
     }
+    
+    var hideCompletedTasks: Bool {
+        get { repository.hideCompletedTasks }
+        set {
+            repository.hideCompletedTasks = newValue
+        }
+    }
 }

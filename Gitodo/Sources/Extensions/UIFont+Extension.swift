@@ -15,6 +15,7 @@ extension UIFont {
     static let title = UIFont.systemFont(ofSize: 20.0, weight: .bold)
     static let title2 = UIFont.systemFont(ofSize: 18.0, weight: .bold)
     static let title3 = UIFont.systemFont(ofSize: 16.0, weight: .semibold)
+    static let title4 = UIFont.systemFont(ofSize: 15.0)
     static let body = UIFont.systemFont(ofSize: bodySize)
     static let bodySB = UIFont.systemFont(ofSize: bodySize, weight: .semibold)
     static let bodyB = UIFont.systemFont(ofSize: bodySize, weight: .bold)

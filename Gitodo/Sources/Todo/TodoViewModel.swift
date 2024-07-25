@@ -110,7 +110,12 @@ final class TodoViewModel: BaseViewModel {
     private func fetchTodos() {
         guard let repo = selectedRepo else { return }
         do {
-            let todos = try localTodoService.fetchAll(in: repo.id)
+            let todos: [TodoItem]
+            if repo.hideCompletedTasks {
+                todos = try localTodoService.fetchUncompleted(in: repo.id)
+            } else {
+                todos = try localTodoService.fetchAll(in: repo.id)
+            }
             
             let viewModels = todos
                 .map { (todoItem) -> TodoCellViewModel in

@@ -14,6 +14,7 @@ import RealmSwift
 
 protocol LocalTodoServiceProtocol {
     func fetchAll(in repositoryID: Int) throws -> [TodoItem]
+    func fetchUncompleted(in repositoryID: Int) throws -> [TodoItem]
     func append(_ newTodo: TodoItem, in repositoryID: Int) throws
     func append(_ newTodo: TodoItem, below todoID: UUID) throws
     func toggleCompleteStatus(of todoID: UUID) throws
@@ -30,7 +31,18 @@ final class LocalTodoService: LocalTodoServiceProtocol {
             let appGroupID = "group.com.goorung.Gitodo"
             let container = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)
             let realmURL = container?.appendingPathComponent("db.realm")
-            let config = Realm.Configuration(fileURL: realmURL)
+            let config = Realm.Configuration(
+                fileURL: realmURL,
+                schemaVersion: 1) { migration, oldSchemaVersion in
+                if oldSchemaVersion < 1 {
+                    migration.enumerateObjects(ofType: RepositoryEntity.className()) { _, newObject in
+                        guard let new = newObject else {return}
+
+                        new["deletionOption"] = "none"
+                        new["hideCompletedTasks"] = false
+                    }
+                }
+            }
             return try Realm(configuration: config)
         } catch {
             throw RealmError.initializationError(error)
@@ -47,6 +59,21 @@ final class LocalTodoService: LocalTodoServiceProtocol {
         
         WidgetCenter.shared.reloadAllTimelines()
         return repository.todos
+            .sorted(byKeyPath: "order", ascending: true)
+            .map { $0.toDomain() }
+    }
+    
+    /// 완료되지 않은 투두 가져오기.
+    func fetchUncompleted(in repositoryID: Int) throws -> [TodoItem] {
+        let realm = try initializeRealm()
+        
+        guard let repository = realm.object(ofType: RepositoryEntity.self, forPrimaryKey: repositoryID) else {
+            throw RealmError.noDataError
+        }
+        
+        WidgetCenter.shared.reloadAllTimelines()
+        return repository.todos
+            .where { !$0.isComplete }
             .sorted(byKeyPath: "order", ascending: true)
             .map { $0.toDomain() }
     }

@@ -29,7 +29,18 @@ final class LocalRepositoryService: LocalRepositoryServiceProtocol {
             let appGroupID = "group.com.goorung.Gitodo"
             let container = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)
             let realmURL = container?.appendingPathComponent("db.realm")
-            let config = Realm.Configuration(fileURL: realmURL)
+            let config = Realm.Configuration(
+                fileURL: realmURL,
+                schemaVersion: 1) { migration, oldSchemaVersion in
+                if oldSchemaVersion < 1 {
+                    migration.enumerateObjects(ofType: RepositoryEntity.className()) { _, newObject in
+                        guard let new = newObject else {return}
+
+                        new["deletionOption"] = "none"
+                        new["hideCompletedTasks"] = false
+                    }
+                }
+            }
             return try Realm(configuration: config)
         } catch {
             throw RealmError.initializationError(error)
@@ -47,7 +58,7 @@ final class LocalRepositoryService: LocalRepositoryServiceProtocol {
         return repositoryEntities.map { $0.toDomain() }
     }
     
-    /// 레포지토리 정보(nickname, symbol, hexColor)를 업데이트.
+    /// 레포지토리 정보(nickname, symbol, hexColor, hideCompletedTasks)를 업데이트.
     func updateInfo(of repo: MyRepo) throws {
         let realm = try initializeRealm()
         guard let repositoryEntity = realm.object(ofType: RepositoryEntity.self, forPrimaryKey: repo.id) else {
@@ -58,6 +69,7 @@ final class LocalRepositoryService: LocalRepositoryServiceProtocol {
                 repositoryEntity.nickname = repo.nickname
                 repositoryEntity.symbol = repo.symbol
                 repositoryEntity.hexColor = Int(repo.hexColor)
+                repositoryEntity.hideCompletedTasks = repo.hideCompletedTasks
             }
         } catch {
             throw RealmError.updateError(error)

@@ -246,7 +246,7 @@ extension MainViewController: MainViewDelegate {
 
 extension MainViewController: TodoViewDelegate {
     func showMenu(from button: UIButton) {
-        let menuViewController = CleanupMenuViewController()
+        let menuViewController = CleanupMenuViewController(hideCompletedTasks: viewModel.selectedRepoHideStatus ?? false)
         menuViewController.modalPresentationStyle = .popover
         menuViewController.delegate = self
         
@@ -263,6 +263,10 @@ extension MainViewController: TodoViewDelegate {
 }
 
 extension MainViewController: CleanupMenuDelegate {
+    func toggleHideStatus() {
+        viewModel.input.toggleTodoHideStatus.onNext(())
+    }
+    
     func deleteCompletedTasks() {
         presentCleanupAlertViewController()
     }

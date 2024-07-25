@@ -22,6 +22,7 @@ final class MainViewModel: BaseViewModel {
         let hideRepo: AnyObserver<MyRepo>
         let resetAllRepository: AnyObserver<Void>
         let deleteCompletedTodos: AnyObserver<Void>
+        let toggleTodoHideStatus: AnyObserver<Void>
     }
     
     struct Output {
@@ -45,6 +46,7 @@ final class MainViewModel: BaseViewModel {
     private let updateRepoInfoSubject = PublishSubject<MyRepo>()
     private let hideRepoSubject = PublishSubject<MyRepo>()
     private let deleteCompletedTodosSubject = PublishSubject<Void>()
+    private let toggleTodoHideStatusSubject = PublishSubject<Void>()
     
     private var selectedRepo = BehaviorRelay<MyRepo?>(value: nil)
     private let repos = BehaviorRelay<[MyRepo]>(value: [])
@@ -53,6 +55,8 @@ final class MainViewModel: BaseViewModel {
     
     private let localRepositoryService: LocalRepositoryServiceProtocol
     private let localTodoService: LocalTodoServiceProtocol
+    
+    private(set) var selectedRepoHideStatus: Bool?
     
     // MARK: - Initializer
     
@@ -67,7 +71,8 @@ final class MainViewModel: BaseViewModel {
             updateRepoInfo: updateRepoInfoSubject.asObserver(),
             hideRepo: hideRepoSubject.asObserver(),
             resetAllRepository: resetAllRepositorySubject.asObserver(),
-            deleteCompletedTodos: deleteCompletedTodosSubject.asObserver()
+            deleteCompletedTodos: deleteCompletedTodosSubject.asObserver(),
+            toggleTodoHideStatus: toggleTodoHideStatusSubject.asObserver()
         )
         
         output = Output(
@@ -92,6 +97,7 @@ final class MainViewModel: BaseViewModel {
         
         selectRepoIndexSubject.subscribe(onNext: { [weak self] index in
             let repo = self?.repos.value[index]
+            self?.selectedRepoHideStatus = repo?.hideCompletedTasks
             self?.selectedRepo.accept(repo)
         }).disposed(by: disposeBag)
         
@@ -111,9 +117,25 @@ final class MainViewModel: BaseViewModel {
             self?.hideRepo(repo)
         }).disposed(by: disposeBag)
         
-        deleteCompletedTodosSubject.subscribe(onNext:  { [weak self] in
+        deleteCompletedTodosSubject.subscribe(onNext: { [weak self] in
             self?.deleteCompletedTodos()
         }).disposed(by: disposeBag)
+        
+        toggleTodoHideStatusSubject.subscribe(onNext: { [weak self] in
+            self?.toggleTodoHideStatus()
+        }).disposed(by: disposeBag)
+    }
+    
+    private func toggleTodoHideStatus() {
+        do {
+            guard var repo = selectedRepo.value else { return }
+            repo.hideCompletedTasks.toggle()
+            try localRepositoryService.updateInfo(of: repo)
+            fetchRepos()
+        } catch {
+            print("[MainViewModel] toggleTodoHideStatus failed : \(error.localizedDescription)")
+        }
+        
     }
     
     private func deleteCompletedTodos() {
@@ -132,8 +154,10 @@ final class MainViewModel: BaseViewModel {
             repos.accept(fetchedRepos)
             
             if let repo = fetchedRepos.first(where: { $0.id == selectedRepo.value?.id }) {
+                selectedRepoHideStatus = repo.hideCompletedTasks
                 selectedRepo.accept(repo)
             } else if fetchedRepos.count > 0 {
+                selectedRepoHideStatus = fetchedRepos[0].hideCompletedTasks
                 selectedRepo.accept(fetchedRepos[0])
             } else {
                 selectedRepo.accept(nil)
