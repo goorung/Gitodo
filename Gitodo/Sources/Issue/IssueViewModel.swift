@@ -38,7 +38,7 @@ final class IssueViewModel: BaseViewModel {
     
     private let issues = BehaviorRelay<[Issue]>(value: [])
     private let issueState = BehaviorRelay<IssueState>(value: .hasIssues)
-    private let isLoading = BehaviorRelay<Bool>(value: false)
+    private let isLoading = BehaviorRelay<Bool>(value: true)
     
     private var currentRepo: MyRepo?
     
@@ -80,7 +80,6 @@ final class IssueViewModel: BaseViewModel {
     }
     
     private func handleActiveRepo(repo: MyRepo) {
-        isLoading.accept(true)
         Task {
             do {
                 let allIssues = try await APIManager.shared.fetchIssues(for: repo)
