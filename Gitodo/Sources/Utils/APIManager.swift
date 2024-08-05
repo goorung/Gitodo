@@ -63,7 +63,7 @@ final class APIManager {
         case .organization:
             url = URL(string: "\(baseURL)/orgs/\(owner)/repos?per_page=100")
         case .user:
-            url = URL(string: "\(baseURL)/users/\(owner)/repos?per_page=100")
+            url = URL(string: "\(baseURL)/user/repos?per_page=100&type=owner")
         }
         return try await fetchData(from: url)
     }
