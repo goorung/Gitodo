@@ -116,6 +116,14 @@ final class RepositoryView: LoadableView {
                 viewModel.input.togglePublic.onNext(indexPath)
                 cell.togglePublic()
             }).disposed(by: disposeBag)
+        
+        scrollView.rx.didScroll
+            .subscribe(onNext: { [weak self] in
+                guard let self else { return }
+                if scrollView.contentOffset.y > (scrollView.contentSize.height - scrollView.bounds.size.height) {
+                    viewModel?.input.fetchMoreRepositories.onNext(())
+                }
+            }).disposed(by: disposeBag)
     }
     
     func bind(with viewModel: RepositoryViewModel) {

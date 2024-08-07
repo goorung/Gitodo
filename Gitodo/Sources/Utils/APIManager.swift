@@ -9,6 +9,13 @@ import Foundation
 
 import GitodoShared
 
+enum APIError: Error {
+    case invalidURL
+    case noAccessToken
+    case invalidResponse
+    case accessTokenExpired
+}
+
 final class APIManager {
     
     static let shared = APIManager() // Singleton instance
@@ -22,16 +29,17 @@ final class APIManager {
         }
         
         guard let accessToken = KeychainManager.shared.read(key: "accessToken") else {
-            throw URLError(.userAuthenticationRequired)
+            throw APIError.noAccessToken
         }
-            
+        
         var request = URLRequest(url: url)
         request.addValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
         request.addValue("token \(accessToken)", forHTTPHeaderField: "Authorization")
         
         let (data, response) = try await URLSession.shared.data(for: request)
+        
         guard let httpResponse = response as? HTTPURLResponse else {
-            throw URLError(.badServerResponse)
+            throw APIError.invalidResponse
         }
         
         switch httpResponse.statusCode {
@@ -41,9 +49,9 @@ final class APIManager {
             return try decoder.decode(T.self, from: data)
         case 401: // 액세스 토큰 만료
             NotificationCenter.default.post(name: .AccessTokenDidExpire, object: nil)
-            throw URLError(.userAuthenticationRequired)
+            throw APIError.accessTokenExpired
         default:
-            throw URLError(.badServerResponse)
+            throw APIError.invalidResponse
         }
     }
     
@@ -57,13 +65,17 @@ final class APIManager {
         return try await fetchData(from: url)
     }
     
-    func fetchRepositories(for owner: String, type: RepositoryFetchType) async throws -> [Repository] {
+    func fetchRepositories(
+        for owner: String,
+        type: RepositoryFetchType,
+        page: Int
+    ) async throws -> [Repository] {
         var url: URL?
         switch type {
         case .organization:
-            url = URL(string: "\(baseURL)/orgs/\(owner)/repos?per_page=100")
+            url = URL(string: "\(baseURL)/orgs/\(owner)/repos?page=\(page)")
         case .user:
-            url = URL(string: "\(baseURL)/users/\(owner)/repos?per_page=100")
+            url = URL(string: "\(baseURL)/user/repos?type=owner&page=\(page)")
         }
         return try await fetchData(from: url)
     }

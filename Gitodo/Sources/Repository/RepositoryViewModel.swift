@@ -15,7 +15,8 @@ import RxSwift
 final class RepositoryViewModel: BaseViewModel {
     
     struct Input {
-        let viewDidLoad: AnyObserver<Void>
+        let fetchRepositories: AnyObserver<Void>
+        let fetchMoreRepositories: AnyObserver<Void>
         let togglePublic: AnyObserver<IndexPath>
     }
     
@@ -31,16 +32,21 @@ final class RepositoryViewModel: BaseViewModel {
     let input: Input
     let output: Output
     
-    private let viewDidLoad = PublishSubject<Void>()
+    private let localRepositoryService: LocalRepositoryServiceProtocol
+    
+    private let fetchRepositories = PublishSubject<Void>()
+    private let fetchMoreRepositories = PublishSubject<Void>()
     private let togglePublic = PublishSubject<IndexPath>()
     
     private let repositoryCellViewModels = BehaviorRelay<[RepositoryCellViewModel]>(value: [])
     private let isLoading = BehaviorRelay<Bool>(value: true)
     
+    // API 호출을 위한 변수들
     private let owner: Organization
-    private var repositories: [Repository]?
+    private var repositories = [Repository]()
     private let type: RepositoryFetchType
-    private let localRepositoryService: LocalRepositoryServiceProtocol
+    private var currentPage = 1
+    private var fetchFlag = false
     
     // MARK: - Initializer
     
@@ -54,7 +60,8 @@ final class RepositoryViewModel: BaseViewModel {
         self.localRepositoryService = service
         
         input = Input(
-            viewDidLoad: viewDidLoad.asObserver(),
+            fetchRepositories: fetchRepositories.asObserver(),
+            fetchMoreRepositories: fetchMoreRepositories.asObserver(),
             togglePublic: togglePublic.asObserver()
         )
         
@@ -67,8 +74,12 @@ final class RepositoryViewModel: BaseViewModel {
     }
     
     func bindInputs() {
-        viewDidLoad.subscribe(onNext: { [weak self] in
-            self?.fetchRepositoriesWithLocal()
+        fetchRepositories.subscribe(onNext: { [weak self] in
+            self?.fetchRepositories(true)
+        }).disposed(by: disposeBag)
+        
+        fetchMoreRepositories.subscribe(onNext: { [weak self] in
+            self?.fetchRepositories()
         }).disposed(by: disposeBag)
         
         togglePublic.subscribe(onNext: { [weak self] indexPath in
@@ -76,28 +87,55 @@ final class RepositoryViewModel: BaseViewModel {
         }).disposed(by: disposeBag)
     }
     
-    private func fetchRepositoriesWithLocal() {
+    private func fetchRepositories(_ isInitialFetch: Bool = false) {
         Task {
             do {
-                // fetch
+                if fetchFlag { return }
+                fetchFlag = true
+                // 데이터 요청
                 let repositoryList = try await APIManager.shared.fetchRepositories(
                     for: owner.login,
-                    type: type
+                    type: type,
+                    page: currentPage
                 )
-                self.repositories = repositoryList
-                // local
-                let ownerPublicRepository = try self.localRepositoryService.fetchPublic()
+                // 더 이상 패치할 데이터가 없음
+                if !isInitialFetch && repositoryList.isEmpty { return }
+                // 로컬 공개 레포지토리(MyRepo)를 기반으로 cellViewModel 생성
+                let publicRepos = try self.localRepositoryService.fetchPublic()
                     .filter { $0.ownerName == owner.login }
-                // 뷰 모델 생성, 로컬 데이터를 기반으로 isPublic 플래그 설정
-                let cellViewModel = repositoryList.map { repository in
-                    let isPublic = ownerPublicRepository.contains { $0.id == repository.id }
+                let cellViewModels = repositoryList.map { repository in
+                    let isPublic = publicRepos.contains { $0.id == repository.id }
                     return RepositoryCellViewModel(repository: repository.name, isPublic: isPublic)
                 }
-                repositoryCellViewModels.accept(cellViewModel)
+                updateRepositories(
+                    with: repositoryList,
+                    cellViewModels: cellViewModels,
+                    isInitialFetch: isInitialFetch
+                )
+                fetchFlag = false
+                currentPage += 1
+                if isInitialFetch {
+                    isLoading.accept(false)
+                }
             } catch let error {
                 print("[RepositoryViewModel] fetchRepositories failed : \(error.localizedDescription)")
             }
-            isLoading.accept(false)
+        }
+    }
+    
+    private func updateRepositories(
+        with newRepos: [Repository],
+        cellViewModels: [RepositoryCellViewModel],
+        isInitialFetch: Bool
+    ) {
+        if isInitialFetch {
+            repositories = newRepos
+            repositoryCellViewModels.accept(cellViewModels)
+        } else {
+            repositories.append(contentsOf: newRepos)
+            var updatedViewModels = repositoryCellViewModels.value
+            updatedViewModels.append(contentsOf: cellViewModels)
+            repositoryCellViewModels.accept(updatedViewModels)
         }
     }
     
@@ -107,7 +145,6 @@ final class RepositoryViewModel: BaseViewModel {
         repositoryCellViewModels.accept(cellViewModels)
         
         do {
-            guard let repositories else { return }
             try localRepositoryService.updateRepository(
                 repository: repositories[indexPath.row],
                 isPublic: cellViewModels[indexPath.row].isPublic
