@@ -75,7 +75,7 @@ final class RepositoryViewModel: BaseViewModel {
     
     func bindInputs() {
         fetchRepositories.subscribe(onNext: { [weak self] in
-            self?.fetchRepositories(true)
+            self?.fetchRepositories(isInitialFetch: true)
         }).disposed(by: disposeBag)
         
         fetchMoreRepositories.subscribe(onNext: { [weak self] in
@@ -87,26 +87,26 @@ final class RepositoryViewModel: BaseViewModel {
         }).disposed(by: disposeBag)
     }
     
-    private func fetchRepositories(_ isInitialFetch: Bool = false) {
+    private func fetchRepositories(isInitialFetch: Bool = false) {
         Task {
             do {
                 if fetchFlag { return }
                 fetchFlag = true
-                // 데이터 요청
+                
                 let repositoryList = try await APIManager.shared.fetchRepositories(
                     for: owner.login,
                     type: type,
                     page: currentPage
                 )
-                // 더 이상 패치할 데이터가 없음
                 if !isInitialFetch && repositoryList.isEmpty { return }
-                // 로컬 공개 레포지토리(MyRepo)를 기반으로 cellViewModel 생성
+                
                 let publicRepos = try self.localRepositoryService.fetchPublic()
                     .filter { $0.ownerName == owner.login }
                 let cellViewModels = repositoryList.map { repository in
                     let isPublic = publicRepos.contains { $0.id == repository.id }
                     return RepositoryCellViewModel(repository: repository.name, isPublic: isPublic)
                 }
+                
                 updateRepositories(
                     with: repositoryList,
                     cellViewModels: cellViewModels,
@@ -114,11 +114,11 @@ final class RepositoryViewModel: BaseViewModel {
                 )
                 fetchFlag = false
                 currentPage += 1
-                if isInitialFetch {
-                    isLoading.accept(false)
-                }
             } catch let error {
                 print("[RepositoryViewModel] fetchRepositories failed : \(error.localizedDescription)")
+            }
+            if isInitialFetch {
+                isLoading.accept(false)
             }
         }
     }

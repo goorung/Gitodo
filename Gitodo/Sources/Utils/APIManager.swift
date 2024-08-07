@@ -60,8 +60,8 @@ final class APIManager {
         return try await fetchData(from: url)
     }
     
-    func fetchOrganizations() async throws -> [Organization] {
-        let url = URL(string: "\(baseURL)/user/orgs?per_page=100")
+    func fetchOrganizations(page: Int) async throws -> [Organization] {
+        let url = URL(string: "\(baseURL)/user/orgs?page=\(page)")
         return try await fetchData(from: url)
     }
     
