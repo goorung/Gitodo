@@ -80,10 +80,10 @@ final class APIManager {
         return try await fetchData(from: url)
     }
     
-    func fetchIssues(for repo: MyRepo) async throws -> [Issue] {
-        let repoName = repo.name
-        let ownerName = repo.ownerName
-        let url = URL(string: "\(baseURL)/repos/\(ownerName)/\(repoName)/issues?per_page=100")
+    func fetchIssues(for repo: MyRepo, page: Int) async throws -> [Issue] {
+        let owner = repo.ownerName
+        let repo = repo.name
+        let url = URL(string: "\(baseURL)/repos/\(owner)/\(repo)/issues?per_page=6&page=\(page)")
         return try await fetchData(from: url)
     }
     

@@ -105,6 +105,14 @@ final class IssueView: LoadableView {
                 guard let self = self, let viewModel = viewModel else { return }
                 delegate?.presentInfoViewController(issue: viewModel.issue(at: indexPath))
             }).disposed(by: disposeBag)
+        
+        issueTableView.rx.didScroll
+            .subscribe(onNext: { [weak self] in
+                guard let self else { return }
+                if issueTableView.contentOffset.y > (issueTableView.contentSize.height - issueTableView.bounds.size.height) {
+                    viewModel?.input.fetchMoreIssue.onNext(())
+                }
+            }).disposed(by: disposeBag)
     }
     
     func bind(with viewModel: IssueViewModel) {
