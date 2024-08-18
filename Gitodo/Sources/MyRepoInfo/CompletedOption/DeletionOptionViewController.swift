@@ -7,17 +7,21 @@
 
 import UIKit
 
+import GitodoShared
+
 import SnapKit
 
 class DeletionOptionViewController: BaseViewController<DeletionOptionView>, BaseViewControllerProtocol, UIGestureRecognizerDelegate {
+
+    init(myRepoInfoViewModel: MyRepoInfoViewModel) {
+        super.init(nibName: nil, bundle: nil)
+        
+        contentView.viewModel = myRepoInfoViewModel
+    }
     
-//    init(viewModel: MyRepoInfoViewModel?) {
-//        self.viewModel = viewModel
-//    }
-//    
-//    required init?(coder: NSCoder) {
-//        fatalError("init(coder:) has not been implemented")
-//    }
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()

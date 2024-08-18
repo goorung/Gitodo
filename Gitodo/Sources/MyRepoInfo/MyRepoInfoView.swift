@@ -14,7 +14,7 @@ import RxCocoa
 import RxSwift
 
 protocol MyRepoInfoViewDelegate: AnyObject {
-    func pushCompletedOptionViewController()
+    func pushDeletionOptionViewController()
 }
 
 final class MyRepoInfoView: UIView {
@@ -92,7 +92,7 @@ final class MyRepoInfoView: UIView {
     }()
     
     @objc private func deleteOptionViewTapped() {
-        delegate?.pushCompletedOptionViewController()
+        delegate?.pushDeletionOptionViewController()
     }
     
     private lazy var hideOptionView = {

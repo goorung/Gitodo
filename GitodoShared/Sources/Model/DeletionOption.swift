@@ -7,10 +7,14 @@
 
 import Foundation
 
-public enum DeletionOption {
+public enum DeletionOption: CaseIterable {
+    public static var allCases: [DeletionOption] {
+        [.none, .immediate, .scheduledDaily(hour: 0, minute: 0), .afterDuration(.hours(0))]
+    }
+    
     case none
     case immediate
-    case scheduledDaily(time: Int)
+    case scheduledDaily(hour: Int, minute: Int)
     case afterDuration(Duration)
     
     public enum Duration {
@@ -20,17 +24,30 @@ public enum DeletionOption {
     }
 }
 
-extension DeletionOption {
+public extension DeletionOption {
     var rawValue: String {
         switch self {
         case .none:
             return "none"
         case .immediate:
             return "immediate"
-        case .scheduledDaily(let time):
-            return "scheduledDaily:\(time)"
+        case .scheduledDaily(let hour, let minute):
+            return "scheduledDaily:\(hour):\(minute)"
         case .afterDuration(let duration):
             return "afterDuration:\(duration.rawValue)"
+        }
+    }
+    
+    var id: Int {
+        switch self {
+        case .none:
+            0
+        case .immediate:
+            1
+        case .scheduledDaily:
+            2
+        case .afterDuration:
+            3
         }
     }
     
@@ -42,8 +59,9 @@ extension DeletionOption {
         case "immediate":
             self = .immediate
         case "scheduledDaily":
-            if let hour = Int(components[1]) {
-                self = .scheduledDaily(time: hour)
+            if let hour = Int(components[1]),
+                let minute = Int(components[2]) {
+                self = .scheduledDaily(hour: hour, minute: minute)
             } else {
                 self = .none
             }
