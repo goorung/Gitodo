@@ -50,7 +50,7 @@ class DeletionOptionCell: UITableViewCell {
         let label = UILabel()
         label.font = .smallBody
         label.isHidden = true
-        label.text = "오전 6:00" // FIXME: dummy
+        label.text = ""
         return label
     }()
     
@@ -135,8 +135,9 @@ class DeletionOptionCell: UITableViewCell {
         }
     }
     
-    func configure(option: DeletionOption, isSelected: Bool) {
+    func configure(option: DeletionOption, selectedOption: DeletionOption) {
         deletionOption = option
+        let isSelected = option.id == selectedOption.id
         switch deletionOption {
         case .none:
             nameLabel.text = "삭제 안 함"
@@ -145,8 +146,11 @@ class DeletionOptionCell: UITableViewCell {
         case .scheduledDaily:
             nameLabel.text = "매일 특정 시간 삭제"
             if isSelected {
+                guard let date = convertScheduledDailyTimeToDate(option: selectedOption) else { break }
                 timeOptionLabel.isHidden = false
+                timeOptionLabel.text = convertToString(date: date)
                 datePicker.isHidden = false
+                datePicker.date = date
             }
         case .afterDuration:
             nameLabel.text = "특정 시간 이후 삭제"
@@ -154,6 +158,16 @@ class DeletionOptionCell: UITableViewCell {
         
         if isSelected {
             selectedButton.isHidden = false
+        }
+    }
+    
+    private func convertScheduledDailyTimeToDate(option: DeletionOption) -> Date? {
+        switch option {
+        case .scheduledDaily(let hour, let minute):
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "HH:mm"
+            return dateFormatter.date(from: "\(hour):\(minute)")
+        default: return nil
         }
     }
     
@@ -165,7 +179,13 @@ class DeletionOptionCell: UITableViewCell {
     }
     
     @objc private func timeChanged(sender: UIDatePicker) {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.hour, .minute], from: sender.date)
+        guard let hour = components.hour, let minute = components.minute  else { return }
+
+        delegate?.deletionTimeChanged(.scheduledDaily(hour: hour, minute: minute))
         timeOptionLabel.text = convertToString(date: sender.date)
     }
     
 }
+ 

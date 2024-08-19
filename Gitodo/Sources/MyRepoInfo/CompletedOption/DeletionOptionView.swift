@@ -62,7 +62,8 @@ extension DeletionOptionView: UITableViewDataSource {
         
         guard let cell = optionTableView.dequeueReusableCell(withIdentifier: DeletionOptionCell.reuseIdentifier, for: indexPath) as? DeletionOptionCell,
               let viewModel = viewModel else { fatalError() }
-        cell.configure(option: DeletionOption.allCases[indexPath.row], isSelected: viewModel.deletionOption.id == indexPath.row)
+        cell.delegate = self
+        cell.configure(option: DeletionOption.allCases[indexPath.row], selectedOption: viewModel.deletionOption)
         return cell
     }
     
@@ -72,6 +73,12 @@ extension DeletionOptionView: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         viewModel?.deletionOption = DeletionOption.allCases[indexPath.row]
         tableView.reloadData()
+    }
+}
+
+extension DeletionOptionView: DeletionOptionCellDelegate {
+    func deletionTimeChanged(_ deletionOption: GitodoShared.DeletionOption) {
+        viewModel?.deletionOption = deletionOption
     }
 }
 
