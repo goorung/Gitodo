@@ -53,13 +53,13 @@ class ToggleOptionView: UIView {
         addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
-            make.leading.equalToSuperview().inset(20)
+            make.leading.equalToSuperview().inset(8)
         }
         
         addSubview(toggleButton)
         toggleButton.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
-            make.trailing.equalToSuperview().inset(20)
+            make.trailing.equalToSuperview().inset(8)
         }
     }
     

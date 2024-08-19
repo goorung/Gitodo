@@ -26,7 +26,7 @@ class SelectedOptionView: UIView {
         let label = UILabel()
         label.text = selectedOption
         label.textColor = .label
-        label.font = .callout
+        label.font = .title5
         return label
     }()
     
@@ -54,14 +54,14 @@ class SelectedOptionView: UIView {
         addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
-            make.leading.equalToSuperview().inset(20)
+            make.leading.equalToSuperview().inset(8)
         }
         
         addSubview(rightArrow)
         rightArrow.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
             make.width.height.equalTo(12)
-            make.trailing.equalToSuperview().inset(20)
+            make.trailing.equalToSuperview().inset(8)
         }
         
         addSubview(selectedOptionLabel)
@@ -73,5 +73,9 @@ class SelectedOptionView: UIView {
     
     func setSelectedOption(_ selectedOption: String) {
         self.selectedOption = selectedOption
+    }
+    
+    func setLabelText(_ text: String) {
+        selectedOptionLabel.text = text
     }
 }

@@ -11,7 +11,13 @@ import GitodoShared
 
 import SnapKit
 
+protocol DeletionOptionViewControllerDelegate: AnyObject {
+    func updateDeletionOption()
+}
+
 class DeletionOptionViewController: BaseViewController<DeletionOptionView>, BaseViewControllerProtocol, UIGestureRecognizerDelegate {
+    
+    weak var delegate: DeletionOptionViewControllerDelegate?
 
     init(myRepoInfoViewModel: MyRepoInfoViewModel) {
         super.init(nibName: nil, bundle: nil)
@@ -29,6 +35,12 @@ class DeletionOptionViewController: BaseViewController<DeletionOptionView>, Base
         navigationController?.interactivePopGestureRecognizer?.delegate = self
         navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         setupNavigationBar()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        delegate?.updateDeletionOption()
     }
     
     func setupNavigationBar() {

@@ -83,8 +83,8 @@ final class MyRepoInfoView: UIView {
         return label
     }()
     
-    private lazy var deleteOptionView: UIView = {
-        let view = SelectedOptionView(title: "완료된 할 일 삭제", selectedOption: "3시간 후")
+    private lazy var deletionOptionView: SelectedOptionView = {
+        let view = SelectedOptionView(title: "완료된 할 일 삭제", selectedOption: "")
         view.isUserInteractionEnabled = true
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(deleteOptionViewTapped))
         view.addGestureRecognizer(tapGestureRecognizer)
@@ -193,18 +193,18 @@ final class MyRepoInfoView: UIView {
             make.leading.equalToSuperview().inset(20)
         }
         
-        containerView.addSubview(deleteOptionView)
-        deleteOptionView.snp.makeConstraints { make in
-            make.top.equalTo(settingLabel.snp.bottom).offset(12)
+        containerView.addSubview(deletionOptionView)
+        deletionOptionView.snp.makeConstraints { make in
+            make.top.equalTo(settingLabel.snp.bottom).offset(15)
             make.horizontalEdges.equalToSuperview().inset(20)
-            make.height.equalTo(44)
+            make.height.equalTo(40)
         }
         
         containerView.addSubview(hideOptionView)
         hideOptionView.snp.makeConstraints { make in
-            make.top.equalTo(deleteOptionView.snp.bottom)
+            make.top.equalTo(deletionOptionView.snp.bottom)
             make.horizontalEdges.equalToSuperview().inset(20)
-            make.height.equalTo(44)
+            make.height.equalTo(40)
             make.bottom.equalToSuperview().inset(20)
         }
     }
@@ -251,10 +251,15 @@ final class MyRepoInfoView: UIView {
         colorView.setInitialColor(viewModel.hexColor)
         hideOptionView.setButtonColor(viewModel.hexColor)
         hideOptionView.setStatus(viewModel.hideCompletedTasks)
+        deletionOptionView.setLabelText(viewModel.deletionOptionText)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         endEditing(true)
+    }
+    
+    func updateDeletionOption() {
+        deletionOptionView.setLabelText(viewModel?.deletionOptionText ?? "")
     }
     
 }

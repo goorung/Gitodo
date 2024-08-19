@@ -65,7 +65,17 @@ final class MyRepoInfoViewController: BaseViewController<MyRepoInfoView>, BaseVi
 extension MyRepoInfoViewController: MyRepoInfoViewDelegate {
     func pushDeletionOptionViewController() {
         guard let viewModel else { return }
-        navigationController?.pushViewController(DeletionOptionViewController(myRepoInfoViewModel: viewModel), animated: true)
+        let viewController = DeletionOptionViewController(myRepoInfoViewModel: viewModel)
+        viewController.delegate = self
+        navigationController?.pushViewController(viewController, animated: true)
     }
+    
+}
+
+extension MyRepoInfoViewController: DeletionOptionViewControllerDelegate {
+    func updateDeletionOption() {
+        contentView.updateDeletionOption()
+    }
+    
     
 }

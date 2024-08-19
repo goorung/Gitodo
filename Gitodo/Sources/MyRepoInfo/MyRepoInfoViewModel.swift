@@ -52,4 +52,27 @@ final class MyRepoInfoViewModel {
         get { repository.deletionOption }
         set { repository.deletionOption = newValue }
     }
+    
+    var deletionOptionText: String {
+        switch deletionOption {
+        case .none:
+            return "삭제 안 함"
+        case .immediate:
+            return "바로 삭제"
+        case .scheduledDaily(let hour, let minute):
+            let minuteText = minute < 10 ? "0\(minute)":"\(minute)"
+            if hour == 0 {
+                return "매일 오전 12:\(minuteText)"
+            } else if hour < 12 {
+                return "매일 오전 \(hour):\(minuteText)"
+            } else if hour == 12 {
+                return "매일 오후 12:\(minuteText)"
+            } else {
+                return "매일 오후 \(hour - 12):\(minuteText)"
+            }
+            // FIXME: 특정 시간 이후 문구 시간에 맞게 수정하기
+        case .afterDuration(let duration):
+            return "1시간 후"
+        }
+    }
 }
