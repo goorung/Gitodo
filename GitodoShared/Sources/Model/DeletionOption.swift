@@ -9,7 +9,7 @@ import Foundation
 
 public enum DeletionOption: CaseIterable {
     public static var allCases: [DeletionOption] {
-        [.none, .immediate, .scheduledDaily(hour: 0, minute: 0), .afterDuration(.hours(0))]
+        [.none, .immediate, .scheduledDaily(hour: 0, minute: 0), .afterDuration(.hours(1))]
     }
     
     case none

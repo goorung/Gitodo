@@ -70,9 +70,15 @@ final class MyRepoInfoViewModel {
             } else {
                 return "매일 오후 \(hour - 12):\(minuteText)"
             }
-            // FIXME: 특정 시간 이후 문구 시간에 맞게 수정하기
         case .afterDuration(let duration):
-            return "1시간 후"
+            switch duration {
+            case .hours(let hours):
+                return "\(hours)시간 후"
+            case .days(let days):
+                return "\(days)일 후"
+            case .weeks(let weeks):
+                return "\(weeks)주 후"
+            }
         }
     }
 }

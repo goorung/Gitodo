@@ -195,7 +195,7 @@ final class MyRepoInfoView: UIView {
         
         containerView.addSubview(deletionOptionView)
         deletionOptionView.snp.makeConstraints { make in
-            make.top.equalTo(settingLabel.snp.bottom).offset(15)
+            make.top.equalTo(settingLabel.snp.bottom).offset(10)
             make.horizontalEdges.equalToSuperview().inset(20)
             make.height.equalTo(40)
         }

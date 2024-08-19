@@ -12,7 +12,7 @@ import GitodoShared
 import SnapKit
 
 protocol DeletionOptionCellDelegate: AnyObject {
-    func deletionTimeChanged(_ deletionOption: DeletionOption)
+    func deletionOptionChanged(_ deletionOption: DeletionOption)
 }
 
 class DeletionOptionCell: UITableViewCell {
@@ -20,6 +20,10 @@ class DeletionOptionCell: UITableViewCell {
     static let reuseIdentifier = "DeletionOptionCell"
     weak var delegate: DeletionOptionCellDelegate?
     private var deletionOption: DeletionOption = .none
+    
+    let durationUnit = ["시간", "일", "주"]
+    var selectedDuration = 1
+    var selectedUnit = 0
     
     // MARK: - UI Components
     
@@ -76,6 +80,14 @@ class DeletionOptionCell: UITableViewCell {
         return picker
     }()
     
+    private lazy var durationPicker = {
+        let picker = UIPickerView()
+        picker.dataSource = self
+        picker.delegate = self
+        picker.isHidden = true
+        return picker
+    }()
+    
     // MARK: - Initializer
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -94,6 +106,7 @@ class DeletionOptionCell: UITableViewCell {
         selectedButton.isHidden = true
         timeOptionLabel.isHidden = true
         datePicker.isHidden = true
+        durationPicker.isHidden = true
     }
     
     // MARK: - Setup Methods
@@ -115,6 +128,7 @@ class DeletionOptionCell: UITableViewCell {
         setupCheckableLabelView()
         
         containerStackView.addArrangedSubview(datePicker)
+        containerStackView.addArrangedSubview(durationPicker)
     }
     
     private func setupCheckableLabelView() {
@@ -154,6 +168,28 @@ class DeletionOptionCell: UITableViewCell {
             }
         case .afterDuration:
             nameLabel.text = "특정 시간 이후 삭제"
+            if isSelected {
+                timeOptionLabel.isHidden = false
+                durationPicker.isHidden = false
+                
+                if case let .afterDuration(duration) = selectedOption {
+                    switch duration {
+                    case .hours(let hours):
+                        timeOptionLabel.text = "\(hours)시간 후"
+                        durationPicker.selectRow(hours - 1, inComponent: 0, animated: false)
+                        durationPicker.selectRow(0, inComponent: 1, animated: false)
+                    case .days(let days):
+                        timeOptionLabel.text = "\(days)일 후"
+                        durationPicker.selectRow(days - 1, inComponent: 0, animated: false)
+                        durationPicker.selectRow(1, inComponent: 1, animated: false)
+                    case .weeks(let weeks):
+                        timeOptionLabel.text = "\(weeks)주 후"
+                        durationPicker.selectRow(weeks - 1, inComponent: 0, animated: false)
+                        durationPicker.selectRow(2, inComponent: 1, animated: false)
+                    }
+                }
+                
+            }
         }
         
         if isSelected {
@@ -183,9 +219,60 @@ class DeletionOptionCell: UITableViewCell {
         let components = calendar.dateComponents([.hour, .minute], from: sender.date)
         guard let hour = components.hour, let minute = components.minute  else { return }
 
-        delegate?.deletionTimeChanged(.scheduledDaily(hour: hour, minute: minute))
+        delegate?.deletionOptionChanged(.scheduledDaily(hour: hour, minute: minute))
         timeOptionLabel.text = convertToString(date: sender.date)
     }
     
 }
+
+extension DeletionOptionCell: UIPickerViewDataSource {
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        2
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        if component == 0 {
+            30
+        } else {
+            durationUnit.count
+        }
+    }
+    
+}
+
+extension DeletionOptionCell: UIPickerViewDelegate {
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        if component == 0 {
+            String(row + 1)
+        } else {
+            durationUnit[row]
+        }
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, widthForComponent component: Int) -> CGFloat {
+        70
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        if component == 0 {
+            selectedDuration = row + 1
+        } else {
+            selectedUnit = row
+        }
+        var option = DeletionOption.none
+        switch selectedUnit {
+        case 0:
+            option = .afterDuration(.hours(selectedDuration))
+        case 1:
+            option = .afterDuration(.days(selectedDuration))
+        case 2:
+            option = .afterDuration(.weeks(selectedDuration))
+        default:
+            break
+        }
+        delegate?.deletionOptionChanged(option)
+        timeOptionLabel.text = "\(selectedDuration)\(durationUnit[selectedUnit]) 후"
+    }
+}
+
  

@@ -77,7 +77,7 @@ extension DeletionOptionView: UITableViewDelegate {
 }
 
 extension DeletionOptionView: DeletionOptionCellDelegate {
-    func deletionTimeChanged(_ deletionOption: GitodoShared.DeletionOption) {
+    func deletionOptionChanged(_ deletionOption: GitodoShared.DeletionOption) {
         viewModel?.deletionOption = deletionOption
     }
 }
