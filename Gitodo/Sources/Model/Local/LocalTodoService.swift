@@ -127,6 +127,14 @@ final class LocalTodoService: LocalTodoServiceProtocol {
         
         do {
             try realm.write {
+                
+                if let repo = todoEntity.repository.first,
+                   DeletionOption(rawValue: repo.deletionOption).id == 1 {
+                    updateOrder(of: todos, after: todoEntity.order, offset: -1)
+                    realm.delete(todoEntity)
+                    return
+                }
+                
                 let destination: Int
                 let incompleteCount = todos.where { !$0.isComplete }.count
                 if !todoEntity.isComplete {
