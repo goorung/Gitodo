@@ -47,6 +47,39 @@ final class LocalRepositoryService: LocalRepositoryServiceProtocol {
         }
     }
     
+    /// 완료된 항목 삭제 로직
+    // FIXME: afterDuration도 처리하기
+    func deleteTasksIfNeeded() throws {
+        let realm = try initializeRealm()
+        let now = Date()
+        let calendar = Calendar.current
+        var components = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: now)
+        
+        let repositoriesToProcess = realm.objects(RepositoryEntity.self)
+            .filter { DeletionOption(rawValue: $0.deletionOption).id == 2 }
+        for repo in repositoriesToProcess {
+            let deletionOption = DeletionOption(rawValue: repo.deletionOption)
+            guard case let .scheduledDaily(hour, minute) = deletionOption else { return }
+            
+            components.hour = hour
+            components.minute = minute
+            guard var deletionTime = calendar.date(from: components) else { return }
+            if now < deletionTime {
+                guard let time = calendar.date(byAdding: .day, value: -1, to: deletionTime) else { return }
+                deletionTime = time
+            }
+            
+            let todosToDelete = repo.todos
+                .filter { $0.isComplete && $0.updatedAt <= deletionTime }
+            do {
+                try realm.write { realm.delete(todosToDelete) }
+            } catch {
+                throw RealmError.deleteError(error)
+            }
+            
+        }
+    }
+    
     /// Public인 레포지토리 순서대로 가져오기.
     func fetchPublic() throws -> [MyRepo] {
         let realm = try initializeRealm()
