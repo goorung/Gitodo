@@ -49,7 +49,18 @@ final class RepositoryView: LoadableView {
         view.isHidden = true
         return view
     }()
-        
+    
+    private lazy var loadingCell: UITableViewCell = {
+        let cell = UITableViewCell(style: .default, reuseIdentifier: "LoadingCell")
+        let activityIndicator = UIActivityIndicatorView(style: .medium)
+        activityIndicator.startAnimating()
+        cell.contentView.addSubview(activityIndicator)
+        activityIndicator.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+        }
+        cell.backgroundColor = .background
+        return cell
+    }()
     
     // MARK: - Initializer
     
@@ -139,11 +150,17 @@ final class RepositoryView: LoadableView {
                 repositoryTableViewHeightConstraint?.update(offset: height)
                 repositoryTableView.layoutIfNeeded() // 즉시 레이아웃 업데이트
             })
-            .drive(repositoryTableView.rx.items(
-                cellIdentifier: RepositoryCell.reuseIdentifier,
-                cellType: RepositoryCell.self)
-            ) { _, repositoryCellViewModel, cell in
-                cell.configure(with: repositoryCellViewModel)
+            .drive(repositoryTableView.rx.items) { [weak self] tableView, index, item in
+                guard let self = self else { return UITableViewCell() }
+                switch item {
+                case let .repository(repositoryCellViewModel):
+                    let cell = tableView.dequeueReusableCell(withIdentifier: RepositoryCell.reuseIdentifier)
+                    as! RepositoryCell
+                    cell.configure(with: repositoryCellViewModel)
+                    return cell
+                case .loading:
+                    return self.loadingCell
+                }
             }.disposed(by: disposeBag)
         
         viewModel.output.isLoading

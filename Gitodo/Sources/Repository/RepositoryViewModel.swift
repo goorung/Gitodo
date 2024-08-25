@@ -14,6 +14,11 @@ import RxSwift
 
 final class RepositoryViewModel: BaseViewModel {
     
+    enum RepositoryViewModelItem {
+        case repository(RepositoryCellViewModel)
+        case loading
+    }
+    
     struct Input {
         let fetchRepositories: AnyObserver<Void>
         let fetchMoreRepositories: AnyObserver<Void>
@@ -21,7 +26,7 @@ final class RepositoryViewModel: BaseViewModel {
     }
     
     struct Output {
-        var repositories: Driver<[RepositoryCellViewModel]>
+        var repositories: Driver<[RepositoryViewModelItem]>
         var isLoading: Driver<Bool>
     }
     
@@ -38,7 +43,7 @@ final class RepositoryViewModel: BaseViewModel {
     private let fetchMoreRepositories = PublishSubject<Void>()
     private let togglePublic = PublishSubject<IndexPath>()
     
-    private let repositoryCellViewModels = BehaviorRelay<[RepositoryCellViewModel]>(value: [])
+    private let repositoryItems = BehaviorRelay<[RepositoryViewModelItem]>(value: [])
     private let isLoading = BehaviorRelay<Bool>(value: true)
     
     // API 호출을 위한 변수들
@@ -66,7 +71,7 @@ final class RepositoryViewModel: BaseViewModel {
         )
         
         output = Output(
-            repositories: repositoryCellViewModels.asDriver(),
+            repositories: repositoryItems.asDriver(),
             isLoading: isLoading.asDriver()
         )
         
@@ -93,18 +98,32 @@ final class RepositoryViewModel: BaseViewModel {
                 if fetchFlag { return }
                 fetchFlag = true
                 
+                if !isInitialFetch {
+                    var currentItems = repositoryItems.value
+                    currentItems.append(.loading) // 로딩 셀 추가
+                    repositoryItems.accept(currentItems)
+                }
+                
                 let repositoryList = try await APIManager.shared.fetchRepositories(
                     for: owner.login,
                     type: type,
                     page: currentPage
                 )
-                if !isInitialFetch && repositoryList.isEmpty { return }
+                if !isInitialFetch && repositoryList.isEmpty {
+                    var currentItems = repositoryItems.value
+                    currentItems.removeLast() // 로딩 셀 제거
+                    repositoryItems.accept(currentItems)
+                    return
+                }
                 
                 let publicRepos = try self.localRepositoryService.fetchPublic()
                     .filter { $0.ownerName == owner.login }
                 let cellViewModels = repositoryList.map { repository in
                     let isPublic = publicRepos.contains { $0.id == repository.id }
-                    return RepositoryCellViewModel(repository: repository.name, isPublic: isPublic)
+                    return RepositoryViewModelItem.repository(RepositoryCellViewModel(
+                        repository: repository.name,
+                        isPublic: isPublic
+                    ))
                 }
                 
                 updateRepositories(
@@ -125,32 +144,36 @@ final class RepositoryViewModel: BaseViewModel {
     
     private func updateRepositories(
         with newRepos: [Repository],
-        cellViewModels: [RepositoryCellViewModel],
+        cellViewModels: [RepositoryViewModelItem],
         isInitialFetch: Bool
     ) {
         if isInitialFetch {
             repositories = newRepos
-            repositoryCellViewModels.accept(cellViewModels)
+            repositoryItems.accept(cellViewModels)
         } else {
             repositories.append(contentsOf: newRepos)
-            var updatedViewModels = repositoryCellViewModels.value
+            var updatedViewModels = repositoryItems.value
+            updatedViewModels.removeLast() // 로딩 셀 제거
             updatedViewModels.append(contentsOf: cellViewModels)
-            repositoryCellViewModels.accept(updatedViewModels)
+            repositoryItems.accept(updatedViewModels)
         }
     }
     
     private func togglePublicRepository(at indexPath: IndexPath) {
-        var cellViewModels = repositoryCellViewModels.value
-        cellViewModels[indexPath.row].isPublic.toggle()
-        repositoryCellViewModels.accept(cellViewModels)
-        
-        do {
-            try localRepositoryService.updateRepository(
-                repository: repositories[indexPath.row],
-                isPublic: cellViewModels[indexPath.row].isPublic
-            )
-        } catch let error {
-            print("[RepositoryViewModel] updateRepository failed : \(error.localizedDescription)")
+        var items = repositoryItems.value
+        if case var .repository(cellViewModel) = items[indexPath.row] {
+            cellViewModel.isPublic.toggle()
+            items[indexPath.row] = .repository(cellViewModel)
+            repositoryItems.accept(items)
+            
+            do {
+                try localRepositoryService.updateRepository(
+                    repository: repositories[indexPath.row],
+                    isPublic: cellViewModel.isPublic
+                )
+            } catch let error {
+                print("[RepositoryViewModel] updateRepository failed : \(error.localizedDescription)")
+            }
         }
     }
     
