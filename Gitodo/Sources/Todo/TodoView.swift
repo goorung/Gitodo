@@ -107,7 +107,7 @@ final class TodoView: UIView {
         }
         addSubview(cleanupButton)
         cleanupButton.snp.makeConstraints { make in
-            make.top.equalTo(todoTableView.snp.bottom).offset(10)
+            make.height.equalTo(todoAddButton)
             make.leading.equalToSuperview().inset(20)
             make.bottom.equalToSuperview().inset(10)
         }
@@ -144,6 +144,7 @@ final class TodoView: UIView {
 
    @objc private func keyboardWillShow(notification: Notification) {
        todoAddButton.isHidden = true
+       cleanupButton.isHidden = true
        todoAddButton.snp.remakeConstraints { make in
            make.top.equalTo(todoTableView.snp.bottom)
            make.height.equalTo(0)
@@ -159,6 +160,7 @@ final class TodoView: UIView {
 
    @objc private func keyboardWillHide(notification: Notification) {
        todoAddButton.isHidden = false
+       cleanupButton.isHidden = false
        todoAddButton.snp.remakeConstraints { make in
            make.top.equalTo(todoTableView.snp.bottom).offset(10)
            make.trailing.equalToSuperview().inset(20)
