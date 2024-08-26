@@ -19,7 +19,7 @@ final class OrganizationViewController: BaseViewController<OrganizationView>, Ba
         setupNavigationBar()
         contentView.delegate = self
         contentView.bind(with: viewModel)
-        viewModel.input.viewDidLoad.onNext(())
+        viewModel.input.fetchOrganizations.onNext(())
     }
     
     func setupNavigationBar() {

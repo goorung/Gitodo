@@ -28,7 +28,7 @@ final class RepositoryViewController: BaseViewController<RepositoryView>, BaseVi
         
         setupNavigationBar()
         contentView.bind(with: viewModel)
-        viewModel.input.viewDidLoad.onNext(())
+        viewModel.input.fetchRepositories.onNext(())
     }
     
     func setupNavigationBar() {
