@@ -9,70 +9,110 @@ import Foundation
 
 import GitodoShared
 
+enum APIError: Error {
+    case invalidURL
+    case noAccessToken
+    case invalidResponse(statusCode: Int)
+    case accessTokenExpired
+    case decodingError(Error)
+}
+
 final class APIManager {
     
-    static let shared = APIManager() // Singleton instance
+    static let shared = APIManager()
     private init() {}
     
     private let baseURL = "https://api.github.com"
     
-    private func fetchData<T: Codable>(from url: URL?) async throws -> T {
-        guard let url = url else {
-            throw URLError(.badURL)
+    private func createURL(endpoint: String, queryItems: [URLQueryItem] = []) -> URL? {
+        var components = URLComponents(string: baseURL + endpoint)
+        components?.queryItems = queryItems
+        return components?.url
+    }
+    
+    private func createRequest(url: URL) throws -> URLRequest {
+        guard let accessToken = KeychainManager.shared.read(key: "accessToken") else {
+            throw APIError.noAccessToken
         }
         
-        guard let accessToken = KeychainManager.shared.read(key: "accessToken") else {
-            throw URLError(.userAuthenticationRequired)
-        }
-            
         var request = URLRequest(url: url)
         request.addValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
         request.addValue("token \(accessToken)", forHTTPHeaderField: "Authorization")
-        
-        let (data, response) = try await URLSession.shared.data(for: request)
+        return request
+    }
+    
+    private func handleResponse<T: Codable>(_ data: Data, _ response: URLResponse) throws -> T {
         guard let httpResponse = response as? HTTPURLResponse else {
-            throw URLError(.badServerResponse)
+            throw APIError.invalidResponse(statusCode: 0)
         }
         
         switch httpResponse.statusCode {
         case 200:
             let decoder = JSONDecoder()
             decoder.keyDecodingStrategy = .convertFromSnakeCase
-            return try decoder.decode(T.self, from: data)
-        case 401: // 액세스 토큰 만료
+            do {
+                return try decoder.decode(T.self, from: data)
+            } catch {
+                throw APIError.decodingError(error)
+            }
+        case 401:
             NotificationCenter.default.post(name: .AccessTokenDidExpire, object: nil)
-            throw URLError(.userAuthenticationRequired)
+            throw APIError.accessTokenExpired
         default:
-            throw URLError(.badServerResponse)
+            throw APIError.invalidResponse(statusCode: httpResponse.statusCode)
         }
+    }
+    
+    private func fetchData<T: Codable>(
+        endpoint: String,
+        queryItems: [URLQueryItem] = []
+    ) async throws -> T {
+        guard let url = createURL(endpoint: endpoint, queryItems: queryItems) else {
+            throw APIError.invalidURL
+        }
+        
+        let request = try createRequest(url: url)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        return try handleResponse(data, response)
     }
     
     func fetchMe() async throws -> User {
-        let url = URL(string: "\(baseURL)/user")
-        return try await fetchData(from: url)
+        return try await fetchData(endpoint: "/user")
     }
     
-    func fetchOrganizations() async throws -> [Organization] {
-        let url = URL(string: "\(baseURL)/user/orgs?per_page=100")
-        return try await fetchData(from: url)
+    func fetchOrganizations(page: Int) async throws -> [Organization] {
+        return try await fetchData(
+            endpoint: "/user/orgs",
+            queryItems: [URLQueryItem(name: "page", value: String(page))]
+        )
     }
     
-    func fetchRepositories(for owner: String, type: RepositoryFetchType) async throws -> [Repository] {
-        var url: URL?
+    func fetchRepositories(
+        for owner: String,
+        type: RepositoryFetchType,
+        page: Int
+    ) async throws -> [Repository] {
+        let endpoint: String
         switch type {
         case .organization:
-            url = URL(string: "\(baseURL)/orgs/\(owner)/repos?per_page=100")
+            endpoint = "/orgs/\(owner)/repos"
         case .user:
-            url = URL(string: "\(baseURL)/users/\(owner)/repos?per_page=100")
+            endpoint = "/user/repos"
         }
-        return try await fetchData(from: url)
+        
+        let queryItems = [
+            URLQueryItem(name: "page", value: String(page)),
+            URLQueryItem(name: "type", value: type == .user ? "owner" : nil)
+        ].compactMap { $0 }
+        
+        return try await fetchData(endpoint: endpoint, queryItems: queryItems)
     }
     
-    func fetchIssues(for repo: MyRepo) async throws -> [Issue] {
-        let repoName = repo.name
-        let ownerName = repo.ownerName
-        let url = URL(string: "\(baseURL)/repos/\(ownerName)/\(repoName)/issues?per_page=100")
-        return try await fetchData(from: url)
+    func fetchIssues(for repo: MyRepo, page: Int) async throws -> [Issue] {
+        let endpoint = "/repos/\(repo.ownerName)/\(repo.name)/issues"
+        return try await fetchData(
+            endpoint: endpoint,
+            queryItems: [URLQueryItem(name: "page", value: String(page))]
+        )
     }
-    
 }

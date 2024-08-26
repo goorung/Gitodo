@@ -18,6 +18,7 @@ final class IssueViewModel: BaseViewModel {
     struct Input {
         let setCurrentRepo: AnyObserver<MyRepo>
         let fetchIssue: AnyObserver<Void>
+        let fetchMoreIssue: AnyObserver<Void>
     }
     
     struct Output {
@@ -33,21 +34,25 @@ final class IssueViewModel: BaseViewModel {
     let input: Input
     let output: Output
     
-    private let setCurrentRepoSubject = PublishSubject<MyRepo>()
-    private let fetchIssueSubject = PublishSubject<Void>()
+    private let setCurrentRepo = PublishSubject<MyRepo>()
+    private let fetchIssue = PublishSubject<Void>()
+    private let fetchMoreIssue = PublishSubject<Void>()
     
     private let issues = BehaviorRelay<[Issue]>(value: [])
     private let issueState = BehaviorRelay<IssueState>(value: .hasIssues)
-    private let isLoading = BehaviorRelay<Bool>(value: false)
+    private let isLoading = BehaviorRelay<Bool>(value: true)
     
     private var currentRepo: MyRepo?
+    private var currentPage = 1
+    private var fetchFlag = false
     
     // MARK: - Initializer
     
     init() {
         input = Input(
-            setCurrentRepo: setCurrentRepoSubject.asObserver(),
-            fetchIssue: fetchIssueSubject.asObserver()
+            setCurrentRepo: setCurrentRepo.asObserver(),
+            fetchIssue: fetchIssue.asObserver(),
+            fetchMoreIssue: fetchMoreIssue.asObserver()
         )
         
         output = Output(
@@ -60,52 +65,86 @@ final class IssueViewModel: BaseViewModel {
     }
     
     func bindInputs() {
-        setCurrentRepoSubject.subscribe(onNext: { [weak self] repo in
+        setCurrentRepo.subscribe(onNext: { [weak self] repo in
             self?.currentRepo = repo
-            self?.fetchIssue()
+            self?.fetchIssue(isInitialFetch: true)
         }).disposed(by: disposeBag)
         
-        fetchIssueSubject.subscribe(onNext: { [weak self] in
+        fetchIssue.subscribe(onNext: { [weak self] in
+            self?.fetchIssue(isInitialFetch: true)
+        }).disposed(by: disposeBag)
+        
+        fetchMoreIssue.subscribe(onNext: { [weak self] in
             self?.fetchIssue()
         }).disposed(by: disposeBag)
     }
     
-    private func fetchIssue() {
+    private func fetchIssue(isInitialFetch: Bool = false) {
         guard let repo = currentRepo else { return }
         if repo.isDeleted {
-            updateIssues(state: .repoDeleted)
+            updateIssuesWithError(state: .repoDeleted)
         } else {
-            handleActiveRepo(repo: repo)
+            handleActiveRepo(repo: repo, isInitialFetch: isInitialFetch)
         }
     }
     
-    private func handleActiveRepo(repo: MyRepo) {
-        isLoading.accept(true)
+    private func handleActiveRepo(repo: MyRepo, isInitialFetch: Bool) {
         Task {
             do {
-                let allIssues = try await APIManager.shared.fetchIssues(for: repo)
-                let issuesWithoutPR = allIssues.filter { $0.pullRequest == nil }
-                if issuesWithoutPR.isEmpty {
-                    updateIssues(with: issuesWithoutPR, state: .noIssues)
-                } else {
-                    updateIssues(with: issuesWithoutPR, state: .hasIssues)
+                if isInitialFetch {
+                    isLoading.accept(true)
+                    fetchFlag = false
+                    currentPage = 1
                 }
                 
+                if fetchFlag { return }
+                fetchFlag = true
+                
+                let allIssues = try await APIManager.shared.fetchIssues(
+                    for: repo,
+                    page: currentPage
+                )
+                let issuesWithoutPR = allIssues.filter { $0.pullRequest == nil }
+                
+                updateIssues(with: issuesWithoutPR, isInitialFetch: isInitialFetch)
+                
+                fetchFlag = false
+                currentPage += 1
             } catch let error as URLError {
                 print("[IssueViewModel] fetchIssue failed : \(error.localizedDescription)")
                 if error.code == .notConnectedToInternet {
-                    updateIssues(state: .noInternetConnection)
+                    updateIssuesWithError(state: .noInternetConnection)
                 } else {
-                    updateIssues(state: .error)
+                    updateIssuesWithError(state: .error)
                 }
             }
-            isLoading.accept(false)
+            if isInitialFetch {
+                isLoading.accept(false)
+            }
         }
     }
     
-    private func updateIssues(with issues: [Issue] = [], state: IssueState) {
-        self.issues.accept(issues)
-        self.issueState.accept(state)
+    private func updateIssues(
+        with issueList: [Issue] = [],
+        isInitialFetch: Bool = true
+    ) {
+        if isInitialFetch {
+            issues.accept(issueList)
+            issueList.isEmpty ?
+            issueState.accept(.noIssues) :
+            issueState.accept(.hasIssues)
+        } else if !isInitialFetch && issueList.isEmpty {
+            return
+        } else {
+            var updatedIssues = issues.value
+            updatedIssues.append(contentsOf: issueList)
+            issues.accept(updatedIssues)
+        }
+    }
+    
+    private func updateIssuesWithError(state: IssueState) {
+        issues.accept([])
+        issueState.accept(state)
     }
     
     func issue(at indexPath: IndexPath) -> Issue {

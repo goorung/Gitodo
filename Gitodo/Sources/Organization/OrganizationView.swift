@@ -92,6 +92,14 @@ final class OrganizationView: LoadableView {
                 let type: RepositoryFetchType = indexPath.row == 0 ? .user : .organization
                 delegate?.pushRepositoryViewController(for: owner, type: type)
             }).disposed(by: disposeBag)
+        
+        scrollView.rx.didScroll
+            .subscribe(onNext: { [weak self] in
+                guard let self else { return }
+                if scrollView.contentOffset.y > (scrollView.contentSize.height - scrollView.bounds.size.height) {
+                    viewModel?.input.fetchMoreOrganizations.onNext(())
+                }
+            }).disposed(by: disposeBag)
     }
     
     func bind(with viewModel: OrganizationViewModel) {

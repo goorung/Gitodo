@@ -59,10 +59,8 @@ class LoadableView: UIView {
     }
     
     func hideLoading() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-            self?.loadingIndicator.stopAnimating()
-            self?.loadingView.isHidden = true
-        }
+        loadingIndicator.stopAnimating()
+        loadingView.isHidden = true
     }
     
 }

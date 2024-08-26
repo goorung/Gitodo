@@ -15,7 +15,8 @@ import RxSwift
 final class OrganizationViewModel: BaseViewModel {
     
     struct Input {
-        let viewDidLoad: AnyObserver<Void>
+        let fetchOrganizations: AnyObserver<Void>
+        let fetchMoreOrganizations: AnyObserver<Void>
     }
     
     struct Output {
@@ -30,18 +31,22 @@ final class OrganizationViewModel: BaseViewModel {
     let input: Input
     let output: Output
     
-    private let viewDidLoad = PublishSubject<Void>()
+    private let fetchOrganizations = PublishSubject<Void>()
+    private let fetchMoreOrganizations = PublishSubject<Void>()
     
     private let organizations = BehaviorRelay<[Organization]>(value: [])
-    private let isLoading = BehaviorRelay<Bool>(value: false)
+    private let isLoading = BehaviorRelay<Bool>(value: true)
     
     private var me: String?
+    private var currentPage = 1
+    private var fetchFlag = false
     
     // MARK: - Initializer
     
     init() {
         input = Input(
-            viewDidLoad: viewDidLoad.asObserver()
+            fetchOrganizations: fetchOrganizations.asObserver(),
+            fetchMoreOrganizations: fetchMoreOrganizations.asObserver()
         )
         
         output = Output(
@@ -53,23 +58,44 @@ final class OrganizationViewModel: BaseViewModel {
     }
     
     func bindInputs() {
-        viewDidLoad.subscribe(onNext: { [weak self] in
+        fetchOrganizations.subscribe(onNext: { [weak self] in
+            self?.fetchOrganizations(isInitialFetch: true)
+        }).disposed(by: disposeBag)
+        
+        fetchMoreOrganizations.subscribe(onNext: { [weak self] in
             self?.fetchOrganizations()
         }).disposed(by: disposeBag)
     }
     
-    private func fetchOrganizations() {
-        isLoading.accept(true)
+    private func fetchOrganizations(isInitialFetch: Bool = false) {
         Task {
             do {
-                let me = try await APIManager.shared.fetchMe()
-                let fetchedOrganizations = try await APIManager.shared.fetchOrganizations()
-                let orgnizationList = [me.asOrganization()] + fetchedOrganizations
-                organizations.accept(orgnizationList)
+                if fetchFlag { return }
+                fetchFlag = true
+                
+                let fetchedOrganizations = try await APIManager.shared.fetchOrganizations(
+                    page: currentPage
+                )
+                if !isInitialFetch && fetchedOrganizations.isEmpty { return }
+                
+                if isInitialFetch {
+                    let me = try await APIManager.shared.fetchMe()
+                    let orgnizationList = [me.asOrganization()] + fetchedOrganizations
+                    organizations.accept(orgnizationList)
+                } else {
+                    var updatedOrganizations = organizations.value
+                    updatedOrganizations.append(contentsOf: fetchedOrganizations)
+                    organizations.accept(updatedOrganizations)
+                }
+                
+                fetchFlag = false
+                currentPage += 1
             } catch let error {
                 print("[OrganizationViewModel] fetchOrganizations failed : \(error)")
             }
-            isLoading.accept(false)
+            if isInitialFetch {
+                isLoading.accept(false)
+            }
         }
     }
     
