@@ -3,6 +3,12 @@
 
 <br>
 
+<a href="https://apps.apple.com/kr/app/gitodo/id6503249158" target="_blank">
+  <img width="180" alt="appstore" src="https://user-images.githubusercontent.com/55099365/196023806-5eb7be0f-c7cf-4661-bb39-35a15146c33a.png">
+</a>
+
+<br>
+
 ## 🔗 Dependencies
 
 |Use|Dependency|Version|
