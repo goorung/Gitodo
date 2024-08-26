@@ -13,12 +13,23 @@ import SnapKit
 import RxCocoa
 import RxSwift
 
+protocol MyRepoInfoViewDelegate: AnyObject {
+    func pushDeletionOptionViewController()
+}
+
 final class MyRepoInfoView: UIView {
     
-    private var viewModel: MyRepoInfoViewModel?
+    weak var delegate: MyRepoInfoViewDelegate?
+    private weak var viewModel: MyRepoInfoViewModel?
     private let disposeBag = DisposeBag()
     
     // MARK: - UI Components
+    
+    private lazy var containerView: UIScrollView = {
+        let view = UIScrollView()
+        view.isScrollEnabled = true
+        return view
+    }()
     
     private lazy var previewLabel: UILabel = {
         let label = createLabel(withText: "미리보기")
@@ -36,11 +47,7 @@ final class MyRepoInfoView: UIView {
         return label
     }()
     
-    private lazy var separator: UIView = {
-        let view = UIView()
-        view.backgroundColor = .systemGray5
-        return view
-    }()
+    private lazy var topSeparator: UIView = createSeparator()
     
     private lazy var nicknameTextField: UITextField = {
         let textField = createTextField()
@@ -69,6 +76,31 @@ final class MyRepoInfoView: UIView {
         return view
     }()
     
+    private lazy var optionTopSeparator: UIView = createSeparator()
+    
+    private lazy var settingLabel: UILabel = {
+        let label = createLabel(withText: "레포지토리 설정")
+        return label
+    }()
+    
+    private lazy var deletionOptionView: SelectedOptionView = {
+        let view = SelectedOptionView(title: "완료된 할 일 삭제", selectedOption: "")
+        view.isUserInteractionEnabled = true
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(deleteOptionViewTapped))
+        view.addGestureRecognizer(tapGestureRecognizer)
+        return view
+    }()
+    
+    @objc private func deleteOptionViewTapped() {
+        delegate?.pushDeletionOptionViewController()
+    }
+    
+    private lazy var hideOptionView = {
+        let view = ToggleOptionView(title: "완료된 할 일 숨기기", isSelected: false)
+        view.delegate = self
+        return view
+    }()
+    
     // MARK: - Initializer
     
     override init(frame: CGRect) {
@@ -85,60 +117,94 @@ final class MyRepoInfoView: UIView {
     // MARK: - Setup Methods
     
     private func setupLayout() {
-        addSubview(previewLabel)
-        previewLabel.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview().inset(20)
+        addSubview(containerView)
+        containerView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
         
-        addSubview(previewView)
+        containerView.addSubview(previewLabel)
+        previewLabel.snp.makeConstraints { make in
+            make.top.leading.trailing.equalToSuperview().inset(20)
+            make.centerX.equalToSuperview()
+            make.width.greaterThanOrEqualTo(300)
+        }
+        
+        containerView.addSubview(previewView)
         previewView.snp.makeConstraints { make in
-            make.top.equalTo(previewLabel.snp.bottom).offset(10)
+            make.top.equalTo(previewLabel.snp.bottom).offset(15)
             make.centerX.equalToSuperview()
             make.width.equalTo(60)
             make.height.equalTo(80)
         }
         
-        addSubview(separator)
-        separator.snp.makeConstraints { make in
+        containerView.addSubview(topSeparator)
+        topSeparator.snp.makeConstraints { make in
             make.top.equalTo(previewView.snp.bottom).offset(15)
             make.leading.trailing.equalToSuperview().inset(20)
             make.height.equalTo(1)
         }
         
-        addSubview(nicknamelabel)
+        containerView.addSubview(nicknamelabel)
         nicknamelabel.snp.makeConstraints { make in
-            make.top.equalTo(separator.snp.bottom).offset(15)
+            make.top.equalTo(topSeparator.snp.bottom).offset(15)
             make.leading.equalToSuperview().inset(20)
         }
         
-        addSubview(nicknameTextField)
+        containerView.addSubview(nicknameTextField)
         nicknameTextField.snp.makeConstraints { make in
             make.top.equalTo(nicknamelabel.snp.bottom).offset(10)
             make.leading.trailing.equalToSuperview().inset(20)
         }
         
-        addSubview(symbolLabel)
+        containerView.addSubview(symbolLabel)
         symbolLabel.snp.makeConstraints { make in
             make.top.equalTo(nicknameTextField.snp.bottom).offset(15)
             make.leading.equalToSuperview().inset(20)
         }
         
-        addSubview(symbolTextField)
+        containerView.addSubview(symbolTextField)
         symbolTextField.snp.makeConstraints { make in
             make.top.equalTo(symbolLabel.snp.bottom).offset(10)
             make.leading.trailing.equalToSuperview().inset(20)
         }
         
-        addSubview(colorLabel)
+        containerView.addSubview(colorLabel)
         colorLabel.snp.makeConstraints { make in
             make.top.equalTo(symbolTextField.snp.bottom).offset(15)
             make.leading.equalToSuperview().inset(20)
         }
         
-        addSubview(colorView)
+        containerView.addSubview(colorView)
         colorView.snp.makeConstraints { make in
             make.top.equalTo(colorLabel.snp.bottom).offset(10)
             make.leading.trailing.equalToSuperview().inset(20)
+        }
+        
+        containerView.addSubview(optionTopSeparator)
+        optionTopSeparator.snp.makeConstraints { make in
+            make.top.equalTo(colorView.snp.bottom).offset(25)
+            make.leading.trailing.equalToSuperview().inset(20)
+            make.height.equalTo(1)
+        }
+        
+        containerView.addSubview(settingLabel)
+        settingLabel.snp.makeConstraints { make in
+            make.top.equalTo(optionTopSeparator.snp.bottom).offset(15)
+            make.leading.equalToSuperview().inset(20)
+        }
+        
+        containerView.addSubview(deletionOptionView)
+        deletionOptionView.snp.makeConstraints { make in
+            make.top.equalTo(settingLabel.snp.bottom).offset(10)
+            make.horizontalEdges.equalToSuperview().inset(20)
+            make.height.equalTo(40)
+        }
+        
+        containerView.addSubview(hideOptionView)
+        hideOptionView.snp.makeConstraints { make in
+            make.top.equalTo(deletionOptionView.snp.bottom)
+            make.horizontalEdges.equalToSuperview().inset(20)
+            make.height.equalTo(40)
             make.bottom.equalToSuperview().inset(20)
         }
     }
@@ -183,15 +249,28 @@ final class MyRepoInfoView: UIView {
         nicknameTextField.text = viewModel.nickname
         symbolTextField.text = viewModel.symbol
         colorView.setInitialColor(viewModel.hexColor)
+        hideOptionView.setButtonColor(viewModel.hexColor)
+        hideOptionView.setStatus(viewModel.hideCompletedTasks)
+        deletionOptionView.setLabelText(viewModel.deletionOptionText)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         endEditing(true)
     }
     
+    func updateDeletionOption() {
+        deletionOptionView.setLabelText(viewModel?.deletionOptionText ?? "")
+    }
+    
 }
 
 extension MyRepoInfoView {
+    
+    private func createSeparator() -> UIView {
+        let view = UIView()
+        view.backgroundColor = .systemGray5
+        return view
+    }
     
     private func createLabel(withText text: String) -> UILabel {
         let label = UILabel()
@@ -215,7 +294,15 @@ extension MyRepoInfoView: PaletteColorDelegate {
     
     func selectColor(_ color: PaletteColor) {
         previewView.setColor(UIColor(hex: color.hex))
+        hideOptionView.setButtonColor(color.hex)
         viewModel?.hexColor = color.hex
+    }
+    
+}
+
+extension MyRepoInfoView: ToggleOptionViewProtocol {
+    func changeValue(_ value: Bool) {
+        viewModel?.hideCompletedTasks = value
     }
     
 }

@@ -47,7 +47,7 @@ final class LoginViewController: BaseViewController<LoginView> {
     @objc private func handleAccessTokenFetchDidEnd() {
         contentView.endLoading()
         DispatchQueue.main.async {
-            let mainViewModel = MainViewModel(localRepositoryService: LocalRepositoryService())
+            let mainViewModel = MainViewModel(localRepositoryService: LocalRepositoryService(), localTodoService: LocalTodoService())
             let mainViewController = MainViewController(viewModel: mainViewModel)
             self.view.window?.rootViewController = UINavigationController(rootViewController: mainViewController)
         }

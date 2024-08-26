@@ -33,6 +33,16 @@ final class PaletteColorView: UICollectionView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override var contentSize: CGSize {
+        didSet {
+            invalidateIntrinsicContentSize()
+        }
+    }
+    
+    override var intrinsicContentSize: CGSize {
+        return contentSize
+    }
+    
     // MARK: - Setup Methods
     
     private func setupProperty() {

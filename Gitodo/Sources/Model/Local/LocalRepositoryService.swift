@@ -29,10 +29,74 @@ final class LocalRepositoryService: LocalRepositoryServiceProtocol {
             let appGroupID = "group.com.goorung.Gitodo"
             let container = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)
             let realmURL = container?.appendingPathComponent("db.realm")
-            let config = Realm.Configuration(fileURL: realmURL)
+            let config = Realm.Configuration(
+                fileURL: realmURL,
+                schemaVersion: 1) { migration, oldSchemaVersion in
+                if oldSchemaVersion < 1 {
+                    migration.enumerateObjects(ofType: RepositoryEntity.className()) { _, newObject in
+                        guard let new = newObject else {return}
+
+                        new["deletionOption"] = "none"
+                        new["hideCompletedTasks"] = false
+                    }
+                }
+            }
             return try Realm(configuration: config)
         } catch {
             throw RealmError.initializationError(error)
+        }
+    }
+    
+    /// 완료된 항목 삭제 로직
+    func deleteTasksIfNeeded() throws {
+        let realm = try initializeRealm()
+        
+        let repositoriesToProcess = realm.objects(RepositoryEntity.self)
+            .filter {
+                let deletionOption = DeletionOption(rawValue: $0.deletionOption)
+                return deletionOption.id == 2 || deletionOption.id == 3
+            }
+        
+        for repo in repositoriesToProcess {
+            if let deletionTime = calculateDeletionTime(for: DeletionOption(rawValue: repo.deletionOption)) {
+                let todosToDelete = repo.todos.filter { $0.isComplete && $0.updatedAt <= deletionTime }
+                do {
+                    try realm.write {
+                        realm.delete(todosToDelete)
+                    }
+                }
+                catch {
+                    throw RealmError.deleteError(error)
+                }
+            }
+        }
+    }
+    
+    ///  삭제 시간 계산
+    private func calculateDeletionTime(for option: DeletionOption) -> Date? {
+        let now = Date()
+        let calendar = Calendar.current
+        
+        switch option {
+        case .scheduledDaily(let hour, let minute):
+            var components = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: now)
+            components.hour = hour
+            components.minute = minute
+            if let deletionTime = calendar.date(from: components), now < deletionTime {
+                return calendar.date(byAdding: .day, value: -1, to: deletionTime)
+            }
+            return calendar.date(from: components)
+        case .afterDuration(let duration):
+            switch duration {
+            case .hours(let hours):
+                return calendar.date(byAdding: .hour, value: -hours, to: now)
+            case .days(let days):
+                return calendar.date(byAdding: .day, value: -days, to: now)
+            case .weeks(let weeks):
+                return calendar.date(byAdding: .day, value: -weeks * 7, to: now)
+            }
+        default:
+            return nil
         }
     }
     
@@ -47,7 +111,7 @@ final class LocalRepositoryService: LocalRepositoryServiceProtocol {
         return repositoryEntities.map { $0.toDomain() }
     }
     
-    /// 레포지토리 정보(nickname, symbol, hexColor)를 업데이트.
+    /// 레포지토리 정보(nickname, symbol, hexColor, deletionOption, hideCompletedTasks)를 업데이트.
     func updateInfo(of repo: MyRepo) throws {
         let realm = try initializeRealm()
         guard let repositoryEntity = realm.object(ofType: RepositoryEntity.self, forPrimaryKey: repo.id) else {
@@ -58,6 +122,8 @@ final class LocalRepositoryService: LocalRepositoryServiceProtocol {
                 repositoryEntity.nickname = repo.nickname
                 repositoryEntity.symbol = repo.symbol
                 repositoryEntity.hexColor = Int(repo.hexColor)
+                repositoryEntity.hideCompletedTasks = repo.hideCompletedTasks
+                repositoryEntity.deletionOption = repo.deletionOption.rawValue
             }
         } catch {
             throw RealmError.updateError(error)

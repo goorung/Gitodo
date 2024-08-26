@@ -24,7 +24,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         Toaster.shared.setToastType(.round)
         
         if UserDefaultsManager.isLogin {
-            let mainViewModel = MainViewModel(localRepositoryService: LocalRepositoryService())
+            
+            deleteTasksIfNeeded()
+            
+            let mainViewModel = MainViewModel(localRepositoryService: LocalRepositoryService(), localTodoService: LocalTodoService())
             let mainViewController = MainViewController(viewModel: mainViewModel)
             window?.rootViewController = UINavigationController(rootViewController: mainViewController)
         } else {
@@ -32,6 +35,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
         
         window?.makeKeyAndVisible()
+    }
+    
+    private func deleteTasksIfNeeded() {
+        let localRepositoryService = LocalRepositoryService()
+        try? localRepositoryService.deleteTasksIfNeeded()
     }
     
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {

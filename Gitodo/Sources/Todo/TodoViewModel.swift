@@ -24,6 +24,7 @@ final class TodoViewModel: BaseViewModel {
         let appendTodo: AnyObserver<Void>
         let toggleTodo: AnyObserver<UUID>
         let deleteTodo: AnyObserver<UUID>
+        let refreshTodo: AnyObserver<Void>
     }
     
     struct Output {
@@ -43,6 +44,7 @@ final class TodoViewModel: BaseViewModel {
     private let appendTodoSubject = PublishSubject<Void>()
     private let toggleTodoSubject = PublishSubject<UUID>()
     private let deleteTodoSubject = PublishSubject<UUID>()
+    private let refreshTodoSubject = PublishSubject<Void>()
     
     private var todos = BehaviorRelay<[TodoCellViewModel]>(value: [])
     private var makeFirstResponder = PublishRelay<IndexPath?>()
@@ -64,7 +66,8 @@ final class TodoViewModel: BaseViewModel {
             fetchTodo: fetchTodoSubject.asObserver(),
             appendTodo: appendTodoSubject.asObserver(),
             toggleTodo: toggleTodoSubject.asObserver(),
-            deleteTodo: deleteTodoSubject.asObserver()
+            deleteTodo: deleteTodoSubject.asObserver(), 
+            refreshTodo: refreshTodoSubject.asObserver()
         )
         output = Output(
             todos: todos
@@ -98,12 +101,21 @@ final class TodoViewModel: BaseViewModel {
         deleteTodoSubject.subscribe(onNext: { [weak self] id in
             self?.deleteTodo(with: id)
         }).disposed(by: disposeBag)
+        
+        refreshTodoSubject.subscribe(onNext: { [weak self] in
+            self?.fetchTodos()
+        }).disposed(by: disposeBag)
     }
     
     private func fetchTodos() {
         guard let repo = selectedRepo else { return }
         do {
-            let todos = try localTodoService.fetchAll(in: repo.id)
+            let todos: [TodoItem]
+            if repo.hideCompletedTasks {
+                todos = try localTodoService.fetchUncompleted(in: repo.id)
+            } else {
+                todos = try localTodoService.fetchAll(in: repo.id)
+            }
             
             let viewModels = todos
                 .map { (todoItem) -> TodoCellViewModel in

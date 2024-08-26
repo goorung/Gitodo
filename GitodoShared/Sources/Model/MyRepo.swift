@@ -16,10 +16,12 @@ public struct MyRepo: Identifiable {
     public var symbol: String?
     public var hexColor: UInt
     public var todos: [TodoItem] = []
-    public var isPublic: Bool = false // 메인 뷰에서 공개적으로 보여질지 여부
-    public var isDeleted: Bool = false // 원격에서 삭제되었는지 여부
+    public var isPublic: Bool // 메인 뷰에서 공개적으로 보여질지 여부
+    public var isDeleted: Bool // 원격에서 삭제되었는지 여부
+    public var hideCompletedTasks: Bool
+    public var deletionOption: DeletionOption
     
-    public init(id: Int, name: String, fullName: String, ownerName: String, nickname: String, symbol: String? = nil, hexColor: UInt, todos: [TodoItem] = [], isPublic: Bool = false , isDeleted: Bool = false) {
+    public init(id: Int, name: String, fullName: String, ownerName: String, nickname: String, symbol: String? = nil, hexColor: UInt, todos: [TodoItem] = [], isPublic: Bool = false , isDeleted: Bool = false, hideCompletedTasks: Bool = false, deletionOption: DeletionOption = .none) {
         self.id = id
         self.name = name
         self.fullName = fullName
@@ -30,6 +32,8 @@ public struct MyRepo: Identifiable {
         self.todos = todos
         self.isPublic = isPublic
         self.isDeleted = isDeleted
+        self.hideCompletedTasks = hideCompletedTasks
+        self.deletionOption = deletionOption
     }
     
     public static func == (lhs: MyRepo, rhs: MyRepo) -> Bool {

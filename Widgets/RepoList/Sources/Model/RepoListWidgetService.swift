@@ -23,7 +23,18 @@ final class RepoListWidgetService: RepoListWidgetServiceProtocol {
             let appGroupID = "group.com.goorung.Gitodo"
             let container = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)
             let realmURL = container?.appendingPathComponent("db.realm")
-            let config = Realm.Configuration(fileURL: realmURL)
+            let config = Realm.Configuration(
+                fileURL: realmURL,
+                schemaVersion: 1) { migration, oldSchemaVersion in
+                if oldSchemaVersion < 1 {
+                    migration.enumerateObjects(ofType: RepositoryEntity.className()) { _, newObject in
+                        guard let new = newObject else {return}
+
+                        new["deletionOption"] = "none"
+                        new["hideCompletedTasks"] = false
+                    }
+                }
+            }
             return try Realm(configuration: config)
         } catch {
             throw RealmError.initializationError(error)

@@ -13,8 +13,12 @@ import RxCocoa
 import RxSwift
 import SnapKit
 
+protocol TodoViewDelegate: AnyObject {
+    func showMenu(from button: UIButton)
+}
+
 final class TodoView: UIView {
-    
+    weak var delegate: TodoViewDelegate?
     private var viewModel: TodoViewModel?
     private var todoDataSource: UITableViewDiffableDataSource<TodoSection, TodoIdentifierItem>?
     private let disposeBag = DisposeBag()
@@ -32,12 +36,25 @@ final class TodoView: UIView {
         return view
     }()
     
+    private lazy var cleanupButton = {
+        let button = UIButton()
+        button.tintAdjustmentMode = .normal
+        button.setImage(UIImage(systemName: "wand.and.stars", withConfiguration: UIImage.SymbolConfiguration(weight: .bold)), for: .normal)
+        button.setImage(UIImage(systemName: "wand.and.stars", withConfiguration: UIImage.SymbolConfiguration(weight: .bold)), for: .highlighted)
+        button.setTitle("  정리", for: .normal)
+        button.titleLabel?.font = .title3
+        button.tintColor = .init(hex: PaletteColor.blue1.hex)
+        button.setTitleColor(.init(hex: PaletteColor.blue1.hex), for: .normal)
+        button.addTarget(self, action: #selector(cleanupButtonTapped), for: .touchUpInside)
+        return button
+    }()
+    
     private lazy var todoAddButton = {
         let button = UIButton()
         button.tintAdjustmentMode = .normal
         button.setImage(UIImage(systemName: "plus.circle.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), for: .normal)
         button.setImage(UIImage(systemName: "plus.circle.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), for: .highlighted)
-        button.setTitle(" 할 일 추가", for: .normal)
+        button.setTitle("  할 일 추가", for: .normal)
         button.titleLabel?.font = .title3
         button.tintColor = .init(hex: PaletteColor.blue1.hex)
         button.setTitleColor(.init(hex: PaletteColor.blue1.hex), for: .normal)
@@ -86,6 +103,12 @@ final class TodoView: UIView {
         todoAddButton.snp.makeConstraints { make in
             make.top.equalTo(todoTableView.snp.bottom).offset(10)
             make.trailing.equalToSuperview().inset(20)
+            make.bottom.equalToSuperview().inset(10)
+        }
+        addSubview(cleanupButton)
+        cleanupButton.snp.makeConstraints { make in
+            make.top.equalTo(todoTableView.snp.bottom).offset(10)
+            make.leading.equalToSuperview().inset(20)
             make.bottom.equalToSuperview().inset(10)
         }
         
@@ -148,6 +171,10 @@ final class TodoView: UIView {
         viewModel?.input.appendTodo.onNext(())
     }
     
+    @objc private func cleanupButtonTapped() {
+        delegate?.showMenu(from: cleanupButton)
+    }
+    
     // MARK: - Bind
     
     func bind(with viewModel: TodoViewModel) {
@@ -187,9 +214,11 @@ final class TodoView: UIView {
         todoDataSource?.apply(snapshot, animatingDifferences: false)
     }
     
-    func setAddButtonTintColor(_ color: UIColor) {
+    func setButtonsTintColor(_ color: UIColor) {
         todoAddButton.setTitleColor(color, for: .normal)
         todoAddButton.tintColor = color
+        cleanupButton.setTitleColor(color, for: .normal)
+        cleanupButton.tintColor = color
     }
     
 }

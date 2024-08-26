@@ -21,7 +21,7 @@ protocol MainViewDelegate: AnyObject {
 final class MainView: UIView {
     
     weak var delegate: MainViewDelegate?
-    private var viewModel: MainViewModel?
+    private weak var viewModel: MainViewModel?
     private let todoViewModel = TodoViewModel(localTodoService: LocalTodoService())
     private let issueViewModel = IssueViewModel()
     private let disposeBag = DisposeBag()
@@ -143,6 +143,10 @@ final class MainView: UIView {
         issueView.delegate = delegate
     }
     
+    func setTodoDelegate(_ delegate: TodoViewDelegate) {
+        todoView.delegate = delegate
+    }
+    
     // MARK: - Bind
     
     private func bind() {
@@ -183,11 +187,16 @@ final class MainView: UIView {
                 
                 let color = UIColor(hex: repo.hexColor)
                 setSegmentedControlTintColor(color)
-                todoView.setAddButtonTintColor(color)
+                todoView.setButtonsTintColor(color)
                 
                 todoViewModel.input.fetchTodo.onNext(repo)
                 issueViewModel.input.setCurrentRepo.onNext(repo)
             }.disposed(by: disposeBag)
+        
+        viewModel.output.refreshTodo
+            .drive(onNext: { [weak self] in
+                self?.todoViewModel.input.refreshTodo.onNext(())
+            }).disposed(by: disposeBag)
     }
     
     private func setSegmentedControlTintColor(_ color: UIColor) {

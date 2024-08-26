@@ -21,6 +21,8 @@ public class RepositoryEntity: Object {
     @Persisted public var isPublic: Bool = false
     @Persisted public var isDeleted: Bool = false
     @Persisted public var order: Int = 0
+    @Persisted public var hideCompletedTasks: Bool = false
+    @Persisted public var deletionOption: String
     
     public convenience init(_ repository: MyRepo) {
         self.init()
@@ -37,6 +39,8 @@ public class RepositoryEntity: Object {
         todos = realmTodoList
         isPublic = repository.isPublic
         isDeleted = repository.isDeleted
+        hideCompletedTasks = repository.hideCompletedTasks
+        deletionOption = repository.deletionOption.rawValue
     }
 }
 
@@ -52,7 +56,9 @@ public extension RepositoryEntity {
             hexColor: UInt(hexColor),
             todos: todos.map{ $0.toDomain() },
             isPublic: isPublic,
-            isDeleted: isDeleted
+            isDeleted: isDeleted,
+            hideCompletedTasks: hideCompletedTasks,
+            deletionOption: DeletionOption(rawValue: deletionOption)
         )
     }
 }

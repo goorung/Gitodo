@@ -20,7 +20,7 @@ protocol RepositorySettingsDelegate: AnyObject {
 final class RepositorySettingsView: UIView {
     
     weak var delegate: RepositorySettingsDelegate?
-    private var viewModel: RepositorySettingsViewModel?
+    private weak var viewModel: RepositorySettingsViewModel?
     private let disposeBag = DisposeBag()
     
     private let heightForRow: CGFloat = 50.0
