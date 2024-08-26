@@ -20,7 +20,7 @@ protocol OrganizationViewDelegate: AnyObject {
 final class OrganizationView: LoadableView {
     
     weak var delegate: OrganizationViewDelegate?
-    private var viewModel: OrganizationViewModel?
+    private weak var viewModel: OrganizationViewModel?
     private let disposeBag = DisposeBag()
     
     private let heightForRow: CGFloat = 60.0

@@ -13,9 +13,14 @@ import SnapKit
 import RxCocoa
 import RxSwift
 
+protocol MyRepoInfoViewDelegate: AnyObject {
+    func pushDeletionOptionViewController()
+}
+
 final class MyRepoInfoView: UIView {
     
-    private var viewModel: MyRepoInfoViewModel?
+    weak var delegate: MyRepoInfoViewDelegate?
+    private weak var viewModel: MyRepoInfoViewModel?
     private let disposeBag = DisposeBag()
     
     // MARK: - UI Components
@@ -78,7 +83,17 @@ final class MyRepoInfoView: UIView {
         return label
     }()
     
-    private lazy var deleteOptionView = SelectedOptionView(title: "완료된 할 일 자동 삭제", selectedOption: "3시간 후")
+    private lazy var deletionOptionView: SelectedOptionView = {
+        let view = SelectedOptionView(title: "완료된 할 일 삭제", selectedOption: "")
+        view.isUserInteractionEnabled = true
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(deleteOptionViewTapped))
+        view.addGestureRecognizer(tapGestureRecognizer)
+        return view
+    }()
+    
+    @objc private func deleteOptionViewTapped() {
+        delegate?.pushDeletionOptionViewController()
+    }
     
     private lazy var hideOptionView = {
         let view = ToggleOptionView(title: "완료된 할 일 숨기기", isSelected: false)
@@ -178,18 +193,18 @@ final class MyRepoInfoView: UIView {
             make.leading.equalToSuperview().inset(20)
         }
         
-        containerView.addSubview(deleteOptionView)
-        deleteOptionView.snp.makeConstraints { make in
+        containerView.addSubview(deletionOptionView)
+        deletionOptionView.snp.makeConstraints { make in
             make.top.equalTo(settingLabel.snp.bottom).offset(10)
             make.horizontalEdges.equalToSuperview().inset(20)
-            make.height.equalTo(42)
+            make.height.equalTo(40)
         }
         
         containerView.addSubview(hideOptionView)
         hideOptionView.snp.makeConstraints { make in
-            make.top.equalTo(deleteOptionView.snp.bottom)
+            make.top.equalTo(deletionOptionView.snp.bottom)
             make.horizontalEdges.equalToSuperview().inset(20)
-            make.height.equalTo(42)
+            make.height.equalTo(40)
             make.bottom.equalToSuperview().inset(20)
         }
     }
@@ -236,10 +251,15 @@ final class MyRepoInfoView: UIView {
         colorView.setInitialColor(viewModel.hexColor)
         hideOptionView.setButtonColor(viewModel.hexColor)
         hideOptionView.setStatus(viewModel.hideCompletedTasks)
+        deletionOptionView.setLabelText(viewModel.deletionOptionText)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         endEditing(true)
+    }
+    
+    func updateDeletionOption() {
+        deletionOptionView.setLabelText(viewModel?.deletionOptionText ?? "")
     }
     
 }

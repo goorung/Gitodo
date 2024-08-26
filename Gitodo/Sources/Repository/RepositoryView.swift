@@ -13,7 +13,7 @@ import SnapKit
 
 final class RepositoryView: LoadableView {
     
-    private var viewModel: RepositoryViewModel?
+    private weak var viewModel: RepositoryViewModel?
     private let disposeBag = DisposeBag()
     
     private let heightForRow: CGFloat = 44.0
